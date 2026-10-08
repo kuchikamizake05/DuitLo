@@ -13,7 +13,7 @@ export function LanguageSwitcher({ compact = false, detailed = false, className 
 
   return (
     <div
-      className={`${detailed ? "grid w-full gap-1 rounded-xl" : "inline-flex items-center gap-1 rounded-full"} border border-[color:rgba(18,53,36,0.14)] bg-white/85 p-1 shadow-sm ${className}`}
+      className={`${detailed ? "grid w-full gap-1 rounded-xl" : "inline-flex items-center gap-1 rounded-full"} border border-[color:rgba(18,53,36,0.14)] bg-[var(--surface-muted)] p-1 shadow-sm ${className}`}
       role="group"
       aria-label={t("Pilih bahasa")}
     >
@@ -29,8 +29,8 @@ export function LanguageSwitcher({ compact = false, detailed = false, className 
             aria-label={choice.code === "id" ? t("Indonesia") : t("Inggris")}
             className={`${detailed ? "w-full rounded-lg px-3 text-left" : "rounded-full px-2.5"} min-h-8 text-[11px] font-black tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] ${
               active
-                ? "bg-[var(--brand-ink)] text-[var(--brand-lime)]"
-                : "text-[color:rgba(18,53,36,0.58)] hover:bg-[var(--brand-mint)] hover:text-[var(--brand-ink)]"
+                ? "bg-[var(--brand-primary)] text-white"
+                : "text-[var(--ink-soft)] hover:bg-[var(--brand-mint)] hover:text-[var(--brand-ink)]"
             }`}
           >
             {choice.label}

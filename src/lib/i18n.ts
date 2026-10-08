@@ -1,3 +1,4 @@
+import referenceEnglish from "./reference-en.json";
 export const SUPPORTED_LANGUAGES = ["id", "en"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
@@ -5,6 +6,39 @@ export const DEFAULT_LANGUAGE: Language = "id";
 export const LANGUAGE_STORAGE_KEY = "fintrack-language";
 
 const englishTranslations: Record<string, string> = {
+  "Kategori Makanan": "Food category",
+  "Bank & e-wallet": "Bank & e-wallet",
+  "Antar akun": "Between accounts",
+  "Laporan": "Reports",
+  "Aktivitas": "Activity",
+  "Lihat": "View",
+  "Navigasi desktop": "Desktop navigation",
+  "Target Tabungan": "Savings goals",
+  "Tambah target": "Add goal",
+  "Nama target": "Goal name",
+  "Mulai Target Tabungan": "Start a savings goal",
+  "Total Akumulasi Target": "Total saved towards goals",
+  "Target Aktif": "Active goals",
+  "Ekspor transaksi sesuai periode dan filter ke CSV.": "Export transactions for the selected period and filters to CSV.",
+  "Unduh Riwayat Transaksi": "Download transaction history",
+  "Lihat ringkasan keuangan dan ekspor laporan bulanan.": "View your finances and export monthly reports.",
+  "Unduh Laporan Keuangan": "Download financial report",
+  "Total pengeluaran": "Total expenses",
+  "Jenis diagram": "Chart type",
+  "Batang": "Bars",
+  "Donat": "Donut",
+  "Gelap": "Dark",
+  "Terang": "Light",
+  "Tema aplikasi": "App theme",
+  "Pilih tema yang nyaman untukmu.": "Choose a theme that feels comfortable.",
+  "Tampilan aplikasi": "Appearance",
+  "Pantau aset dan pertumbuhannya": "Track your assets and growth",
+  "Portofolio & Investasi": "Portfolio & investments",
+  "Kelola Limit": "Manage budget",
+  "Tambah Akun": "Add account",
+  "Transfer Saldo": "Transfer funds",
+  "Ringkasan Analisis Finansial Siap": "Your financial overview is ready",
+  "Total Saldo Semua Akun": "Total balance across accounts",
   "Lihat perkembangan uangmu, dari pengeluaran hari ini sampai rencana berikutnya.": "See your money clearly, from today's spending to your next plan.",
   "Data ilustrasi · Coba pilih ringkasan di atas": "Illustrative data · Try a summary above",
   "Waktu tenang untuk meninjau keuangan pribadi": "A quiet moment to review personal finances",
@@ -1329,8 +1363,20 @@ const englishTranslations: Record<string, string> = {
   "Coba sambungkan lagi": "Try reconnecting",
 };
 
+const englishCaseFolded = new Map(Object.entries({...referenceEnglish,...englishTranslations}).map(([key,value])=>[key.trim().toLowerCase(),value]));
+
 export function isSupportedLanguage(value: unknown): value is Language {
   return typeof value === "string" && SUPPORTED_LANGUAGES.includes(value as Language);
+}
+
+function translateDynamicEnglish(source:string) {
+ const share=source.match(/^(.+) mencakup ([\d.,]+)% dari pengeluaran\.$/);
+ if(share)return `${share[1]} accounts for ${share[2]}% of expenses.`;
+ const change=source.match(/^Pengeluaran (naik|turun) ([\d.,]+)% dibanding (.+)\.$/);
+ if(change)return `Expenses ${change[1]==="naik"?"increased":"decreased"} ${change[2]}% compared with ${change[3]}.`;
+ const pending=source.match(/^(\d+) transaksi masih menunggu peninjauan\.$/);
+ if(pending)return `${pending[1]} transactions still need review.`;
+ return source;
 }
 
 export function getTranslation(
@@ -1338,7 +1384,7 @@ export function getTranslation(
   source: string,
   values: Record<string, string | number> = {},
 ) {
-  const template = language === "en" ? englishTranslations[source] ?? source : source;
+  const template = language === "en" ? englishTranslations[source] ?? referenceEnglish[source as keyof typeof referenceEnglish] ?? englishCaseFolded.get(source.trim().toLowerCase()) ?? translateDynamicEnglish(source) : source;
   return template.replace(/\{(\w+)\}/g, (placeholder, key: string) =>
     Object.hasOwn(values, key) ? String(values[key]) : placeholder,
   );

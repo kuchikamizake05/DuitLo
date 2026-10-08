@@ -95,3 +95,9 @@ describe("Groq structured insight contract", () => {
     expect(mapGroqFailure(500)).toEqual({ status: 502, message: "AI belum bisa menyusun insight." });
   });
 });
+
+it("requests English insights only for a supported language",()=>{
+ expect(insightRequestSchema.safeParse({...payload,language:"en"}).success).toBe(true);
+ expect(insightRequestSchema.safeParse({...payload,language:"fr"}).success).toBe(false);
+ expect(buildGroqInsightRequest({...payload,language:"en"},"test-model").messages[0].content).toContain("All response text must be in English");
+});

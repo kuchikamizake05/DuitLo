@@ -22,6 +22,7 @@ const candidateActionSchema = z.object({
 
 export const insightRequestSchema = z.object({
   version: z.literal(1),
+  language: z.enum(["id","en"]).optional(),
   periodLabel: z.string().trim().min(1).max(40),
   previousPeriodLabel: z.string().trim().min(1).max(40),
   metrics: z.object({
@@ -143,7 +144,7 @@ export function buildGroqInsightRequest(payload: InsightApiRequest, model: strin
       {
         role: "system",
         content: [
-          "Kamu membantu menjelaskan snapshot keuangan pribadi dalam Bahasa Indonesia yang tenang dan ringkas.",
+          payload.language === "en" ? "Explain the personal finance snapshot in clear, concise English. All response text must be in English." : "Kamu membantu menjelaskan snapshot keuangan pribadi dalam Bahasa Indonesia yang tenang dan ringkas.",
           "Gunakan hanya angka dan fakta yang diberikan. Jangan menghitung atau menciptakan nilai moneter baru.",
           "Jangan memberi saran investasi, pajak, hukum, pinjaman, atau prediksi masa depan.",
           "Pilih tindakan hanya dari candidateActions dan pertahankan candidateId yang sama.",

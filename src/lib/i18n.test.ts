@@ -50,3 +50,16 @@ describe("i18n", () => {
     expect(getTranslation("en", "Halo, {name}")).toBe("Hello, {name}");
   });
 });
+
+describe("reference page English copy",()=>{
+ it("translates form labels, placeholders, and casing variants",()=>{
+ expect(getTranslation("en","KODE / SIMBOL ASET")).toBe("ASSET CODE / SYMBOL");
+ expect(getTranslation("en","Cari transaksi, toko, rekening...")).toBe("Search transactions, merchants, accounts...");
+ expect(getTranslation("en","MEMUAT DATA")).toBe("Loading data");
+ expect(getTranslation("id","MEMUAT DATA")).toBe("MEMUAT DATA");
+ });
+ it("localizes deterministic observations without altering user category names",()=>{
+ expect(getTranslation("en","My category mencakup 52% dari pengeluaran.")).toBe("My category accounts for 52% of expenses.");
+ expect(getTranslation("en","Pengeluaran naik 6% dibanding September 2026.")).toBe("Expenses increased 6% compared with September 2026.");
+ });
+});
