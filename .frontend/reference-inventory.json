@@ -1,0 +1,2666 @@
+{
+  "aktivitas": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full gap-space-lg",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col gap-space-md",
+        "text": "Aktivitas Lacak & kelola arus kas harian calendar_month Okt 2026 keyboard_arrow_down search close tune"
+      },
+      {
+        "index": 1,
+        "class": "bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md",
+        "text": "Kalender Transaksi 31 Hari chevron_left chevron_right SEN SEL RAB KAM JUM SAB MIN 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Pemasukan Pengeluaran 12 Terpilih"
+      },
+      {
+        "index": 2,
+        "class": "flex flex-col gap-space-sm",
+        "text": "Ringkasan 12 Okt 2026 Hari Ini Pemasukan arrow_downward Rp 0 Tidak ada arus masuk Pengeluaran arrow_upward Rp 250.000 1 Transaksi dicatat"
+      },
+      {
+        "index": 3,
+        "class": "flex items-center gap-2 overflow-x-auto no-scrollbar -mx-margin px-margin py-0.5",
+        "text": "Semua Transaksi Pengeluaran Pemasukan Kategori keyboard_arrow_down Rekening: BCA check"
+      },
+      {
+        "index": 4,
+        "class": "flex flex-col gap-space-lg",
+        "text": "Hari ini (12 Okt 2026) Total -Rp 250.000 local_gas_station Isi Bensin Pertamax Bank BCA • 14:20 Berhasil -Rp 250.000 Transportasi restaurant Makan Siang & Es Kopi GoPay Harian • 12:45 -Rp 42.000 Kuliner Kemarin (11 Okt 2026) Total +Rp 2.315"
+      },
+      {
+        "index": 5,
+        "class": "bg-gradient-to-br from-surface-container to-secondary-container/40 rounded-2xl p-space-lg flex items-center justify-between gap-space-md",
+        "text": "Unduh Riwayat Transaksi Ekspor transaksi sesuai periode dan filter ke PDF atau Excel. download Unduh"
+      }
+    ],
+    "fields": [
+      {
+        "id": "searchInput",
+        "name": null,
+        "type": "text",
+        "placeholder": "Cari transaksi, toko, rekening...",
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": "monthDropdownBtn",
+        "action": null,
+        "text": "calendar_month Okt 2026 keyboard_arrow_down"
+      },
+      {
+        "id": "clearSearch",
+        "action": null,
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "tune"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "chevron_left"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "chevron_right"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Semua Transaksi"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Pengeluaran"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Pemasukan"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Kategori keyboard_arrow_down"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Rekening: BCA check"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "download Unduh"
+      }
+    ]
+  },
+  "anggaran": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full gap-space-lg pb-10",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col gap-space-md",
+        "text": "Kelola Anggaran Beri tujuan jelas pada setiap rupiah add Tambah chevron_left calendar_month Oktober 2026 expand_more chevron_right"
+      },
+      {
+        "index": 1,
+        "class": "calm-forest-card relative overflow-hidden rounded-lg bg-gradient-to-br from-[#0B2A1D] to-[#123524] text-white p-space-lg shadow-[0_8px_28px_-6px_rgba(11,42,29,0.35)]",
+        "text": "Batas Anggaran Bulanan Berbasis Kategori Rp 7.550.000 savings Rp 3.872.000 tersisa bulan ini Terpakai: Rp 3.678.000 (49%) 19 hari tersisa timelapse Hari ke-12 dari 31 hari periode berjalan Rasio Stabil"
+      },
+      {
+        "index": 2,
+        "class": "relative overflow-hidden rounded-lg bg-error-container/60 p-space-md shadow-sm",
+        "text": "warning Perhatian Krusial 97% Terpakai Tagihan & Utilitas hampir melampaui batas yang ditetapkan Tersisa Rp 75.000 dari total pagu Rp 2.500.000. Sesuaikan Batas Abaikan"
+      },
+      {
+        "index": 3,
+        "class": "flex flex-col gap-space-md",
+        "text": "Daftar Anggaran Kategori 6 Pos Urutkan swap_vert receipt_long Tagihan & Utilitas Listrik, Wi-Fi, Air PDAM Mendekati Batas Realisasi Rp 2.425.000 Batas Anggaran Rp 2.500.000 97% terpakai (Sisa Rp 75.000) Edit Detail restaurant Makanan & Minu"
+      },
+      {
+        "index": 4,
+        "class": "rounded-lg bg-surface-container-low p-space-lg flex items-start gap-space-md",
+        "text": "lightbulb Tips Disiplin Anggaran Pagu kategori yang belum terpakai dapat dialihkan untuk menutup lonjakan Tagihan Utilitas tanpa menambah beban total bulanan. Pelajari Aturan 50/30/20 arrow_forward"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": null,
+        "text": "add Tambah"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "chevron_left"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "chevron_right"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Sesuaikan Batas"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Abaikan"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Urutkan swap_vert"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Edit"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Detail"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Edit"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Detail"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Edit"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Detail"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Edit"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Detail"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Edit"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Detail"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Edit"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Detail"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Pelajari Aturan 50/30/20 arrow_forward"
+      }
+    ]
+  },
+  "beranda": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full gap-space-lg",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex items-center justify-between pt-1",
+        "text": "Halo, Faaid 👋 calendar_month Okt 2026 expand_more"
+      },
+      {
+        "index": 1,
+        "class": "w-full rounded-[24px] overflow-hidden bg-surface-container-lowest shadow-[0_10px_30px_-4px_rgba(18,53,36,0.12)] border border-[#123524]/5 flex flex-col",
+        "text": "Total Saldo Semua Akun visibility Rp 24.850.000 Rp •••••••••• trending_up +Rp 50.000 minggu ini arrow_downward Pemasukan Rp 13.650.000 arrow_upward Pengeluaran Rp 2.663.000 Arus kas bersih +Rp 10.987.000"
+      },
+      {
+        "index": 2,
+        "class": "analysis-banner hover:shadow-md group flex items-center justify-between p-3.5 px-4 rounded-[22px] bg-surface-container-lowest shadow-[0_4px_16px_rgba(18,53,36,0.03)] cursor-pointer transition-all active:scale-[0.99]",
+        "text": "auto_awesome Ringkasan Analisis Finansial Siap Lihat chevron_right"
+      },
+      {
+        "index": 3,
+        "class": "flex flex-col p-4 rounded-[24px] bg-surface-container-lowest shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04)] border border-[#123524]/5 gap-3.5",
+        "text": "Jaga Konsistensi Catat transaksi tiap hari local_fire_department Rekor: 12 hari S 6 S 7 R 8 K 9 J 10 S 11 M 12"
+      },
+      {
+        "index": 4,
+        "class": "flex flex-col gap-2.5",
+        "text": "Progres Anggaran Detail chevron_right Tagihan Rutin & Utilitas 97% (Rp 2.425.000) Makanan & Kafe 27% (Rp 534.000) Belanja Kebutuhan Rumah 17% (Rp 255.000)"
+      },
+      {
+        "index": 5,
+        "class": "goal-shortcut p-space-md rounded-[24px] bg-surface-container-lowest flex items-center justify-between gap-3 shadow-sm transition-all hover:shadow-md active:scale-[0.98]",
+        "text": "laptop_mac Target Utama Laptop Kerja Baru Terkumpul Rp 7.200.000 dari Rp 18.000.000 (40%) 40% chevron_right"
+      },
+      {
+        "index": 6,
+        "class": "flex flex-col gap-space-md",
+        "text": "Transaksi Terbaru Semua tune Hari ini Total -Rp 250.000 restaurant Makan Siang & Kopi GoPay GoPay Harian (Demo) • 12:45 -Rp 42.000 Berhasil local_gas_station Isi Bensin Pertamax BCA Bank BCA • 07:15 -Rp 208.000 Berhasil Kemarin Total +Rp 2."
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": "month-selector-btn",
+        "action": null,
+        "text": "calendar_month Okt 2026 expand_more"
+      },
+      {
+        "id": "toggle-balance-visibility",
+        "action": null,
+        "text": "visibility"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Semua tune"
+      }
+    ]
+  },
+  "catat": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-24",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex items-center justify-between py-space-sm mb-space-sm",
+        "text": "close Catat Transaksi Kelola arus keuangan secara presisi help_outline"
+      },
+      {
+        "index": 1,
+        "class": "p-1 bg-surface-container-high rounded-full flex items-center gap-1 mb-space-lg shadow-inner",
+        "text": "check Pengeluaran check Pemasukan"
+      },
+      {
+        "index": 2,
+        "class": "flex flex-col gap-space-md",
+        "text": "payments Nominal Transaksi IDR (Rupiah) Rp backspace +10rb +20rb +50rb +100rb +500rb account_balance_wallet Rekening Sumber Dana Ganti Akun BCA Bank BCA • Rekening Utama expand_more Rp 14.500.000 arrow_forward Rp 14.250.000 category Kategor"
+      }
+    ],
+    "fields": [
+      {
+        "id": "nominal-input",
+        "name": null,
+        "type": "text",
+        "placeholder": "0",
+        "value": "250.000"
+      },
+      {
+        "id": "desc-input",
+        "name": null,
+        "type": "text",
+        "placeholder": "Contoh: Makan Siang, Kopi, dsb",
+        "value": "Isi Bensin Pertamax"
+      },
+      {
+        "id": "date-input",
+        "name": null,
+        "type": "date",
+        "placeholder": null,
+        "value": "2026-10-12"
+      },
+      {
+        "id": "merchant-input",
+        "name": null,
+        "type": "text",
+        "placeholder": "Nama gerai atau toko",
+        "value": "SPBU Pertamina Thamrin"
+      }
+    ],
+    "buttons": [
+      {
+        "id": null,
+        "action": "window.location.assign(({dompet:'fintrack-dompet-reference.html',aktivitas:'fintrack-aktivitas-reference.html',laporan:'fintrack-laporan-reference.html',pengaturan:'fintrack-pengaturan-reference.html',portofolio:'fintrack-portofolio-reference.html',target:'fintrack-target-reference.html',anggaran:'fintrack-anggaran-reference.html'})[new URLSearchParams(location.search).get('from')] || 'fintrack-beranda-reference.html')",
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "help_outline"
+      },
+      {
+        "id": "type-expense-btn",
+        "action": "setTxType('expense')",
+        "text": "check Pengeluaran"
+      },
+      {
+        "id": "type-income-btn",
+        "action": "setTxType('income')",
+        "text": "check Pemasukan"
+      },
+      {
+        "id": null,
+        "action": "clearNominal()",
+        "text": "backspace"
+      },
+      {
+        "id": null,
+        "action": "addAmount(10000)",
+        "text": "+10rb"
+      },
+      {
+        "id": null,
+        "action": "addAmount(20000)",
+        "text": "+20rb"
+      },
+      {
+        "id": null,
+        "action": "addAmount(50000)",
+        "text": "+50rb"
+      },
+      {
+        "id": null,
+        "action": "addAmount(100000)",
+        "text": "+100rb"
+      },
+      {
+        "id": null,
+        "action": "addAmount(500000)",
+        "text": "+500rb"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Ganti Akun"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "add_circle Tambah Item"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": "window.location.assign(({dompet:'fintrack-dompet-reference.html',aktivitas:'fintrack-aktivitas-reference.html',laporan:'fintrack-laporan-reference.html',pengaturan:'fintrack-pengaturan-reference.html',portofolio:'fintrack-portofolio-reference.html',target:'fintrack-target-reference.html',anggaran:'fintrack-anggaran-reference.html'})[new URLSearchParams(location.search).get('from')] || 'fintrack-beranda-reference.html')",
+        "text": "close Batal"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "check Simpan Transaksi"
+      }
+    ]
+  },
+  "detail-aset": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-10 space-y-space-lg",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col gap-space-xs mt-1",
+        "text": "Saham Terbuka • Manual Entry account_balance IDX : BBCA"
+      },
+      {
+        "index": 1,
+        "class": "relative overflow-hidden rounded-lg bg-gradient-to-br from-[#0B2A1D] via-[#123524] to-[#0A261A] text-on-primary p-space-lg shadow-[0_8px_30px_rgba(11,42,29,0.18)]",
+        "text": "pie_chart Nilai Sekarang IDR Rp 9.000.000 trending_up +Rp 500.000 (+5,88%) Modal: Rp 8.500.000 info Harga manual per lembar: Rp 9.000 • Terakhir diperbarui: 12 Okt 2026, 09:15 WIB (Bukan harga real-time)"
+      },
+      {
+        "index": 2,
+        "class": "grid grid-cols-2 gap-space-sm",
+        "text": "edit_calendar Perbarui Harga tune Edit Informasi Aset"
+      },
+      {
+        "index": 3,
+        "class": "rounded-lg bg-surface-container-lowest p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04)] flex flex-col gap-space-md",
+        "text": "Kinerja Portofolio Pertumbuhan nilai akumulasi show_chart Konsisten 1M 3M 6M 1T Semua 15 Agu 2026 12 Sep 2026 12 Okt 2026"
+      },
+      {
+        "index": 4,
+        "class": "rounded-lg bg-surface-container-lowest p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04)] flex flex-col gap-space-md",
+        "text": "Detail Kepemilikan verified Jumlah Unit 10 Lot (1.000 Lembar) Rata-rata Harga Beli Rp 8.500 per lembar Alokasi Portofolio 21,2% dari total aset Tanggal Masuk Pertama 15 Agu 2026 58 hari dipegang"
+      },
+      {
+        "index": 5,
+        "class": "rounded-lg bg-surface-container-lowest p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04)] flex flex-col gap-space-md",
+        "text": "Riwayat Transaksi 2 catatan beli • 0 penjualan Lihat Log add Beli Tambahan 5 Lot 12 Okt 2026 • @ Rp 8.600 • BCA Utama -Rp 4.300.000 Selesai verified_user Beli Awal 5 Lot 15 Agu 2026 • @ Rp 8.400 • BCA Utama -Rp 4.200.000 Selesai"
+      },
+      {
+        "index": 6,
+        "class": "pt-2 flex flex-col gap-space-sm",
+        "text": "sell Catat Penjualan add_circle Beli Lagi FinTrack Portofolio • Menggunakan kalkulasi Weighted Average Cost Basis"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": "quickUpdateBtn",
+        "action": null,
+        "text": "edit_calendar Perbarui Harga"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "tune Edit Informasi Aset"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "1M"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "3M"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "6M"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "1T"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Semua"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Lihat Log"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "sell Catat Penjualan"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "add_circle Beli Lagi"
+      }
+    ]
+  },
+  "detail": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-24",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex items-center justify-between pt-space-xs pb-space-md",
+        "text": "Detail Transaksi Informasi lengkap arus kas tercatat close"
+      },
+      {
+        "index": 1,
+        "class": "w-full bg-surface-container-lowest rounded-lg p-space-lg shadow-sm flex flex-col items-center text-center relative overflow-hidden mt-space-xs",
+        "text": "arrow_downward Pemasukan verified Terverifikasi + Rp 2.500.000 Bonus Proyek Desain Berhasil ditambahkan ke saldo aktif"
+      },
+      {
+        "index": 2,
+        "class": "w-full bg-surface-container-lowest rounded-lg p-space-lg shadow-sm mt-space-md flex flex-col gap-space-md",
+        "text": "Rincian Informasi content_copy Salin ID card_giftcard Kategori Bonus & THR (Pemasukan) chevron_right BCA Rekening Tujuan Bank BCA - Rekening Utama Debit calendar_today Tanggal & Waktu 11 Oktober 2026 • 23:05 WIB tag Nomor Referensi #TRX-202"
+      },
+      {
+        "index": 3,
+        "class": "w-full bg-surface-container-lowest rounded-lg p-space-lg shadow-sm mt-space-md flex flex-col gap-space-md",
+        "text": "Lampiran & Lokasi Lengkap zoom_in Struk_Transfer_Termin2.jpg 1 Berkas Terlampir (PDF/Foto) • 420 KB visibility Lihat Bukti location_on Menara BCA Jl. M.H. Thamrin No.1, Jakarta Pusat open_in_new Buka Maps"
+      },
+      {
+        "index": 4,
+        "class": "flex items-center justify-center gap-space-xs py-space-md text-on-surface-variant",
+        "text": "lock Enkripsi SHA-256 tercatat pada buku kas digital"
+      },
+      {
+        "index": 5,
+        "class": "flex flex-col gap-space-sm mt-space-xs",
+        "text": "edit Edit Transaksi delete Hapus Transaksi"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": "window.location.assign('fintrack-aktivitas-reference.html')",
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": "navigator.clipboard?.writeText('#TRX-20261011-8829')",
+        "text": "content_copy Salin ID"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "open_in_new Buka Maps"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "edit Edit Transaksi"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "delete Hapus Transaksi"
+      }
+    ]
+  },
+  "detail-rekening": {
+    "mainClass": "flex-1 flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface",
+    "containerClass": "flex flex-col w-full pb-28 space-y-space-xl",
+    "sections": [
+      {
+        "index": 0,
+        "class": "fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-inverse-surface text-inverse-on-surface px-space-lg py-space-sm rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-space-sm max-w-[90vw]",
+        "text": "check_circle Nomor rekening berhasil disalin!"
+      },
+      {
+        "index": 1,
+        "class": "relative w-full rounded-[24px] overflow-hidden shadow-xl p-space-lg text-on-secondary",
+        "text": "BCA Bank BCA Tahapan Gold Aktif & Terhubung •••• •••• 8829 visibility content_copy Salin Saldo Efektif Rp 14.500.000 Pemilik Rekening ARIF WICAKSONO"
+      },
+      {
+        "index": 2,
+        "class": "grid grid-cols-3 gap-space-sm",
+        "text": "tune Edit Data swap_horiz Transfer receipt_long Mutasi"
+      },
+      {
+        "index": 3,
+        "class": "bg-surface-container-lowest rounded-[24px] p-space-lg shadow-sm space-y-space-md",
+        "text": "manage_accounts Konfigurasi Rekening Tersinkronisasi Institusi Keuangan Bank Central Asia (BCA) Bank Mandiri Bank Rakyat Indonesia (BRI) Bank Negara Indonesia (BNI) Bank Jago expand_more Nama Tampilan Rekening badge Kategori Akun Rekening U"
+      },
+      {
+        "index": 4,
+        "class": "space-y-space-md",
+        "text": "Riwayat Terkait 3 transaksi terbaru bulan ini Semua Masuk Keluar palette Bonus Proyek Desain Kemarin • 15:40 WIB +Rp 2.500.000 Pendapatan local_gas_station Isi Bensin Pertamax 24 Mei • 08:12 WIB -Rp 250.000 Transportasi shopping_basket Bela"
+      },
+      {
+        "index": 5,
+        "class": "bg-error-container/40 rounded-[24px] p-space-lg space-y-space-md",
+        "text": "warning Zona Bahaya Menghapus rekening berdampak pada pencatatan histori keuangan. Pastikan tidak ada transaksi berulang aktif di rekening ini. delete_forever Hapus Rekening Ini"
+      },
+      {
+        "index": 6,
+        "class": "fixed bottom-0 inset-x-0 bg-surface/90 backdrop-blur-xl p-margin pb-safe z-40",
+        "text": "save Simpan Perubahan"
+      },
+      {
+        "index": 7,
+        "class": "fixed inset-0 z-50 flex items-end justify-center pointer-events-none opacity-0 transition-opacity duration-300",
+        "text": "delete_forever Konfirmasi Hapus Rekening Menghapus rekening akan memutuskan tautan pada 18 transaksi terkait . Transaksi tidak akan dihapus otomatis melainkan dialihkan ke status Tanpa Akun atau Anda dapat menghapus seluruh riwayatnya. dele"
+      }
+    ],
+    "fields": [
+      {
+        "id": "bankSelect",
+        "name": null,
+        "type": null,
+        "placeholder": null,
+        "value": null
+      },
+      {
+        "id": "accountNameInput",
+        "name": null,
+        "type": "text",
+        "placeholder": "Masukkan nama rekening",
+        "value": "BCA Utama (Gaji & Operasional)"
+      },
+      {
+        "id": "balanceAdjustmentInput",
+        "name": null,
+        "type": "text",
+        "placeholder": "0",
+        "value": "14.500.000"
+      }
+    ],
+    "buttons": [
+      {
+        "id": null,
+        "action": "toggleAccountNumber()",
+        "text": "visibility"
+      },
+      {
+        "id": null,
+        "action": "copyAccountNumber()",
+        "text": "content_copy Salin"
+      },
+      {
+        "id": null,
+        "action": "document.getElementById('editSection').scrollIntoView({ behavior: 'smooth' })",
+        "text": "tune Edit Data"
+      },
+      {
+        "id": null,
+        "action": "showToast('Membuka menu transfer saldo...')",
+        "text": "swap_horiz Transfer"
+      },
+      {
+        "id": null,
+        "action": "document.getElementById('historySection').scrollIntoView({ behavior: 'smooth' })",
+        "text": "receipt_long Mutasi"
+      },
+      {
+        "id": null,
+        "action": "selectCategory('utama', this)",
+        "text": "Rekening Utama"
+      },
+      {
+        "id": null,
+        "action": "selectCategory('tabungan', this)",
+        "text": "Tabungan"
+      },
+      {
+        "id": null,
+        "action": "selectCategory('investasi', this)",
+        "text": "Investasi"
+      },
+      {
+        "id": null,
+        "action": "filterTransactions('all', this)",
+        "text": "Semua"
+      },
+      {
+        "id": null,
+        "action": "filterTransactions('in', this)",
+        "text": "Masuk"
+      },
+      {
+        "id": null,
+        "action": "filterTransactions('out', this)",
+        "text": "Keluar"
+      },
+      {
+        "id": null,
+        "action": "openDeleteDialog()",
+        "text": "delete_forever Hapus Rekening Ini"
+      },
+      {
+        "id": null,
+        "action": "saveAccountChanges()",
+        "text": "save Simpan Perubahan"
+      },
+      {
+        "id": null,
+        "action": "confirmDeleteAccount()",
+        "text": "delete Hapus Permanen"
+      },
+      {
+        "id": null,
+        "action": "closeDeleteDialog()",
+        "text": "Batal"
+      }
+    ]
+  },
+  "detail-target": {
+    "mainClass": "flex-1 flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface",
+    "containerClass": "flex flex-col w-full pb-24",
+    "sections": [
+      {
+        "index": 0,
+        "class": "w-full bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md relative overflow-hidden",
+        "text": "laptop_mac Target Utama Laptop Kerja Baru MacBook Pro 14\" M3 Pro • Ruang Kerja Produktif Kebutuhan Kerja Q4 Dana Terkumpul 40% Tercapai Rp 7.200.000 / Rp 18.000.000 Sisa kebutuhan: Rp 10.800.000 lagi event 1 Jan 2027 Sisa Waktu 3 Bulan Lagi"
+      },
+      {
+        "index": 1,
+        "class": "grid grid-cols-2 gap-space-sm mt-space-lg",
+        "text": "add_circle Tambah Dana tune Ubah Rencana"
+      },
+      {
+        "index": 2,
+        "class": "w-full bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm mt-space-xl flex flex-col gap-space-md relative overflow-hidden",
+        "text": "Form Cepat Setor Dana Simulasi Langsung Nominal Setoran Rp +100 Rb +500 Rb +1 Jt Rekening Sumber Dana BCA BCA Utama • Rek. Pribadi Saldo aktif: Rp 14.500.000 expand_more info Setoran ini akan otomatis memotong saldo rekening sumber ( BCA Ut"
+      },
+      {
+        "index": 3,
+        "class": "mt-space-xl",
+        "text": "Pencapaian Terakhir celebration 100% Tercapai 01 Okt 2026 Dana Darurat 6 Bulan Target Rp 30.000.000 berhasil terkumpul penuh!"
+      },
+      {
+        "index": 4,
+        "class": "mt-space-xl flex flex-col gap-space-md",
+        "text": "Riwayat Alokasi Dana 3 transaksi alokasi tercatat Lihat Semua chevron_right savings Setoran Rutin Bulanan 05 Okt 2026 • dari BCA Utama +Rp 2.000.000 Berhasil add_card Setoran Ekstra 22 Sep 2026 • dari Mandiri +Rp 1.200.000 Berhasil flag Dan"
+      }
+    ],
+    "fields": [
+      {
+        "id": "nominal-input",
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "1.000.000"
+      },
+      {
+        "id": "notes-input",
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "Menyisihkan sisa bonus proyek"
+      }
+    ],
+    "buttons": [
+      {
+        "id": "openDepositModalBtn",
+        "action": null,
+        "text": "add_circle Tambah Dana"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "tune Ubah Rencana"
+      },
+      {
+        "id": null,
+        "action": "setNominal('100.000')",
+        "text": "+100 Rb"
+      },
+      {
+        "id": null,
+        "action": "setNominal('500.000')",
+        "text": "+500 Rb"
+      },
+      {
+        "id": null,
+        "action": "setNominal('1.000.000')",
+        "text": "+1 Jt"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "check_circle Konfirmasi Setoran"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Lihat Semua chevron_right"
+      }
+    ]
+  },
+  "dompet": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col gap-space-xs mb-space-lg",
+        "text": "Total Saldo Semua Akun visibility Sembunyikan Rp 42.357.852"
+      },
+      {
+        "index": 1,
+        "class": "mb-space-lg",
+        "text": "Kartu Utama Geser chevron_right Rekening Finansial Bank BCA BCA Rekening Utama Rp 14.500.000 •••• •••• 8829 visibility Rekening Finansial Bank Mandiri MDR Tabungan Bisnis Rp 8.250.000 •••• •••• 4102 visibility E-Wallet GoPay GPY Kebutuhan H"
+      },
+      {
+        "index": 2,
+        "class": "mb-space-lg",
+        "text": "sync_alt Transfer Saldo Antar akun add Tambah Akun Bank & e-wallet tune Kelola Limit Atur anggaran"
+      },
+      {
+        "index": 3,
+        "class": "flex items-center gap-3 min-h-[76px] px-4 py-3 rounded-[20px] bg-surface-container-lowest border border-[#123524]/10 shadow-[0_2px_4px_rgba(18,53,36,0.04)] text-[#123524] mb-space-lg hover:shadow-md transition-shadow",
+        "text": "trending_up Portofolio & Investasi Pantau aset dan pertumbuhannya chevron_right"
+      },
+      {
+        "index": 4,
+        "class": "mb-space-md",
+        "text": "Daftar Akun & Rekening 10 Terdaftar Semua (10) Bank (4) E-Wallet (4) Tunai (2)"
+      },
+      {
+        "index": 5,
+        "class": "flex flex-col gap-3",
+        "text": "account_balance Bank BCA Utama Rekening Giro / Payroll Rp 14.500.000 sync Tersinkron account_balance Bank Mandiri Tabungan Bisnis • Mandiri Rp 8.250.000 Terhubung savings Bank Jago Kantong Darurat Rp 1.116.000 Otomatisasi phone_android GoPa"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": "toggle-privacy-btn",
+        "action": null,
+        "text": "visibility Sembunyikan"
+      },
+      {
+        "id": null,
+        "action": "const amount=this.parentElement.querySelector('.balance-maskable');const masked=amount.dataset.masked==='true';amount.textContent=masked?amount.dataset.val:'Rp ••••••';amount.dataset.masked=String(!masked);this.querySelector('span').textContent=masked?'visibility':'visibility_off'",
+        "text": "visibility"
+      },
+      {
+        "id": null,
+        "action": "const amount=this.parentElement.querySelector('.balance-maskable');const masked=amount.dataset.masked==='true';amount.textContent=masked?amount.dataset.val:'Rp ••••••';amount.dataset.masked=String(!masked);this.querySelector('span').textContent=masked?'visibility':'visibility_off'",
+        "text": "visibility"
+      },
+      {
+        "id": null,
+        "action": "const amount=this.parentElement.querySelector('.balance-maskable');const masked=amount.dataset.masked==='true';amount.textContent=masked?amount.dataset.val:'Rp ••••••';amount.dataset.masked=String(!masked);this.querySelector('span').textContent=masked?'visibility':'visibility_off'",
+        "text": "visibility"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "sync_alt Transfer Saldo Antar akun"
+      },
+      {
+        "id": null,
+        "action": "window.location.assign('fintrack-tambah-akun-reference.html')",
+        "text": "add Tambah Akun Bank & e-wallet"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "tune Kelola Limit Atur anggaran"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Semua (10)"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Bank (4)"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "E-Wallet (4)"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Tunai (2)"
+      }
+    ]
+  },
+  "edit-anggaran": {
+    "mainClass": "flex-1 flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface",
+    "containerClass": "flex flex-col w-full pb-28 space-y-space-xl",
+    "sections": [
+      {
+        "index": 0,
+        "class": "bg-surface-container-lowest rounded-lg p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.05),0_2px_6px_-1px_rgba(18,53,36,0.02)] space-y-space-lg relative overflow-hidden",
+        "text": "restaurant Makanan & Minuman calendar_today Oktober 2026 (12 dari 31 hari) Aktif Terpakai saat ini Batas Anggaran Rp 1.650.000 Rp 2.000.000 warning 82,5% terpakai Rp 350.000 tersisa Spektrum Penggunaan Mendekati Batas Normal <70% Mendekati "
+      },
+      {
+        "index": 1,
+        "class": "bg-surface-container-lowest rounded-lg p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.05),0_2px_6px_-1px_rgba(18,53,36,0.02)] space-y-space-lg",
+        "text": "tune Atur Parameter Anggaran Oktober 2026 Batas Nominal Anggaran Rp edit check_circle Pagu naik Rp 200.000 dibanding bulan lalu Pengingat Batas (Budget Alert) Notifikasi push saat pemakaian menyentuh ambang 80% Terpilih 50% Pagu 80% (Standa"
+      },
+      {
+        "index": 2,
+        "class": "space-y-space-md",
+        "text": "Aktivitas Terkait 14 transaksi Lihat Semua chevron_right lunch_dining Makan Siang & Kopi GoPay Harian • Hari ini 12:45 -Rp 42.000 Makanan groups Makan Malam Bersama Tim GoPay • Kemarin 19:30 -Rp 72.000 Restoran coffee Kopi Pagi & Roti BCA U"
+      },
+      {
+        "index": 3,
+        "class": "fixed bottom-0 inset-x-0 z-40 bg-surface/90 backdrop-blur-xl px-margin pb-safe pt-3 shadow-[0_-8px_24px_rgba(18,53,36,0.08)]",
+        "text": "restart_alt Atur Ulang check Simpan Perubahan Anggaran"
+      },
+      {
+        "index": 4,
+        "class": "fixed top-20 left-1/2 -translate-x-1/2 z-50 transform -translate-y-12 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2 bg-on-background text-inverse-on-surface px-4 py-2.5 rounded-full shadow-xl",
+        "text": "check_circle Perubahan berhasil disimpan"
+      }
+    ],
+    "fields": [
+      {
+        "id": "budget-limit",
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "2.000.000"
+      }
+    ],
+    "buttons": [
+      {
+        "id": null,
+        "action": null,
+        "text": "edit"
+      },
+      {
+        "id": null,
+        "action": "setThreshold(50, this)",
+        "text": "50% Pagu"
+      },
+      {
+        "id": null,
+        "action": "setThreshold(80, this)",
+        "text": "80% (Standar)"
+      },
+      {
+        "id": null,
+        "action": "setThreshold(90, this)",
+        "text": "90% Kritis"
+      },
+      {
+        "id": "auto-rollover-toggle",
+        "action": "toggleSwitch(this)",
+        "text": "check"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Lihat Semua chevron_right"
+      },
+      {
+        "id": "btn-reset",
+        "action": "handleResetBudget()",
+        "text": "restart_alt Atur Ulang"
+      },
+      {
+        "id": "btn-save",
+        "action": "handleSaveBudget()",
+        "text": "check Simpan Perubahan Anggaran"
+      }
+    ]
+  },
+  "edit-aset": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full relative",
+    "sections": [
+      {
+        "index": 0,
+        "class": "fixed inset-0 bg-on-surface/40 backdrop-blur-sm pointer-events-none z-10",
+        "text": ""
+      },
+      {
+        "index": 1,
+        "class": "relative z-20 w-full flex flex-col bg-surface-container-lowest rounded-t-[32px] shadow-2xl pb-12 pt-3 -mx-margin px-margin mt-1",
+        "text": "sync_alt Perbarui Harga Manual Investasi & Portofolio close info Pembaruan harga hanya menghitung ulang nilai pasar & profit portofolio. Tidak memengaruhi saldo kas maupun riwayat modal beli. price_change Perbarui Harga tune Identitas Aset "
+      }
+    ],
+    "fields": [
+      {
+        "id": "input-price",
+        "name": null,
+        "type": "number",
+        "placeholder": "0",
+        "value": "9200"
+      },
+      {
+        "id": null,
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "Bank Central Asia Tbk"
+      },
+      {
+        "id": null,
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "BBCA"
+      },
+      {
+        "id": null,
+        "name": null,
+        "type": null,
+        "placeholder": null,
+        "value": null
+      },
+      {
+        "id": null,
+        "name": null,
+        "type": null,
+        "placeholder": null,
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": "close-sheet-btn",
+        "action": null,
+        "text": "close"
+      },
+      {
+        "id": "tab-price",
+        "action": null,
+        "text": "price_change Perbarui Harga"
+      },
+      {
+        "id": "tab-asset",
+        "action": null,
+        "text": "tune Identitas Aset"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "-100"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "-25"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+25"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+100"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Ubah edit_calendar"
+      },
+      {
+        "id": "cancel-action-btn",
+        "action": null,
+        "text": "Batal"
+      },
+      {
+        "id": "save-action-btn",
+        "action": null,
+        "text": "save Simpan Harga Baru"
+      }
+    ]
+  },
+  "edit-transaksi": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full pb-32",
+    "sections": [
+      {
+        "index": 0,
+        "class": "px-margin pt-space-xs pb-space-sm flex items-center justify-between",
+        "text": "ID Ref: #FTX-892410 delete Hapus Transaksi"
+      },
+      {
+        "index": 1,
+        "class": "px-margin flex flex-col gap-space-lg",
+        "text": "arrow_outward Pengeluaran south_west Pemasukan Jumlah Nominal Rp +10 Rb +20 Rb +50 Rb +100 Rb account_balance_wallet Dampak Saldo Rekening BCA Utama verified Saldo Cukup & Valid Saldo Saat Ini Rp 14.500.000 Penyesuaian Transaksi - Rp 250.00"
+      },
+      {
+        "index": 2,
+        "class": "fixed bottom-0 inset-x-0 bg-surface/90 backdrop-blur-xl px-margin py-space-md pb-safe shadow-[0_-4px_24px_rgba(18,53,36,0.06)] z-40",
+        "text": "Batal check_circle Simpan Perubahan"
+      }
+    ],
+    "fields": [
+      {
+        "id": "amount-input",
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "250.000"
+      },
+      {
+        "id": "transaction-title",
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "Isi Bensin Pertamax"
+      },
+      {
+        "id": "transaction-notes",
+        "name": null,
+        "type": null,
+        "placeholder": null,
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": "btn-delete",
+        "action": null,
+        "text": "delete Hapus Transaksi"
+      },
+      {
+        "id": "toggle-pengeluaran",
+        "action": null,
+        "text": "arrow_outward Pengeluaran"
+      },
+      {
+        "id": "toggle-pemasukan",
+        "action": null,
+        "text": "south_west Pemasukan"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+10 Rb"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+20 Rb"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+50 Rb"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+100 Rb"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "cached"
+      },
+      {
+        "id": "btn-remove-receipt",
+        "action": null,
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": "history.back()",
+        "text": "Batal"
+      },
+      {
+        "id": "btn-save",
+        "action": null,
+        "text": "check_circle Simpan Perubahan"
+      }
+    ]
+  },
+  "hapus-aset": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full relative pb-12 select-none",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col w-full space-y-space-lg opacity-40 blur-[1.5px] pointer-events-none",
+        "text": "Portfolio Journal Total Nilai Investasi IDR Rp 48.250.000 B BBCA 10 Lot • Rp 9.000 / lembar Rp 9.000.000 +8.4%"
+      },
+      {
+        "index": 1,
+        "class": "fixed inset-0 z-50 flex flex-col justify-end bg-inverse-surface/45 backdrop-blur-[3px] transition-opacity duration-300",
+        "text": "delete Hapus Catatan Aset BBCA? Tindakan ini akan menghapus catatan saham BBCA beserta 2 riwayat transaksinya dari portofolio FinTrack. Tenang: Aset asli di sekuritas dan saldo rekening bank Anda sama sekali tidak berubah . account_balance "
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": "btnConfirmDelete",
+        "action": null,
+        "text": "delete_forever Hapus Catatan Aset"
+      },
+      {
+        "id": "btnCancel",
+        "action": null,
+        "text": "Batal"
+      }
+    ]
+  },
+  "hapus-transaksi": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full relative",
+    "sections": [
+      {
+        "index": 0,
+        "class": "px-margin pt-space-md pb-space-xl flex flex-col gap-space-lg select-none opacity-40 pointer-events-none filter blur-[1px]",
+        "text": "Detail Transaksi Pengeluaran Selesai -Rp 250.000 local_gas_station account_balance_wallet BCA Utama Rekening Sumber Rp 14.500.000"
+      },
+      {
+        "index": 1,
+        "class": "fixed inset-0 z-50 flex flex-col justify-end bg-inverse-surface/45 backdrop-blur-[4px] transition-opacity duration-300",
+        "text": "delete_forever Hapus transaksi ini? Tindakan ini tidak dapat dibatalkan. Menghapus transaksi akan membatalkan pengaruh nominal terhadap saldo rekening terkait. local_gas_station Isi Bensin Pertamax Transportasi Rekening Sumber BCA Utama (Re"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": "closeSheet()",
+        "text": ""
+      },
+      {
+        "id": null,
+        "action": "closeSheet()",
+        "text": "Batal"
+      },
+      {
+        "id": "delete-btn",
+        "action": "confirmDelete()",
+        "text": "delete Hapus Transaksi"
+      }
+    ]
+  },
+  "hasil-investasi": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-12",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col items-center text-center mt-2 mb-6",
+        "text": "check_circle arrow_back_ios_new Status Terkonfirmasi Investasi Berhasil Disimpan Aset BBCA telah terdaftar dan saldo portofolio berhasil disinkronkan secara real-time."
+      },
+      {
+        "index": 1,
+        "class": "w-full mb-6",
+        "text": "Investasi Ditambahkan Pembelian Dicatat Penjualan Dicatat Harga Diperbarui"
+      },
+      {
+        "index": 2,
+        "class": "w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm mb-6 flex flex-col gap-space-lg relative overflow-hidden",
+        "text": "account_balance BBCA IDX PT Bank Central Asia Tbk verified Valid Volume Kepemilikan 10 Lot 1.000 Lembar Saham Harga Rata-rata Rp 8.500 per lembar Total Nilai Pokok Rp 8.500.000 Biaya Broker & Levy (0.15%) Rp 12.750 account_balance_wallet Su"
+      },
+      {
+        "index": 3,
+        "class": "flex flex-col gap-space-sm mb-10",
+        "text": "visibility Lihat Detail Aset arrow_back Kembali ke Portofolio"
+      },
+      {
+        "index": 4,
+        "class": "flex items-center gap-space-md mb-6",
+        "text": "Status Validasi & Kasus Form"
+      },
+      {
+        "index": 5,
+        "class": "flex flex-col gap-space-md",
+        "text": "Kondisi 01 • Portofolio Kosong folder_open pie_chart Belum Ada Aset Terdaftar Belum ada aset investasi tercatat di portofolio ini. Mulai catat transaksi pembelian pertama Anda. add Catat Aset Pertama Kondisi 02 • Validasi Input Form error_o"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": "switchTab(this, 'investasi')",
+        "text": "Investasi Ditambahkan"
+      },
+      {
+        "id": null,
+        "action": "switchTab(this, 'beli')",
+        "text": "Pembelian Dicatat"
+      },
+      {
+        "id": null,
+        "action": "switchTab(this, 'jual')",
+        "text": "Penjualan Dicatat"
+      },
+      {
+        "id": null,
+        "action": "switchTab(this, 'harga')",
+        "text": "Harga Diperbarui"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "visibility Lihat Detail Aset"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "arrow_back Kembali ke Portofolio"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "add Catat Aset Pertama"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Ganti Rekening"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Top Up Saldo"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Sesuaikan dengan Maksimal (10 Lot) arrow_forward"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "refresh Coba Lagi"
+      }
+    ]
+  },
+  "hasil-transaksi": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full pb-12",
+    "sections": [
+      {
+        "index": 0,
+        "class": "px-margin pt-space-xs pb-space-sm flex items-center justify-between",
+        "text": "close Tersambung Cloud"
+      },
+      {
+        "index": 1,
+        "class": "px-margin flex flex-col gap-space-xl",
+        "text": "Baru Disimpan Mode Edit Mode Dihapus check_circle Transaksi Berhasil Dicatat Perubahan telah tersinkronisasi ke saldo dompet dan laporan arus kas. Nominal Transaksi Rp 250.000 local_gas_station Nama Isi Bensin Pertamax account_balance Sumbe"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": "history.back()",
+        "text": "close"
+      },
+      {
+        "id": "btn-state-create",
+        "action": "switchMainState('create')",
+        "text": "Baru Disimpan"
+      },
+      {
+        "id": "btn-state-edit",
+        "action": "switchMainState('edit')",
+        "text": "Mode Edit"
+      },
+      {
+        "id": "btn-state-delete",
+        "action": "switchMainState('delete')",
+        "text": "Mode Dihapus"
+      },
+      {
+        "id": null,
+        "action": "history.back()",
+        "text": "Kembali ke Beranda arrow_forward"
+      },
+      {
+        "id": null,
+        "action": "alert('Membuka formulir pencatatan baru')",
+        "text": "add_circle Catat Transaksi Baru"
+      },
+      {
+        "id": null,
+        "action": "alert('Mencoba menyinkronkan kembali...')",
+        "text": "refresh Coba Lagi Sekarang"
+      }
+    ]
+  },
+  "laporan-klasik": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-20 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-8",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex items-center justify-between gap-space-sm mb-4",
+        "text": "Laporan & Insights Analisis arus kas dan pola belanja calendar_today Okt 2026 expand_more"
+      },
+      {
+        "index": 1,
+        "class": "grid grid-cols-2 p-1 bg-surface-container rounded-full mb-6 max-w-md mx-auto w-full",
+        "text": "Pengeluaran Pemasukan"
+      },
+      {
+        "index": 2,
+        "class": "flex flex-col mb-4",
+        "text": "Total pengeluaran Rp 3.678.000 trending_up +12.4% vs Sep (Naik Rp 405.000) • Rata-rata Rp 118.645 / hari"
+      },
+      {
+        "index": 3,
+        "class": "flex items-center justify-between py-2.5 px-3 rounded-xl bg-white border border-stone-200/60 shadow-sm mb-6",
+        "text": "verified Skor Kesehatan: 100/100 · Sehat Prima Rincian chevron_right"
+      },
+      {
+        "index": 4,
+        "class": "bg-white rounded-2xl border border-stone-200/60 shadow-sm p-4 sm:p-5 mb-5",
+        "text": "Distribusi Kategori Porsi belanja per pos donut_large Donut bar_chart Batang Terbesar 65.9% Tagihan Tagihan (65.9%) Makanan (14.5%) Belanja (6.9%) Lainnya (12.7%) receipt_long Tagihan & Utilitas Naik 2% vs Sep Rp 2.425.000 65.9% restaurant "
+      },
+      {
+        "index": 5,
+        "class": "rounded-2xl border border-stone-200/60 bg-white p-4 shadow-sm mb-5",
+        "text": "lightbulb Insight FinTrack Pengeluaran tagihan menyumbang 65.9% dari total belanja bulan ini. Realisasi Rp 2.425.000 dari pagu Rp 2.500.000 . Atur Anggaran Tagihan arrow_forward"
+      },
+      {
+        "index": 6,
+        "class": "w-full",
+        "text": "download Unduh Laporan PDF / Excel"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": null,
+        "text": "calendar_today Okt 2026 expand_more"
+      },
+      {
+        "id": "tab-expense",
+        "action": null,
+        "text": "Pengeluaran"
+      },
+      {
+        "id": "tab-income",
+        "action": null,
+        "text": "Pemasukan"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Rincian chevron_right"
+      },
+      {
+        "id": "view-donut",
+        "action": null,
+        "text": "donut_large Donut"
+      },
+      {
+        "id": "view-bar",
+        "action": null,
+        "text": "bar_chart Batang"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Atur Anggaran Tagihan arrow_forward"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "download Unduh Laporan PDF / Excel"
+      }
+    ]
+  },
+  "laporan": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-10",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex items-center justify-between gap-space-sm mb-space-md",
+        "text": "Laporan & Insights Analisis arus kas dan pola belanja calendar_today Okt 2026 arrow_drop_down"
+      },
+      {
+        "index": 1,
+        "class": "grid grid-cols-2 p-1 bg-surface-container rounded-full mb-space-lg shadow-inner",
+        "text": "Pengeluaran Pemasukan"
+      },
+      {
+        "index": 2,
+        "class": "hover:shadow-md transition-shadow relative overflow-hidden rounded-[24px] bg-surface-container-lowest p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04)] mb-space-lg border-surface-container",
+        "text": "payments Total Pengeluaran Oktober Rp 3.678.000 pie_chart Batas Anggaran: Rp 7.550.000 Sisa Rp 3.872.000"
+      },
+      {
+        "index": 3,
+        "class": "hover:shadow-md transition-shadow bg-surface-container-lowest rounded-xl p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04),0_2px_6px_-1px_rgba(18,53,36,0.02)] mb-space-lg",
+        "text": "verified Kesehatan Keuangan Ringkasan Oktober 100 /100"
+      },
+      {
+        "index": 4,
+        "class": "hover:shadow-md transition-shadow bg-surface-container-lowest rounded-xl p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04)] mb-space-lg",
+        "text": "Distribusi Kategori Porsi belanja per pos donut_large Donut bar_chart Batang Distribusi Pengeluaran Terbesar 5 Kategori 65,9% receipt_long Tagihan 14,5% restaurant Makanan 6,9% shopping_bag Belanja 5,3% movie Hiburan 3,9% directions_car Tra"
+      },
+      {
+        "index": 5,
+        "class": "relative overflow-hidden bg-gradient-to-br from-secondary-container/60 via-surface-container-lowest to-surface-container-low rounded-xl p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.05)] mb-space-lg",
+        "text": "auto_awesome Pola Belanja Terdeteksi AI check_circle Pengeluaran tagihan menyumbang 65.9% anggaran. Pembayaran tepat waktu menjaga skor kesehatan keuangan di 100/100. warning Biaya kuliner naik 12% pada akhir pekan. Disarankan mengunci limi"
+      },
+      {
+        "index": 6,
+        "class": "w-full",
+        "text": "Unduh Laporan Keuangan Ekspor ringkasan keuangan dan analisis kategori ke PDF atau Excel. download Unduh"
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": null,
+        "text": "calendar_today Okt 2026 arrow_drop_down"
+      },
+      {
+        "id": "tab-expense",
+        "action": null,
+        "text": "Pengeluaran"
+      },
+      {
+        "id": "tab-income",
+        "action": null,
+        "text": "Pemasukan"
+      },
+      {
+        "id": "view-donut",
+        "action": null,
+        "text": "donut_large Donut"
+      },
+      {
+        "id": "view-bar",
+        "action": null,
+        "text": "bar_chart Batang"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Atur Batas Anggaran"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Rincian"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "download Unduh"
+      }
+    ]
+  },
+  "pengaturan": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-8",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col mb-space-lg",
+        "text": "Pengaturan Kelola akun, preferensi tampilan, dan keamanan workspace tune"
+      },
+      {
+        "index": 1,
+        "class": "w-full bg-surface-container-lowest rounded-lg p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.05),0_2px_6px_-1px_rgba(18,53,36,0.02)] mb-space-xl relative overflow-hidden",
+        "text": "edit Faaid Sakhaa verified Pro Member faaid.sakhaa@workspace.id shield_lock Cloud Terenkripsi Aktif"
+      },
+      {
+        "index": 2,
+        "class": "flex flex-col mb-space-xl",
+        "text": "palette Tampilan & Preferensi Mode Tema Pilih suasana visual antarmuka Terang Aktif light_mode Terang dark_mode Gelap Ikuti pengaturan sistem perangkat translate Bahasa Aplikasi Bahasa tampilan sistem Indonesia (ID) chevron_right payments M"
+      },
+      {
+        "index": 3,
+        "class": "flex flex-col mb-space-xl",
+        "text": "lock Keamanan & Akses fingerprint Kunci Biometrik Aktif Face ID & Sensor Sidik Jari pin Ubah PIN Keamanan Perbarui 6-digit kode verifikasi chevron_right smartphone Xiaomi 13T Sesi perangkat utama saat ini Online"
+      },
+      {
+        "index": 4,
+        "class": "flex flex-col mb-space-xl",
+        "text": "cloud_sync Data & Integrasi file_download Ekspor Laporan Unduh format CSV, Excel, atau PDF chevron_right backup Cadangan Google Drive 12 Okt 2026, 06:30 WIB Sinkron smart_toy Bot Telegram & Notifikasi Catat mutasi otomatis via forwarding ch"
+      },
+      {
+        "index": 5,
+        "class": "flex flex-col items-center gap-space-md mt-space-sm mb-4",
+        "text": "logout Keluar dari Akun FinTrack v2.4.0 Botanical Wealth Edition • Build 2026.10"
+      }
+    ],
+    "fields": [
+      {
+        "id": "systemThemeToggle",
+        "name": null,
+        "type": "checkbox",
+        "placeholder": null,
+        "value": null
+      },
+      {
+        "id": "notifReminder",
+        "name": null,
+        "type": "checkbox",
+        "placeholder": null,
+        "value": null
+      },
+      {
+        "id": "maskBalance",
+        "name": null,
+        "type": "checkbox",
+        "placeholder": null,
+        "value": null
+      },
+      {
+        "id": "biometricToggle",
+        "name": null,
+        "type": "checkbox",
+        "placeholder": null,
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": "themeLightBtn",
+        "action": null,
+        "text": "light_mode Terang"
+      },
+      {
+        "id": "themeDarkBtn",
+        "action": null,
+        "text": "dark_mode Gelap"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Sinkron"
+      },
+      {
+        "id": "logoutBtn",
+        "action": null,
+        "text": "logout Keluar dari Akun"
+      }
+    ]
+  },
+  "pilih-kategori": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full relative min-h-full",
+    "sections": [
+      {
+        "index": 0,
+        "class": "px-margin pt-space-md flex flex-col gap-space-lg opacity-40 select-none pointer-events-none filter blur-[1px]",
+        "text": "Catatan Transaksi Baru Otomatis Terhubung Rp 125.000"
+      },
+      {
+        "index": 1,
+        "class": "fixed inset-0 bg-[#0b2a1d]/60 backdrop-blur-sm z-40 transition-opacity",
+        "text": ""
+      },
+      {
+        "index": 2,
+        "class": "fixed inset-x-0 bottom-0 z-50 flex flex-col max-h-[88vh] h-[86vh] bg-surface-container-lowest rounded-t-[2rem] shadow-2xl overflow-hidden transition-all duration-300",
+        "text": "Pilih Kategori Kelompokkan arus kas Anda secara rapi close arrow_downward_alt Pengeluaran arrow_upward_alt Pemasukan search close Kategori Paling Sering Dipakai 7 Pilihan local_gas_station Transportasi Bahan bakar, tol, servis & angkutan Ak"
+      }
+    ],
+    "fields": [
+      {
+        "id": "category-search",
+        "name": null,
+        "type": "text",
+        "placeholder": "Cari kategori (contoh: Makan, Bensin)...",
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": null,
+        "action": "history.back()",
+        "text": "close"
+      },
+      {
+        "id": "tab-expense-btn",
+        "action": "switchCategoryTab('expense')",
+        "text": "arrow_downward_alt Pengeluaran"
+      },
+      {
+        "id": "tab-income-btn",
+        "action": "switchCategoryTab('income')",
+        "text": "arrow_upward_alt Pemasukan"
+      },
+      {
+        "id": "clear-search-btn",
+        "action": "clearSearch()",
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Transportasi', 'Pengeluaran')",
+        "text": "local_gas_station Transportasi Bahan bakar, tol, servis & angkutan Aktif Terpilih check"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Makanan & Minuman', 'Pengeluaran')",
+        "text": "restaurant Makanan & Minuman Restoran, kafe, pesan antar & jajanan chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Belanja & Supermarket', 'Pengeluaran')",
+        "text": "shopping_bag Belanja & Supermarket Kebutuhan pokok, pakaian & perlengkapan chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Tagihan & Utilitas', 'Pengeluaran')",
+        "text": "receipt_long Tagihan & Utilitas Listrik PLN, air PAM, internet & seluler chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Hiburan & Hobi', 'Pengeluaran')",
+        "text": "sports_esports Hiburan & Hobi Nonton bioskop, game & layanan streaming chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Kesehatan & Perawatan', 'Pengeluaran')",
+        "text": "medical_services Kesehatan & Perawatan Apotek, konsultasi medis & suplemen chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Pendidikan', 'Pengeluaran')",
+        "text": "school Pendidikan Buku panduan, langganan kursus & kuliah chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Gaji Pokok', 'Pemasukan')",
+        "text": "payments Gaji Pokok Pendapatan bulanan rutin & upah kantor chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Bonus & THR', 'Pemasukan')",
+        "text": "featured_seasonal_and_gifts Bonus & THR Tunjangan tahunan, bonus kinerja & komisi chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Proyek Freelance', 'Pemasukan')",
+        "text": "laptop_chromebook Proyek Freelance Penghasilan sampingan & kontrak independen chevron_right"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this, 'Hasil Investasi', 'Pemasukan')",
+        "text": "trending_up Hasil Investasi Dividen saham, imbal hasil reksadana & kupon chevron_right"
+      },
+      {
+        "id": null,
+        "action": "createNewCategoryPrompt()",
+        "text": "add_circle Buat Kategori Baru"
+      }
+    ]
+  },
+  "pilih-rekening": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full relative pb-8",
+    "sections": [
+      {
+        "index": 0,
+        "class": "px-margin pt-4 pb-12 opacity-40 blur-[1px] select-none pointer-events-none",
+        "text": "Transfer Keluar FinTrack Rp 350.000 Pembayaran Tagihan Listrik & Internet account_balance Sumber Dana BCA Utama (•••• 4920) expand_more"
+      },
+      {
+        "index": 1,
+        "class": "fixed inset-0 bg-[#0B2A1D]/45 backdrop-blur-[3px] z-40 transition-opacity duration-300",
+        "text": ""
+      },
+      {
+        "index": 2,
+        "class": "fixed inset-x-0 bottom-0 z-50 flex flex-col bg-surface-container-lowest rounded-t-[28px] shadow-[0_-10px_35px_rgba(18,53,36,0.18)] max-h-[82vh] h-[80vh] overflow-hidden transition-all duration-300",
+        "text": "account_balance_wallet Pilih Rekening Pilih sumber dana transaksi aktif close search close apps Semua 5 account_balance Bank phone_android E-Wallet payments Tunai BCA check BCA Utama Utama Bank • Rekening Penggajian Rp 14.500.000 Dipilih ch"
+      }
+    ],
+    "fields": [
+      {
+        "id": "account-search-input",
+        "name": null,
+        "type": "text",
+        "placeholder": "Cari nama bank atau dompet...",
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": null,
+        "action": null,
+        "text": "close"
+      },
+      {
+        "id": "clear-search-btn",
+        "action": null,
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "apps Semua 5"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "account_balance Bank"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "phone_android E-Wallet"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "payments Tunai"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "add Tambah Rekening Baru"
+      },
+      {
+        "id": "confirm-selection-btn",
+        "action": null,
+        "text": "Gunakan arrow_forward"
+      }
+    ]
+  },
+  "portofolio": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full gap-y-space-lg pb-28",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col gap-space-sm pt-space-xs",
+        "text": "Portofolio & Investasi Pantau nilai aset, reksadana, dan saham notifications_active Hari Ini Bulan Ini Semua Waktu"
+      },
+      {
+        "index": 1,
+        "class": "calm-forest-card relative overflow-hidden rounded-lg bg-[#123524] text-on-primary p-space-lg shadow-[0_12px_28px_-6px_rgba(18,53,36,0.35)]",
+        "text": "token Total Nilai Portofolio Pasar Buka Rp 68.450.000 trending_up +Rp 4.820.000 (+7.57%) keuntungan berjalan Modal Awal Rp 63.630.000 Keuntungan Terealisasi +Rp 1.450.000"
+      },
+      {
+        "index": 2,
+        "class": "bg-surface-container-lowest rounded-lg p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04)] flex flex-col gap-3.5",
+        "text": "pie_chart Alokasi Kelas Aset Diversifikasi Sehat Saham & Reksadana Rp 35.594.000 52% Portofolio Obligasi / SBN Rp 22.588.500 33% Portofolio Emas & Kripto Rp 10.267.500 15% Portofolio"
+      },
+      {
+        "index": 3,
+        "class": "flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5",
+        "text": "Daftar Aset (4) Jurnal Transaksi Analisis Dividen"
+      },
+      {
+        "index": 4,
+        "class": "flex flex-col gap-space-md",
+        "text": "B BBCA Saham Bank Central Asia Tbk Rp 10.450.000 arrow_upward +Rp 600.000 (+6.09%) 10 Lot (1.000 Lbr) Rata-rata: Rp 9.850 Harga: Rp 10.450 show_chart Sucorinvest Equity Fund Reksadana Saham Agresif Rp 25.100.000 arrow_upward +Rp 2.450.000 ("
+      },
+      {
+        "index": 5,
+        "class": "bg-surface-container-lowest rounded-lg p-space-lg shadow-[0_4px_20px_-2px_rgba(18,53,36,0.04)] flex flex-col gap-space-md",
+        "text": "event_repeat Jurnal & Kalender Dividen Bulan Ini payments Dividen Mendatang Rp 425.000 BBCA (Cum Date: 15 Nov 2026) Terjadwal receipt_long Riwayat Jual/Beli Terakhir 1 Transaksi (Bulan Ini) add_circle Catat Transaksi Investasi Baru"
+      },
+      {
+        "index": 6,
+        "class": "bg-gradient-to-r from-[#123524] to-[#15803d] rounded-lg p-space-md text-on-primary flex items-center gap-3.5 shadow-md",
+        "text": "psychology Tips FinTrack Botanical Porsi pasar uang & obligasi sebesar 33% menjaga stabilitas portofoliomu saat indeks IHSG fluktuatif."
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": null,
+        "text": "notifications_active"
+      },
+      {
+        "id": null,
+        "action": "changePeriod(this, 'Hari Ini')",
+        "text": "Hari Ini"
+      },
+      {
+        "id": null,
+        "action": "changePeriod(this, 'Bulan Ini')",
+        "text": "Bulan Ini"
+      },
+      {
+        "id": null,
+        "action": "changePeriod(this, 'Semua Waktu')",
+        "text": "Semua Waktu"
+      },
+      {
+        "id": null,
+        "action": "switchTab(this, 'daftar')",
+        "text": "Daftar Aset (4)"
+      },
+      {
+        "id": null,
+        "action": "switchTab(this, 'jurnal')",
+        "text": "Jurnal Transaksi"
+      },
+      {
+        "id": null,
+        "action": "switchTab(this, 'dividen')",
+        "text": "Analisis Dividen"
+      },
+      {
+        "id": null,
+        "action": "triggerNewInvestModal()",
+        "text": "add_circle Catat Transaksi Investasi Baru"
+      }
+    ]
+  },
+  "tambah-akun": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-28",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col gap-space-lg w-full",
+        "text": "Tambah Rekening Baru Hubungkan atau kelola kantong keuangan Anda Rekening Finansial Bank BCA BCA Rekening Utama Rp 0 •••• •••• •••• 8821 visibility account_balance Institusi & Jenis Dompet account_balance Bank (10) wallet E-Wallet (6) payme"
+      },
+      {
+        "index": 1,
+        "class": "fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0 flex flex-col justify-end",
+        "text": "Pilih Bank & Dompet Dukungan institusi perbankan & e-money Indonesia close search BCA Bank Central Asia Bank BCA check_circle MDR Bank Mandiri Livin' by Mandiri check_circle BRI Bank Rakyat Indonesia BRImo check_circle BNI Bank BNI 46 BNI M"
+      },
+      {
+        "index": 2,
+        "class": "fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-[-12px] transition-all duration-300 max-w-[90%] w-auto px-4 py-3 rounded-full bg-inverse-surface text-inverse-on-surface shadow-2xl flex items-center gap-2.5",
+        "text": "check_circle Rekening berhasil ditambahkan!"
+      }
+    ],
+    "fields": [
+      {
+        "id": "custom-name-input",
+        "name": null,
+        "type": "text",
+        "placeholder": "Kosongkan untuk pakai nama Bank BCA",
+        "value": null
+      },
+      {
+        "id": "category-select",
+        "name": null,
+        "type": null,
+        "placeholder": null,
+        "value": null
+      },
+      {
+        "id": "initial-balance-input",
+        "name": null,
+        "type": "text",
+        "placeholder": "0",
+        "value": null
+      },
+      {
+        "id": "include-networth-toggle",
+        "name": null,
+        "type": "checkbox",
+        "placeholder": null,
+        "value": null
+      },
+      {
+        "id": "sheet-search-input",
+        "name": null,
+        "type": "text",
+        "placeholder": "Cari bank atau e-wallet...",
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": "toggle-visibility-btn",
+        "action": null,
+        "text": "visibility"
+      },
+      {
+        "id": "tab-bank",
+        "action": "setInstitutionType('bank')",
+        "text": "account_balance Bank (10)"
+      },
+      {
+        "id": "tab-ewallet",
+        "action": "setInstitutionType('ewallet')",
+        "text": "wallet E-Wallet (6)"
+      },
+      {
+        "id": "tab-cash",
+        "action": "setInstitutionType('cash')",
+        "text": "payments Tunai"
+      },
+      {
+        "id": "open-sheet-btn",
+        "action": "toggleBankSheet(true)",
+        "text": "BCA Bank BCA Ketuk untuk mengganti institusi Pilih expand_more"
+      },
+      {
+        "id": null,
+        "action": "setCardColor('forest', this)",
+        "text": "check"
+      },
+      {
+        "id": null,
+        "action": "setCardColor('royal-blue', this)",
+        "text": "check"
+      },
+      {
+        "id": null,
+        "action": "setCardColor('emerald', this)",
+        "text": "check"
+      },
+      {
+        "id": null,
+        "action": "setCardColor('slate', this)",
+        "text": "check"
+      },
+      {
+        "id": null,
+        "action": "setCardColor('bronze', this)",
+        "text": "check"
+      },
+      {
+        "id": null,
+        "action": "window.location.assign('fintrack-dompet-reference.html')",
+        "text": "Batal"
+      },
+      {
+        "id": "save-account-btn",
+        "action": "handleSaveAccount()",
+        "text": "check Simpan Akun"
+      },
+      {
+        "id": null,
+        "action": "toggleBankSheet(false)",
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": "selectInstitution('Bank BCA', 'BCA', '#003d79')",
+        "text": "BCA Bank Central Asia Bank BCA check_circle"
+      },
+      {
+        "id": null,
+        "action": "selectInstitution('Bank Mandiri', 'MDR', '#002855')",
+        "text": "MDR Bank Mandiri Livin' by Mandiri check_circle"
+      },
+      {
+        "id": null,
+        "action": "selectInstitution('Bank BRI', 'BRI', '#00529c')",
+        "text": "BRI Bank Rakyat Indonesia BRImo check_circle"
+      },
+      {
+        "id": null,
+        "action": "selectInstitution('Bank BNI', 'BNI', '#f15a24')",
+        "text": "BNI Bank BNI 46 BNI Mobile check_circle"
+      },
+      {
+        "id": null,
+        "action": "selectInstitution('Bank Jago', 'JAGO', '#ff8400')",
+        "text": "JAGO Bank Jago Kantong Jago Digital check_circle"
+      },
+      {
+        "id": null,
+        "action": "selectInstitution('SeaBank', 'SEA', '#ea580c')",
+        "text": "SEA SeaBank Indonesia Digital Banking check_circle"
+      },
+      {
+        "id": null,
+        "action": "selectInstitution('GoPay Tabungan', 'GOPAY', '#00aa13')",
+        "text": "GOPAY GoPay Wallet E-Wallet & GoPay Tabungan check_circle"
+      },
+      {
+        "id": null,
+        "action": "selectInstitution('OVO Cash', 'OVO', '#4c3494')",
+        "text": "OVO OVO Cash E-Money OVO check_circle"
+      }
+    ]
+  },
+  "tambah-investasi": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-8",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex items-center justify-between mb-space-md",
+        "text": "1 Detail Aset Langkah 1 dari 2"
+      },
+      {
+        "index": 1,
+        "class": "bg-secondary-container/60 rounded-DEFAULT p-space-lg mb-space-lg flex items-start gap-space-md shadow-sm",
+        "text": "spa Pencatatan Portofolio Rapi Catat aset baru dengan cermat. Nilai modal, harga perolehan, dan estimasi imbal hasil akan disinkronkan langsung ke jurnal investasi Anda."
+      },
+      {
+        "index": 2,
+        "class": "mb-space-lg",
+        "text": "KATEGORI ASET query_stats Saham pie_chart Reksa Dana savings Emas Logam currency_bitcoin Kripto more_horiz Lainnya"
+      },
+      {
+        "index": 3,
+        "class": "mb-space-lg",
+        "text": "Beli dari Rekening Aset Sudah Dimiliki info Saldo kas rekening Anda tidak akan dikurangi. Portofolio hanya akan mencatat unit kepemilikan dan harga historis awal."
+      },
+      {
+        "index": 4,
+        "class": "flex flex-col gap-space-md mb-space-lg",
+        "text": "NAMA ASET Wajib domain KODE / TICKER SAHAM Opsional tag JUMLAH PEMBELIAN (LOT) Wajib inventory_2 Lot calculate 1 Lot = 100 Lembar (Total: 1.000 Lembar) HARGA BELI PER LEMBAR Wajib Rp / Lembar BIAYA TRANSAKSI & MATERAI Fee broker & levy Rp T"
+      },
+      {
+        "index": 5,
+        "class": "bg-inverse-surface text-inverse-on-surface rounded-DEFAULT p-space-lg mb-space-xl shadow-md relative overflow-hidden",
+        "text": "receipt_long Ringkasan Kalkulasi Otomatis Total Modal Pembelian Rp 8.512.750 Dampak Saldo BCA Utama trending_down Rp 14.500.000 arrow_forward Rp 5.987.250"
+      },
+      {
+        "index": 6,
+        "class": "sticky bottom-0 pt-space-sm pb-space-md bg-surface/90 backdrop-blur-md flex items-center gap-space-md mt-auto shadow-[-0_-4px_16px_rgba(0,0,0,0.02)]",
+        "text": "Batal add_circle Simpan Investasi"
+      }
+    ],
+    "fields": [
+      {
+        "id": "asset-name",
+        "name": null,
+        "type": "text",
+        "placeholder": "cth: Telkom Indonesia",
+        "value": "Bank Central Asia Tbk"
+      },
+      {
+        "id": "asset-ticker",
+        "name": null,
+        "type": "text",
+        "placeholder": "cth: BBCA",
+        "value": "BBCA"
+      },
+      {
+        "id": "input-lot",
+        "name": null,
+        "type": "number",
+        "placeholder": null,
+        "value": "10"
+      },
+      {
+        "id": "input-price",
+        "name": null,
+        "type": "number",
+        "placeholder": null,
+        "value": "8500"
+      },
+      {
+        "id": "input-fee",
+        "name": null,
+        "type": "number",
+        "placeholder": null,
+        "value": "12750"
+      }
+    ],
+    "buttons": [
+      {
+        "id": null,
+        "action": null,
+        "text": "query_stats Saham"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "pie_chart Reksa Dana"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "savings Emas Logam"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "currency_bitcoin Kripto"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "more_horiz Lainnya"
+      },
+      {
+        "id": "mode-rekening",
+        "action": "setMode('rekening')",
+        "text": "Beli dari Rekening"
+      },
+      {
+        "id": "mode-existing",
+        "action": "setMode('existing')",
+        "text": "Aset Sudah Dimiliki"
+      },
+      {
+        "id": null,
+        "action": "history.back()",
+        "text": "Batal"
+      },
+      {
+        "id": null,
+        "action": "handleSave()",
+        "text": "add_circle Simpan Investasi"
+      }
+    ]
+  },
+  "tambah-target": {
+    "mainClass": "target-create-page flex-1 flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface",
+    "containerClass": "flex flex-col w-full pb-10",
+    "sections": [
+      {
+        "index": 0,
+        "class": "fixed top-20 inset-x-margin z-50 transform -translate-y-12 opacity-0 pointer-events-none transition-all duration-300 ease-out flex items-center gap-space-sm p-space-md bg-secondary-container text-on-secondary-container rounded-2xl shadow-lg",
+        "text": "check_circle Target Tersimpan! Target berhasil disimpan ke portofolio FinTrack."
+      },
+      {
+        "index": 1,
+        "class": "flex items-center justify-between mb-space-sm",
+        "text": ""
+      },
+      {
+        "index": 2,
+        "class": "relative overflow-hidden rounded-2xl bg-primary p-space-lg text-on-primary shadow-sm mb-space-lg",
+        "text": "savings Wujudkan Impian Finansial Wujudkan impian finansial Anda selangkah demi selangkah dengan rencana terukur dan disiplin portofolio FinTrack."
+      },
+      {
+        "index": 3,
+        "class": "flex flex-col gap-space-lg",
+        "text": "Pilih Ikon Target Produktivitas laptop_mac home flight_takeoff directions_car shield_with_heart school Nama Target Tabungan check Kategori Target Produktivitas Investasi Masa Depan Liburan Darurat Nominal Tujuan Rupiah (IDR) Rp check Cepat:"
+      }
+    ],
+    "fields": [
+      {
+        "id": "goalName",
+        "name": null,
+        "type": "text",
+        "placeholder": "Misal: Liburan ke Jepang, Rumah Idaman",
+        "value": "Laptop Kerja Baru (MacBook Pro M3)"
+      },
+      {
+        "id": "goalAmount",
+        "name": null,
+        "type": "text",
+        "placeholder": "0",
+        "value": "18.000.000"
+      },
+      {
+        "id": "initialDeposit",
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "4.000.000"
+      },
+      {
+        "id": "noDeadlineToggle",
+        "name": null,
+        "type": "checkbox",
+        "placeholder": null,
+        "value": null
+      },
+      {
+        "id": "targetDate",
+        "name": null,
+        "type": "date",
+        "placeholder": null,
+        "value": "2027-01-01"
+      },
+      {
+        "id": "paydayToggle",
+        "name": null,
+        "type": "checkbox",
+        "placeholder": null,
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": null,
+        "action": "selectIcon(this, 'laptop_mac', 'Produktivitas')",
+        "text": "laptop_mac"
+      },
+      {
+        "id": null,
+        "action": "selectIcon(this, 'home', 'Properti')",
+        "text": "home"
+      },
+      {
+        "id": null,
+        "action": "selectIcon(this, 'flight_takeoff', 'Liburan')",
+        "text": "flight_takeoff"
+      },
+      {
+        "id": null,
+        "action": "selectIcon(this, 'directions_car', 'Kendaraan')",
+        "text": "directions_car"
+      },
+      {
+        "id": null,
+        "action": "selectIcon(this, 'shield_with_heart', 'Dana Darurat')",
+        "text": "shield_with_heart"
+      },
+      {
+        "id": null,
+        "action": "selectIcon(this, 'school', 'Pendidikan')",
+        "text": "school"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this)",
+        "text": "Produktivitas"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this)",
+        "text": "Investasi Masa Depan"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this)",
+        "text": "Liburan"
+      },
+      {
+        "id": null,
+        "action": "selectCategory(this)",
+        "text": "Darurat"
+      },
+      {
+        "id": null,
+        "action": "setGoalAmount('5.000.000')",
+        "text": "5 Juta"
+      },
+      {
+        "id": null,
+        "action": "setGoalAmount('10.000.000')",
+        "text": "10 Juta"
+      },
+      {
+        "id": null,
+        "action": "setGoalAmount('20.000.000')",
+        "text": "20 Juta"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Ganti"
+      },
+      {
+        "id": "btnSubmit",
+        "action": null,
+        "text": "add_task Simpan Target Tabungan"
+      },
+      {
+        "id": null,
+        "action": "location.assign('fintrack-target-reference.html')",
+        "text": "Batal"
+      }
+    ]
+  },
+  "target": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full space-y-space-lg",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex items-start justify-between gap-space-sm pt-space-xs",
+        "text": "Target Tabungan Wujudkan impian finansial langkah demi langkah add_circle Target Baru"
+      },
+      {
+        "index": 1,
+        "class": "target-summary relative overflow-hidden rounded-lg bg-inverse-surface text-inverse-on-surface p-space-lg shadow-xl",
+        "text": "track_changes Total Akumulasi Target trending_up Rp 23.200.000 dari total rencana Rp 58.000.000 (40.0% tercapai) 3 Target Aktif event_available Tercepat: Jan 2027"
+      },
+      {
+        "index": 2,
+        "class": "flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-margin px-margin",
+        "text": "Semua Target (3) Sedang Berjalan (3) Tercapai (1) Arsip"
+      },
+      {
+        "index": 3,
+        "class": "flex flex-col space-y-space-md",
+        "text": "laptop_mac Laptop Kerja Baru schedule 01 Jan 2027 • Tersisa 3 bln Tepat Waktu Rp 7.200.000 / Rp 18.000.000 40% account_balance Bank BCA • Autodebet Rp 1.500.000/bln add Nabung Cepat tune Detail & Edit shield Dana Darurat 6 Bulan schedule 01"
+      },
+      {
+        "index": 4,
+        "class": "rounded-[24px] p-space-md flex items-center gap-3.5",
+        "text": "psychology Tips FinTrack Sisihkan sebagian penghasilan di awal bulan agar target tabungan lebih mudah tercapai."
+      }
+    ],
+    "fields": [],
+    "buttons": [
+      {
+        "id": null,
+        "action": null,
+        "text": "add_circle Target Baru"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Semua Target (3)"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Sedang Berjalan (3)"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Tercapai (1)"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Arsip"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "add Nabung Cepat"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "tune Detail & Edit"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "add Nabung Cepat"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "tune Detail & Edit"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "add Nabung Cepat"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "tune Detail & Edit"
+      }
+    ]
+  },
+  "transaksi-investasi": {
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-28",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex items-center justify-between mt-2 mb-4",
+        "text": "account_balance BBCA IDX Equity Bank Central Asia Tbk Harga Terakhir Rp 9.025"
+      },
+      {
+        "index": 1,
+        "class": "w-full bg-surface-container p-1 rounded-full flex items-center mb-6 shadow-sm",
+        "text": "add_circle Beli Aset trending_up Jual Aset"
+      },
+      {
+        "index": 2,
+        "class": "bg-surface-container-lowest rounded-DEFAULT p-space-lg mb-5 shadow-sm flex items-center justify-between",
+        "text": "inventory_2 Kepemilikan Tersedia 10 Lot (1.000 Lembar) Jual Semua"
+      },
+      {
+        "index": 3,
+        "class": "flex flex-col gap-4 mb-6",
+        "text": "Jumlah Unit Dijual 1 Lot = 100 Lembar Lot remove add 4 Lot = 400 Lembar Sisa: 6 Lot (600 Lembar) error Maksimal penjualan adalah 10 Lot (1.000 Lembar). Harga Jual per Lembar Modal: Rp 8.500 Rp Estimasi Nilai Kotor Rp 3.600.000 Biaya Broker "
+      },
+      {
+        "index": 4,
+        "class": "rounded-DEFAULT bg-gradient-to-br from-[#0B2A1D] to-[#123524] p-space-lg text-on-primary shadow-lg mb-6 relative overflow-hidden",
+        "text": "insights Hasil Bersih Penjualan Tereksekusi Modal Beli (400 lbr @ Rp 8.500) Rp 3.400.000 Hasil Penjualan Bersih +Rp 3.592.800 Keuntungan Terealisasi (P/L) +Rp 192.800 (+5,67%) trending_flat Proyeksi Saldo BCA Rp 14.500.000 → Rp 18.092.800"
+      },
+      {
+        "index": 5,
+        "class": "fixed bottom-0 left-0 right-0 p-4 bg-surface/90 backdrop-blur-md flex items-center justify-center z-40",
+        "text": "Lanjutkan Konfirmasi arrow_forward"
+      },
+      {
+        "index": 6,
+        "class": "fixed inset-0 z-50 bg-[#0B2A1D]/60 backdrop-blur-sm hidden flex items-end justify-center transition-opacity duration-300",
+        "text": "Konfirmasi Transaksi close Aset & Tipe BBCA (Penjualan) Volume 4 Lot (400 Lembar) Harga Eksekusi Rp 9.000 / Lembar Total Dana Diterima Rp 3.592.800 Tujuan Payout BCA Utama check_circle Transaksi ini akan langsung memperbarui saldo kas BCA U"
+      }
+    ],
+    "fields": [
+      {
+        "id": "lotInput",
+        "name": null,
+        "type": "number",
+        "placeholder": null,
+        "value": "4"
+      },
+      {
+        "id": "priceInput",
+        "name": null,
+        "type": "number",
+        "placeholder": null,
+        "value": "9000"
+      },
+      {
+        "id": "tradeNotes",
+        "name": null,
+        "type": "text",
+        "placeholder": "Tulis alasan transaksi...",
+        "value": "Realisasi profit sebagian target resisten"
+      }
+    ],
+    "buttons": [
+      {
+        "id": "tabBuy",
+        "action": "switchMode('buy')",
+        "text": "add_circle Beli Aset"
+      },
+      {
+        "id": "tabSell",
+        "action": "switchMode('sell')",
+        "text": "trending_up Jual Aset"
+      },
+      {
+        "id": null,
+        "action": "setMaxUnits()",
+        "text": "Jual Semua"
+      },
+      {
+        "id": null,
+        "action": "adjustLot(-1)",
+        "text": "remove"
+      },
+      {
+        "id": null,
+        "action": "adjustLot(1)",
+        "text": "add"
+      },
+      {
+        "id": "submitBtn",
+        "action": "openSummaryModal()",
+        "text": "Lanjutkan Konfirmasi arrow_forward"
+      },
+      {
+        "id": null,
+        "action": "closeSummaryModal()",
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": "closeSummaryModal()",
+        "text": "Periksa Kembali"
+      },
+      {
+        "id": null,
+        "action": "executeSave()",
+        "text": "verified Simpan Transaksi"
+      }
+    ]
+  },
+  "transfer": {
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-28 space-y-space-lg",
+    "sections": [
+      {
+        "index": 0,
+        "class": "flex flex-col px-space-xs",
+        "text": "Pindah Dana Antar Rekening Pindahkan saldo antar rekening. sync_alt Mutasi Kas"
+      },
+      {
+        "index": 1,
+        "class": "bg-surface-container-lowest rounded-[24px] p-5 shadow-sm relative",
+        "text": "BCA Bank BCA expand_more Rp 14.500.000 arrow_downward swap_vert mandiri Bank Mandiri expand_more Rp 8.250.000"
+      },
+      {
+        "index": 2,
+        "class": "bg-surface-container-lowest rounded-lg p-space-lg shadow-sm flex flex-col space-y-space-md",
+        "text": "Nominal Pindah Dana bolt Real-time Rp close +100rb +500rb +1jt Semua Saldo edit_note Catatan (Opsional)"
+      },
+      {
+        "index": 3,
+        "class": "flex flex-col space-y-space-sm pt-space-xs",
+        "text": "send_money Konfirmasi & Simpan Transfer"
+      },
+      {
+        "index": 4,
+        "class": "fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-sm hidden flex-col justify-end",
+        "text": "Pilih Rekening Tentukan rekening sumber atau penerima close add_card Tambah Rekening Baru Hubungkan e-wallet, bank, atau dompet tunai chevron_right Daftar Rekening Terdaftar BCA Bank BCA - Utama Rp 14.500.000 radio_button_checked JAGO Bank "
+      }
+    ],
+    "fields": [
+      {
+        "id": "transferAmount",
+        "name": null,
+        "type": "text",
+        "placeholder": null,
+        "value": "1.500.000"
+      },
+      {
+        "id": "txNote",
+        "name": null,
+        "type": null,
+        "placeholder": "Contoh: Top up GoPay, tabungan bulanan...",
+        "value": null
+      }
+    ],
+    "buttons": [
+      {
+        "id": null,
+        "action": "openAccountPicker('source')",
+        "text": "BCA Bank BCA expand_more Rp 14.500.000"
+      },
+      {
+        "id": "swapBtn",
+        "action": null,
+        "text": "swap_vert"
+      },
+      {
+        "id": null,
+        "action": "openAccountPicker('dest')",
+        "text": "mandiri Bank Mandiri expand_more Rp 8.250.000"
+      },
+      {
+        "id": "clearAmount",
+        "action": null,
+        "text": "close"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+100rb"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+500rb"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "+1jt"
+      },
+      {
+        "id": null,
+        "action": null,
+        "text": "Semua Saldo"
+      },
+      {
+        "id": "confirmTransferBtn",
+        "action": null,
+        "text": "send_money Konfirmasi & Simpan Transfer"
+      },
+      {
+        "id": null,
+        "action": "closeAccountPicker()",
+        "text": "close"
+      }
+    ]
+  }
+}
