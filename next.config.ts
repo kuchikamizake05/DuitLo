@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { buildSecurityHeaders } from "./src/config/security-headers";
 
 const nextConfig: NextConfig = {
+  distDir: process.env.FINTRACK_E2E === "1" ? ".next-e2e" : ".next",
   async headers() {
     const securityHeaders = buildSecurityHeaders({
       environment: process.env.NODE_ENV,

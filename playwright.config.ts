@@ -36,6 +36,7 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 180_000,
     env: {
+      FINTRACK_E2E: "1",
       NEXT_PUBLIC_SUPABASE_URL: "https://e2e-project.supabase.co",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "e2e-anon-key",
       N8N_TRADE_REVIEW_WEBHOOK_URL: "https://workflow.invalid/review",
