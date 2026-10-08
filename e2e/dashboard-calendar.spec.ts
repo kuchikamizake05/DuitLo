@@ -19,45 +19,26 @@ async function prepareDashboard(page: Page, language: "id" | "en") {
     await route.fulfill({ status: 200, json: rows });
   });
   await page.goto("/dashboard");
-  await expect(page.locator("#mobile-calendar-title")).toBeVisible();
+  await expect(page.locator("#main-balance")).toBeVisible();
 }
 
 for (const language of ["id", "en"] as const) {
-  test(`calendar aligns weekdays and protects amounts in ${language}`, async ({ page }, testInfo) => {
-    await prepareDashboard(page, language);
-    const calendar = page.locator("section[aria-labelledby='mobile-calendar-title']");
-    const first = calendar.locator("a[href='/transactions?new=1&date=2026-10-01']");
-    const weekday = calendar.getByText(language === "id" ? "Km" : "Th", { exact: true });
-    const [dateBox, weekdayBox] = await Promise.all([first.boundingBox(), weekday.boundingBox()]);
-    expect(dateBox).not.toBeNull();
-    expect(weekdayBox).not.toBeNull();
-    expect(Math.abs((dateBox!.x + dateBox!.width / 2) - (weekdayBox!.x + weekdayBox!.width / 2))).toBeLessThan(1);
-    const populated = calendar.locator("a[href='/transactions?date=2026-10-08']");
-    await expect(populated).toContainText("-250K");
-    await expect(populated).toHaveAttribute("aria-label", /250K/);
-    const darkAmount = page.locator("#mobile-cash-flow-title + p");
-    await expect(darkAmount).toContainText(/750/);
-    await expect(darkAmount).toHaveCSS("color", "rgb(255, 255, 255)");
-    await testInfo.attach(`dashboard-${language}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
-    await page.getByRole("button", { name: language === "id" ? "Sembunyikan nominal" : "Hide amounts", exact: true }).click();
-    await expect(populated).not.toContainText("250");
-    await expect(populated).not.toHaveAttribute("aria-label", /250/);
-    await expect(populated).toContainText("••••••");
+  test(`source home keeps seven streak days and protects amounts in ${language}`, async ({page},testInfo)=>{
+    await prepareDashboard(page,language);
+    await expect(page.locator("#main-balance")).toContainText(/1[.,]000[.,]000/);
+    await expect(page.locator('[data-page="beranda"] main')).toBeVisible();
+    await expect(page.locator("#mobile-calendar-title")).toHaveCount(0);
+    await page.locator("#toggle-balance-visibility").click();
+    await expect(page.locator("#main-balance")).toContainText("••••");
     await page.reload();
-    await expect(calendar.locator("a[href='/transactions?date=2026-10-08']")).not.toContainText("250");
+    await expect(page.locator("#main-balance")).toContainText("••••");
+    await testInfo.attach(`dashboard-${language}`,{body:await page.screenshot({fullPage:true}),contentType:"image/png"});
   });
 }
 
-test("calendar opens populated dates and prefills empty dates", async ({ page }) => {
-  await prepareDashboard(page, "id");
-  const calendar = page.locator("section[aria-labelledby='mobile-calendar-title']");
-  await expect(calendar.locator("a[href='/transactions?date=2026-10-09']")).toBeVisible();
-  await calendar.locator("a[href='/transactions?date=2026-10-08']").click();
-  await expect(page).toHaveURL(/transactions\?date=2026-10-08$/);
-  await expect(page.locator("#filter-start-date")).toHaveValue("2026-10-08");
-  await expect(page.locator("#filter-end-date")).toHaveValue("2026-10-08");
-  await page.goto("/dashboard");
-  await calendar.locator("a[href='/transactions?new=1&date=2026-10-10']").click();
-  await expect(page.locator("#transaction-date")).toBeVisible();
-  await expect(page.locator("#transaction-date")).toHaveValue("2026-10-10");
+test("source home recent transaction opens actual detail",async({page})=>{
+ await prepareDashboard(page,"id");
+ await page.getByText("Lunch",{exact:true}).click();
+ await expect(page).toHaveURL(/transactions\?view=detail&id=expense$/);
+ await expect(page.getByRole("dialog",{name:"Detail Transaksi",exact:true})).toBeVisible();
 });

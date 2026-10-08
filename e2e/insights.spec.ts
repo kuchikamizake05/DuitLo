@@ -78,7 +78,7 @@ test.describe("Smart Insights @critical", () => {
       if (url.pathname === "/auth/v1/user") return route.fulfill({ status: 200, json: user });
       if (url.pathname === "/rest/v1/transactions") return fulfillRows(route, [{ id: "usd-1", date: "2026-07-02", type: "expense", category: "Makan", amount: 100, status: "confirmed", account_id: "usd-account" }]);
       if (url.pathname === "/rest/v1/financial_accounts") return fulfillRows(route, [{ id: "usd-account", currency: "USD", reporting_balance_idr: 1_600_000, is_active: true }]);
-      return route.fulfill({ status: 404, json: {} });
+      return fulfillRows(route, []);
     });
     await page.route("https://api.frankfurter.dev/**", (route) => route.fulfill({ status: 503, json: {} }));
     await page.route("**/api/insights/generate", async (route) => {
@@ -87,9 +87,9 @@ test.describe("Smart Insights @critical", () => {
     });
 
     await page.goto("/insights");
-    await expect(page.getByText("Analitik IDR ditunda")).toBeVisible();
-    await expect(page.getByText("USD", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("Kurs IDR belum tersedia untuk USD.")).toBeVisible();
+    await expect(page.getByText("Arus kas dipisahkan per mata uang")).toBeVisible();
+    await expect(page.getByText("USD", { exact: true }).filter({visible:true}).first()).toBeVisible();
+    await expect(page.getByText("Kurs IDR belum tersedia. Nilai tidak digabung.").filter({visible:true}).first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Akumulasi pemasukan dan pengeluaran" })).toHaveCount(0);
     expect(insightCalls).toBe(0);
     });
@@ -98,15 +98,15 @@ test.describe("Smart Insights @critical", () => {
   test("renders verified metrics before a validated AI explanation", async ({ page }) => {
     const payloads = await mockInsights(page);
     await page.goto("/insights");
-    await expect(page.getByRole("heading", { name: "Smart Insights" })).toBeVisible();
-    await expect(page.getByText(/Rp\s*10\.000\.000/).first()).toBeVisible();
-    await expect(page.getByText(/Rp\s*4\.000\.000/).first()).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Arus kas bulan ini tetap sehat" })).toBeVisible();
-    await expect(page.getByText("Dibantu AI")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Laporan & Insights/ })).toBeVisible();
+    await page.getByRole("button",{name:"Pemasukan",exact:true}).click();
+    await expect(page.getByText(/Rp\s*10\.000\.000/).filter({visible:true}).first()).toBeVisible();
+    await page.getByRole("button",{name:"Pengeluaran",exact:true}).click();
+    await expect(page.getByText(/Rp\s*4\.000\.000/).filter({visible:true}).first()).toBeVisible();
+    await page.getByRole("button",{name:"Pengeluaran",exact:true}).click();
     await expect(page.getByText("Hunian menjadi kategori pengeluaran terbesar.")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Akumulasi pemasukan dan pengeluaran" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Kategori terbesar bulan ini" })).toBeVisible();
-    await expect(page.getByText("Hunian", { exact: true }).first()).toBeVisible();
+    await expect(page.locator("#report-donut-chart")).toBeVisible();
+    await expect(page.getByText("Hunian", { exact: true }).filter({visible:true}).first()).toBeVisible();
     expect(payloads).toHaveLength(1);
     const serialized = JSON.stringify(payloads[0]);
     expect(serialized).not.toContain("merchant");
@@ -120,32 +120,47 @@ test.describe("Smart Insights @critical", () => {
     test("keeps deterministic analysis when AI is unavailable", async ({ page }) => {
       await mockInsights(page, { aiStatus: 503 });
       await page.goto("/insights");
-      await expect(page.getByRole("heading", { name: "Ruang arus kas masih terjaga" })).toBeVisible();
-      await expect(page.getByText(/Analisis lokal tetap tersedia/)).toBeVisible();
-      await expect(page.getByText("Fallback terverifikasi")).toBeVisible();
+      await expect(page.locator("#report-donut-chart")).toBeVisible();
+      await page.getByRole("button",{name:"Pengeluaran",exact:true}).click();
+    await expect(page.getByText(/Rp\s*4\.000\.000/).filter({visible:true}).first()).toBeVisible();
     });
   });
 
   test("shows a useful empty state without calling AI", async ({ page }) => {
     const payloads = await mockInsights(page, { empty: true });
     await page.goto("/insights");
-    await expect(page.getByRole("heading", { name: /Belum ada data terverifikasi/ })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Buka transaksi/ })).toBeVisible();
+    await expect(page.getByText("Belum ada data terverifikasi",{exact:true})).toBeVisible();
     expect(payloads).toHaveLength(0);
   });
 
   test("priority actions navigate internally", async ({ page }) => {
     await mockInsights(page);
     await page.goto("/insights");
-    await page.getByRole("link", { name: /Tinjau transaksi tertunda/ }).click();
+    await page.getByRole("button", { name: /Rincian/ }).click();
     await expect(page).toHaveURL(/\/transactions$/);
   });
 
   test("has no page-level horizontal overflow", async ({ page }) => {
     await mockInsights(page);
     await page.goto("/insights");
-    await expect(page.getByRole("heading", { name: "Smart Insights" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Laporan & Insights/ })).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(overflow).toBe(false);
   });
 });
+
+for (const theme of ["light", "dark"] as const) {
+  test(`category bars match the ${theme} theme`, async ({page}, testInfo) => {
+    await mockInsights(page);
+    await page.addInitScript(value => localStorage.setItem("fintrack-theme", value), theme);
+    await page.goto("/insights");
+    await page.getByRole("button", {name:"Batang", exact:true}).click();
+    const chart = page.getByLabel("Distribusi pengeluaran terbesar", {exact:true});
+    await expect(chart).toBeVisible();
+    const bars = chart.locator("div[role=img]");
+    await expect(bars).toHaveCount(2);
+    await expect(bars.nth(0)).toHaveCSS("background-color", theme === "dark" ? "rgb(9, 84, 207)" : "rgb(21, 128, 61)");
+    await expect(bars.nth(1)).toHaveCSS("background-color", theme === "dark" ? "rgb(47, 111, 214)" : "rgb(51, 147, 91)");
+    await page.screenshot({path:testInfo.outputPath(`reports-${theme}.png`),fullPage:true});
+  });
+}
