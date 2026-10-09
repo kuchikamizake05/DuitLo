@@ -1,0 +1,614 @@
+{
+  "bca": {
+    "institution": "bca",
+    "variant": "bca",
+    "background": "#ffffff",
+    "zoom": 1.68,
+    "panX": -0.5,
+    "panY": 0.03820847474527597,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/bca.svg",
+    "approvedAt": "2026-10-13T15:59:49.604Z"
+  },
+  "mandiri": {
+    "institution": "mandiri",
+    "variant": "mandiri",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/mandiri.svg",
+    "approvedAt": "2026-10-13T16:01:08.624Z"
+  },
+  "bri": {
+    "institution": "bri",
+    "variant": "fintrack-bri-mark",
+    "background": "#ffffff",
+    "zoom": 0.86,
+    "panX": 0,
+    "panY": 0.02,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9694315828791832,
+      "height": 0.9707053043379777
+    },
+    "src": "/institutions/approved/bri.svg",
+    "approvedAt": "2026-10-13T16:02:43.380Z"
+  },
+  "bni": {
+    "institution": "bni",
+    "variant": "fintrack-bni-mark",
+    "background": "#ffffff",
+    "zoom": 0.84,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9363158511108131,
+      "height": 0.9312212218157068
+    },
+    "src": "/institutions/approved/bni.svg",
+    "approvedAt": "2026-10-13T16:03:50.317Z"
+  },
+  "bsi": {
+    "institution": "bsi",
+    "variant": "bsi",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/bsi.svg",
+    "approvedAt": "2026-10-13T16:04:03.991Z"
+  },
+  "btn": {
+    "institution": "btn",
+    "variant": "btn",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/btn.svg",
+    "approvedAt": "2026-10-13T16:04:18.036Z"
+  },
+  "cimb-niaga": {
+    "institution": "cimb-niaga",
+    "variant": "cimb-niaga",
+    "background": "#ffffff",
+    "zoom": 0.84,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/cimb-niaga.svg",
+    "approvedAt": "2026-10-13T16:20:46.417Z"
+  },
+  "permata": {
+    "institution": "permata",
+    "variant": "fintrack-permata-mark",
+    "background": "#ffffff",
+    "zoom": 1.04,
+    "panX": 0.16,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/permata.svg",
+    "approvedAt": "2026-10-13T16:04:58.697Z"
+  },
+  "danamon": {
+    "institution": "danamon",
+    "variant": "danamon",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/danamon.svg",
+    "approvedAt": "2026-10-13T16:05:15.430Z"
+  },
+  "ocbc-nisp": {
+    "institution": "ocbc-nisp",
+    "variant": "ocbc-nisp",
+    "background": "#ffffff",
+    "zoom": 0.84,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/ocbc-nisp.svg",
+    "approvedAt": "2026-10-13T16:05:37.653Z"
+  },
+  "maybank": {
+    "institution": "maybank",
+    "variant": "fintrack-maybank-mark",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9707053043379774,
+      "height": 0.9732526189855306
+    },
+    "src": "/institutions/approved/maybank.svg",
+    "approvedAt": "2026-10-13T16:05:53.980Z"
+  },
+  "dbs": {
+    "institution": "dbs",
+    "variant": "fintrack-dbs-mark",
+    "background": "#ffffff",
+    "zoom": 0.96,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9757999336330835,
+      "height": 0.9707054326080137
+    },
+    "src": "/institutions/approved/dbs.svg",
+    "approvedAt": "2026-10-13T16:06:14.991Z"
+  },
+  "uob": {
+    "institution": "uob",
+    "variant": "fintrack-uob-mark",
+    "background": "#ffffff",
+    "zoom": 0.96,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9426842018647142,
+      "height": 0.9853799919169235
+    },
+    "src": "/institutions/approved/uob.svg",
+    "approvedAt": "2026-10-13T16:07:04.669Z"
+  },
+  "mega": {
+    "institution": "mega",
+    "variant": "mega",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/mega.svg",
+    "approvedAt": "2026-10-13T16:07:32.207Z"
+  },
+  "muamalat": {
+    "institution": "muamalat",
+    "variant": "fintrack-muamalat-mark",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9630632321252826,
+      "height": 0.9681578614203884
+    },
+    "src": "/institutions/approved/muamalat.svg",
+    "approvedAt": "2026-10-13T16:07:57.191Z"
+  },
+  "jago": {
+    "institution": "jago",
+    "variant": "jago-app",
+    "background": "#ffffff",
+    "zoom": 0.98,
+    "panX": 0.01,
+    "panY": 0.05,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/jago.svg",
+    "approvedAt": "2026-10-13T16:08:48.965Z"
+  },
+  "seabank": {
+    "institution": "seabank",
+    "variant": "fintrack-seabank-mark",
+    "background": "#ffffff",
+    "zoom": 0.96,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.8726318304916606,
+      "height": 0.9814822128819543
+    },
+    "src": "/institutions/approved/seabank.svg",
+    "approvedAt": "2026-10-13T16:09:33.667Z"
+  },
+  "blu-bca": {
+    "institution": "blu-bca",
+    "variant": "blu-bca",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/blu-bca.svg",
+    "approvedAt": "2026-10-13T16:09:42.366Z"
+  },
+  "jenius": {
+    "institution": "jenius",
+    "variant": "jenius-app",
+    "background": "#ffffff",
+    "zoom": 1.26,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/jenius.svg",
+    "approvedAt": "2026-10-13T16:10:20.000Z"
+  },
+  "bnc": {
+    "institution": "bnc",
+    "variant": "bnc",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/bnc.svg",
+    "approvedAt": "2026-10-13T16:10:37.605Z"
+  },
+  "superbank": {
+    "institution": "superbank",
+    "variant": "superbank",
+    "background": "#dcfce7",
+    "zoom": 1.24,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/superbank.svg",
+    "approvedAt": "2026-10-13T16:11:17.911Z"
+  },
+  "krom": {
+    "institution": "krom",
+    "variant": "krom",
+    "background": "#ffffff",
+    "zoom": 1.26,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/krom.svg",
+    "approvedAt": "2026-10-13T16:11:38.966Z"
+  },
+  "line-bank": {
+    "institution": "line-bank",
+    "variant": "line-bank",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0.01,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9847158555746096,
+      "height": 0.9958552053915932
+    },
+    "src": "/institutions/approved/line-bank.svg",
+    "approvedAt": "2026-10-13T16:12:06.325Z"
+  },
+  "allo": {
+    "institution": "allo",
+    "variant": "allo",
+    "background": "#ffffff",
+    "zoom": 0.86,
+    "panX": 0.02,
+    "panY": -0.04,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/allo.svg",
+    "approvedAt": "2026-10-13T16:12:56.281Z"
+  },
+  "aladin": {
+    "institution": "aladin",
+    "variant": "aladin",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/aladin.svg",
+    "approvedAt": "2026-10-13T16:13:09.315Z"
+  },
+  "bank-saqu": {
+    "institution": "bank-saqu",
+    "variant": "bank-saqu-alt",
+    "background": "#ffffff",
+    "zoom": 0.9,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/bank-saqu.svg",
+    "approvedAt": "2026-10-13T16:13:33.727Z"
+  },
+  "bank-bjb": {
+    "institution": "bank-bjb",
+    "variant": "bank-bjb",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0.01,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/bank-bjb.svg",
+    "approvedAt": "2026-10-13T16:13:53.246Z"
+  },
+  "bank-bpd-jatim": {
+    "institution": "bank-bpd-jatim",
+    "variant": "bank-bpd-jatim",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/bank-bpd-jatim.svg",
+    "approvedAt": "2026-10-13T16:14:08.504Z"
+  },
+  "bank-bpd-jateng": {
+    "institution": "bank-bpd-jateng",
+    "variant": "bank-bpd-jateng",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/bank-bpd-jateng.svg",
+    "approvedAt": "2026-10-13T16:14:16.901Z"
+  },
+  "gopay": {
+    "institution": "gopay",
+    "variant": "fintrack-gopay-mark",
+    "background": "#111827",
+    "zoom": 1.26,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9745263404443251,
+      "height": 0.9732526189855303
+    },
+    "src": "/institutions/approved/gopay.svg",
+    "approvedAt": "2026-10-13T16:14:51.296Z"
+  },
+  "ovo": {
+    "institution": "ovo",
+    "variant": "ovo-old-alt",
+    "background": "#111827",
+    "zoom": 1.26,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/ovo.svg",
+    "approvedAt": "2026-10-13T16:15:08.284Z"
+  },
+  "dana": {
+    "institution": "dana",
+    "variant": "fintrack-dana-mark",
+    "background": "#111827",
+    "zoom": 1.28,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/dana.svg",
+    "approvedAt": "2026-10-13T16:15:19.824Z"
+  },
+  "shopee-pay": {
+    "institution": "shopee-pay",
+    "variant": "fintrack-shopee-pay-mark",
+    "background": "#ffffff",
+    "zoom": 0.88,
+    "panX": 0,
+    "panY": -0.03,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9643369535840773,
+      "height": 0.8364001056147915
+    },
+    "src": "/institutions/approved/shopee-pay.svg",
+    "approvedAt": "2026-10-13T16:15:56.453Z"
+  },
+  "linkaja": {
+    "institution": "linkaja",
+    "variant": "linkaja",
+    "background": "#ffffff",
+    "zoom": 0.9,
+    "panX": 0.04,
+    "panY": 0.02,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/linkaja.svg",
+    "approvedAt": "2026-10-13T16:16:26.669Z"
+  },
+  "astra-pay": {
+    "institution": "astra-pay",
+    "variant": "astra-pay",
+    "background": "#ffffff",
+    "zoom": 0.86,
+    "panX": 0,
+    "panY": -0.05,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "src": "/institutions/approved/astra-pay.svg",
+    "approvedAt": "2026-10-13T16:17:04.575Z"
+  },
+  "i-saku": {
+    "institution": "i-saku",
+    "variant": "i-saku",
+    "background": "#ffffff",
+    "zoom": 1,
+    "panX": 0,
+    "panY": 0,
+    "padding": 0.1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 0.9910842063285104,
+      "height": 1
+    },
+    "src": "/institutions/approved/i-saku.svg",
+    "approvedAt": "2026-10-13T16:17:26.563Z"
+  }
+}
