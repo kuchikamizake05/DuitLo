@@ -1,0 +1,251 @@
+[
+  {
+    "id": "bca",
+    "name": "Bank BCA",
+    "kind": "bank",
+    "aliases": [
+      "BCA",
+      "Bank Central Asia"
+    ]
+  },
+  {
+    "id": "mandiri",
+    "name": "Bank Mandiri",
+    "kind": "bank",
+    "aliases": [
+      "Mandiri"
+    ]
+  },
+  {
+    "id": "bri",
+    "name": "Bank BRI",
+    "kind": "bank",
+    "aliases": [
+      "BRI",
+      "Bank Rakyat Indonesia"
+    ]
+  },
+  {
+    "id": "bni",
+    "name": "Bank BNI",
+    "kind": "bank",
+    "aliases": [
+      "BNI"
+    ]
+  },
+  {
+    "id": "bsi",
+    "name": "Bank BSI",
+    "kind": "bank",
+    "aliases": [
+      "BSI",
+      "Bank Syariah Indonesia"
+    ]
+  },
+  {
+    "id": "btn",
+    "name": "Bank BTN",
+    "kind": "bank",
+    "aliases": [
+      "BTN"
+    ]
+  },
+  {
+    "id": "cimb-niaga",
+    "name": "CIMB Niaga",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "permata",
+    "name": "Bank Permata",
+    "kind": "bank",
+    "aliases": [
+      "PermataBank"
+    ]
+  },
+  {
+    "id": "danamon",
+    "name": "Bank Danamon",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "ocbc-nisp",
+    "name": "OCBC",
+    "kind": "bank",
+    "aliases": [
+      "OCBC NISP"
+    ]
+  },
+  {
+    "id": "maybank",
+    "name": "Maybank",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "dbs",
+    "name": "DBS",
+    "kind": "bank",
+    "aliases": [
+      "digibank"
+    ]
+  },
+  {
+    "id": "uob",
+    "name": "UOB",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "mega",
+    "name": "Bank Mega",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "muamalat",
+    "name": "Bank Muamalat",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "jago",
+    "name": "Bank Jago",
+    "kind": "bank",
+    "aliases": [
+      "Jago"
+    ]
+  },
+  {
+    "id": "seabank",
+    "name": "SeaBank",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "blu-bca",
+    "name": "blu by BCA Digital",
+    "kind": "bank",
+    "aliases": [
+      "blu",
+      "BCA Digital"
+    ]
+  },
+  {
+    "id": "jenius",
+    "name": "Jenius",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "bnc",
+    "name": "Bank Neo Commerce",
+    "kind": "bank",
+    "aliases": [
+      "BNC",
+      "Neobank"
+    ]
+  },
+  {
+    "id": "superbank",
+    "name": "Superbank",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "krom",
+    "name": "Krom Bank",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "line-bank",
+    "name": "LINE Bank",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "allo",
+    "name": "Allo Bank",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "aladin",
+    "name": "Bank Aladin",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "bank-saqu",
+    "name": "Bank Saqu",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "bank-bjb",
+    "name": "Bank BJB",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "bank-bpd-jatim",
+    "name": "Bank Jatim",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "bank-bpd-jateng",
+    "name": "Bank Jateng",
+    "kind": "bank",
+    "aliases": []
+  },
+  {
+    "id": "gopay",
+    "name": "GoPay",
+    "kind": "ewallet",
+    "aliases": [
+      "GoPay Wallet"
+    ]
+  },
+  {
+    "id": "ovo",
+    "name": "OVO",
+    "kind": "ewallet",
+    "aliases": [
+      "OVO Cash"
+    ]
+  },
+  {
+    "id": "dana",
+    "name": "DANA",
+    "kind": "ewallet",
+    "aliases": []
+  },
+  {
+    "id": "shopee-pay",
+    "name": "ShopeePay",
+    "kind": "ewallet",
+    "aliases": []
+  },
+  {
+    "id": "linkaja",
+    "name": "LinkAja",
+    "kind": "ewallet",
+    "aliases": []
+  },
+  {
+    "id": "astra-pay",
+    "name": "AstraPay",
+    "kind": "ewallet",
+    "aliases": []
+  },
+  {
+    "id": "i-saku",
+    "name": "iSaku",
+    "kind": "ewallet",
+    "aliases": []
+  }
+]
