@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo_Black, JetBrains_Mono, Manrope } from "next/font/google";
+import { Archivo_Black, JetBrains_Mono, Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import AppBoundary from "@/components/AppBoundary";
 import OnboardingBoundary from "@/components/OnboardingBoundary";
 import PWARegister from "@/components/PWARegister";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import {ProfilePhotoProvider} from "@/components/ProfilePhotoProvider";
 import SkipLink from "@/components/SkipLink";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 
@@ -19,6 +21,8 @@ const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
 });
+
+const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin"], display: "swap" });
 
 const archivoBlack = Archivo_Black({
   variable: "--font-archivo-black",
@@ -54,15 +58,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${jetbrainsMono.variable} ${manrope.variable} ${archivoBlack.variable} h-full antialiased`}>
+    <html lang="id" className={`${jetbrainsMono.variable} ${manrope.variable} ${archivoBlack.variable} ${jakarta.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-[var(--canvas)] font-sans text-slate-900">
-        <LanguageProvider>
-          <ToastProvider>
+        <ThemeProvider><LanguageProvider>
+          <ProfilePhotoProvider><ToastProvider>
             <PWARegister />
             <SkipLink />
             <AppBoundary><OnboardingBoundary>{children}</OnboardingBoundary></AppBoundary>
-          </ToastProvider>
-        </LanguageProvider>
+          </ToastProvider></ProfilePhotoProvider>
+        </LanguageProvider></ThemeProvider>
       </body>
     </html>
   );

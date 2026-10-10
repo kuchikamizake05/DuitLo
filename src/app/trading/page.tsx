@@ -1,4 +1,5 @@
 "use client";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
@@ -496,10 +497,7 @@ function DialogActions({ saving, onClose, label }: { saving: boolean; onClose: (
     </div>
   );
 }
-function TradeSkeleton() {
-  const { t } = useLanguage();
-  return <div role="status" aria-label={t("Memuat trading")} className="animate-pulse divide-y divide-slate-100">{[0, 1, 2].map((item) => <div key={item} className="h-40 bg-slate-50/60" />)}<span className="sr-only">{t("Memuat trading")}</span></div>;
-}
+function TradeSkeleton() { return <PageSkeleton variant="trading"/>; }
 function formatSignedMoney(value: number, currency: string) {
   const amount = new Intl.NumberFormat("id-ID", {
     style: "currency",

@@ -1,4 +1,5 @@
 "use client";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -268,7 +269,7 @@ function SharedReceiptContent() {
         />
 
         {loading ? (
-          <Surface role="status" aria-label="Menyiapkan bukti pembayaran" className="animate-pulse space-y-5 p-5 sm:p-6"><div className="h-5 w-40 rounded bg-emerald-100" /><div className="h-36 rounded-xl bg-slate-100" /><div className="grid gap-3 sm:grid-cols-2"><div className="h-11 rounded-xl bg-slate-100" /><div className="h-11 rounded-xl bg-slate-100" /></div><div className="h-12 rounded-xl bg-emerald-100" /><span className="sr-only">Menyiapkan bukti pembayaran...</span></Surface>
+          <PageSkeleton variant="receipt"/>
         ) : error && !metadata ? (
           <Surface role="alert" className="p-6 text-sm text-rose-700">
             {error}

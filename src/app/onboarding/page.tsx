@@ -1,4 +1,5 @@
 "use client";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
@@ -492,7 +493,7 @@ function SummaryStep({ headingRef, summary, transaction, onFinish }: {
   onFinish: () => void;
 }) {
   const { t } = useLanguage();
-  if (!summary || !transaction) return <div className="flex min-h-80 items-center justify-center" role="status"><Loader2 className="h-6 w-6 animate-spin text-emerald-700" /><span className="sr-only">{t("Memuat ringkasan pertama")}</span></div>;
+  if (!summary || !transaction) return <PageSkeleton variant="onboarding"/>;
   return <>
     <p className="mt-6 text-sm font-bold text-emerald-700">{t("Ringkasan pertama siap")}</p>
     <h1 ref={headingRef} tabIndex={-1} className="mt-2 text-3xl font-bold tracking-[-0.04em] outline-none sm:text-4xl">{t("Sekarang angkamu punya konteks.")}</h1>
