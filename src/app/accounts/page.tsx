@@ -1,60 +1,55 @@
 "use client";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
+import { useFinancialRefresh } from "@/components/reference/useFinancialRefresh";
+import { useSearchParams } from "next/navigation";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type Dispatch,
-  type FormEvent,
-  type ReactNode,
-  type RefObject,
-  type SetStateAction,
-} from "react";
-import { format, parseISO } from "date-fns";
-import { enUS, id as idLocale } from "date-fns/locale";
-import {
-  AlertTriangle,
-  ArrowDownLeft,
-  ArrowLeftRight,
-  ArrowUpRight,
-  Building2,
-  ChartNoAxesCombined,
-  Landmark,
-  Plus,
-  RefreshCw,
-  RotateCw,
-  Smartphone,
-  WalletCards,
-  X,
-} from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { useLanguage } from "@/components/LanguageProvider";
+import {readAccountDisplay,saveAccountDisplay} from "@/lib/account-display";
+import Navbar from "@/components/Navbar";
+import { AccountEditor,TransferEditor } from "@/components/reference/AccountEditors";
+import { ReferenceRoot } from "@/components/reference/runtime";
+import { WalletView } from "@/components/reference/WalletView";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { DialogFrame as AccessibleDialogFrame } from "@/components/ui/DialogFrame";
-import { Field, fieldControlStyles } from "@/components/ui/Field";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { Field,fieldControlStyles } from "@/components/ui/Field";
 import { Surface } from "@/components/ui/Surface";
-import { reportHandledError } from "@/lib/errors";
-import { getIdrRates, type FxRateResult } from "@/lib/fx";
-import {
-  filterAccounts,
-  getAccountKindLabel,
-  getMissingForeignAccounts,
-  summarizeAccounts,
-  validateAccountForm,
-  validateTransferForm,
-  type AccountFilter,
-  type AccountOverviewRecord,
-} from "@/lib/accounts";
-import type { FinancialAccountKind } from "@/lib/ledger";
-import { canWriteOnline, offlineWriteMessage } from "@/lib/pwa";
-import { formatLocalDate } from "@/lib/planning";
 import { supabase } from "@/infrastructure/supabase/browser-client";
+import {
+filterAccounts,
+getMissingForeignAccounts,
+summarizeAccounts,
+validateAccountForm,
+validateTransferForm,
+type AccountFilter,
+type AccountOverviewRecord
+} from "@/lib/accounts";
+import { reportHandledError } from "@/lib/errors";
+import { getIdrRates,type FxRateResult } from "@/lib/fx";
+import type { FinancialAccountKind } from "@/lib/ledger";
+import { formatLocalDate } from "@/lib/planning";
+import { canWriteOnline,offlineWriteMessage } from "@/lib/pwa";
 import { cn } from "@/lib/utils";
+import { enUS,id as idLocale } from "date-fns/locale";
+import {
+Building2,
+ChartNoAxesCombined,
+Landmark,
+Smartphone,
+X
+} from "lucide-react";
+import {
+useCallback,
+useEffect,
+useMemo,
+useRef,
+useState,
+type Dispatch,
+type FormEvent,
+type ReactNode,
+type RefObject,
+type SetStateAction,
+} from "react";
 
 const accountKinds: Array<{ value: FinancialAccountKind; label: string }> = [
   { value: "bank", label: "Bank" },
@@ -87,6 +82,8 @@ const emptyAccountForm = {
   currency: "IDR",
   currentBalance: "0",
   reportingBalanceIdr: "",
+  cardColor:"green",
+  includeInNetWorth:true,
 };
 
 const createTransferForm = () => ({
@@ -141,6 +138,8 @@ function formatMoney(value: number, currency: string) {
 export default function AccountsPage() {
   const { language, t } = useLanguage();
   const dateLocale = language === "en" ? enUS : idLocale;
+  const params=useSearchParams();
+  const openedView=useRef<string|null>(null);
   const [accounts, setAccounts] = useState<AccountOverviewRecord[]>([]);
   const [transfers, setTransfers] = useState<TransferRecord[]>([]);
   const [reconciliations, setReconciliations] = useState<ReconciliationRecord[]>([]);
@@ -194,7 +193,7 @@ export default function AccountsPage() {
       ]);
       const error = accountsResult.error || transfersResult.error || reconciliationsResult.error;
       if (error) throw error;
-      setAccounts((accountsResult.data ?? []) as AccountOverviewRecord[]);
+      setAccounts(((accountsResult.data ?? []) as AccountOverviewRecord[]).map((account,index)=>{const display=readAccountDisplay(user.id,account.id);return {...account,...display,cardColor:display.cardColor||["royal-blue","green","green","slate"][index%4]};}));
       setTransfers((transfersResult.data ?? []) as TransferRecord[]);
       setReconciliations((reconciliationsResult.data ?? []) as ReconciliationRecord[]);
     } catch (error) {
@@ -205,6 +204,7 @@ export default function AccountsPage() {
     }
   }, [t]);
 
+  useFinancialRefresh(loadAccounts);
   useEffect(() => {
     const timer = window.setTimeout(() => void loadAccounts(), 0);
     return () => window.clearTimeout(timer);
@@ -244,6 +244,8 @@ export default function AccountsPage() {
     rememberTrigger();
     setEditingAccount(account);
     setAccountForm({
+      cardColor:account.cardColor||"green",
+      includeInNetWorth:account.includeInNetWorth!==false,
       name: account.name,
       institution: account.institution ?? "",
       kind: account.kind,
@@ -267,6 +269,8 @@ export default function AccountsPage() {
     setFormError(null);
     setAccountToDelete(account);
   }
+
+  useEffect(()=>{const view=params.get("view"),id=params.get("id"),key=`${view}:${id}`;if(loading||!view||openedView.current===key)return;openedView.current=key;const timer=window.setTimeout(()=>{if(view==="create")openAccountDialog();else if(view==="transfer")openTransferDialog();else if(view==="detail"){const account=id?accounts.find(item=>item.id===id):accounts[0];if(account)openEditAccountDialog(account);}},0);return()=>window.clearTimeout(timer);},[loading,params,accounts]);
 
   async function deleteAccount() {
     if (!accountToDelete) return;
@@ -384,7 +388,8 @@ export default function AccountsPage() {
       setFormError(t(offlineWriteMessage));
       return;
     }
-    const validation = validateAccountForm(accountForm);
+    const submission = {...accountForm,name:accountForm.name.trim()||accountForm.institution.trim()};
+    const validation = validateAccountForm(submission);
     if (!validation.valid) {
       setFormErrors(validation.errors as Record<string, string>);
       return;
@@ -395,9 +400,9 @@ export default function AccountsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Sesi login tidak ditemukan.");
       const reportingBalanceIdr = accountForm.reportingBalanceIdr.trim() ? Number(accountForm.reportingBalanceIdr) : null;
-      const identity = { name: accountForm.name.trim(), institution: accountForm.institution.trim() || null };
-      const { error } = editingAccount
-        ? await supabase.from("financial_accounts").update(identity).eq("id", editingAccount.id).eq("user_id", user.id)
+      const identity = { name: submission.name, institution: accountForm.institution.trim() || null };
+      const { data: savedAccount, error } = editingAccount
+        ? await supabase.from("financial_accounts").update(identity).eq("id", editingAccount.id).eq("user_id", user.id).select("id").single()
         : await supabase.from("financial_accounts").insert({
           user_id: user.id,
           ...identity,
@@ -405,8 +410,9 @@ export default function AccountsPage() {
           currency: accountForm.currency.toUpperCase(),
           current_balance: Number(accountForm.currentBalance),
           reporting_balance_idr: accountForm.currency === "IDR" ? null : reportingBalanceIdr,
-        });
+        }).select("id").single();
       if (error) throw error;
+      if(savedAccount?.id)saveAccountDisplay(user.id,savedAccount.id,{cardColor:accountForm.cardColor??"green",includeInNetWorth:accountForm.includeInNetWorth!==false});
       setActiveDialog(null);
       setEditingAccount(null);
       setAccountForm(emptyAccountForm);
@@ -534,150 +540,12 @@ export default function AccountsPage() {
   }
 
   return (
-    <div className="app-page">
+    <ReferenceRoot page="dompet">
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="app-page-content space-y-5 outline-none sm:space-y-6">
-        <section className="flex items-center justify-between gap-4 pt-1 md:hidden">
-          <div>
-            <h1 className="text-[27px] font-extrabold leading-[1.1] tracking-[-0.045em] text-slate-900">{t("Dompet")}</h1>
-            <p className="mt-1 text-[13px] text-slate-500">{t("Atur semua sumber uangmu.")}</p>
-          </div>
-          <button type="button" onClick={openAccountDialog} aria-label={t("Tambah Dompet")} className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--brand-primary)] text-white shadow-[0_8px_18px_rgba(21,128,61,0.28)] transition active:scale-95"><Plus className="size-6" strokeWidth={2.5} /></button>
-        </section>
-        <div className="hidden md:block"><PageHeader
-          eyebrow={t("Pusat akun")}
-          title={t("Dompet & saldo")}
-          description={t("Lihat kekayaan bersih, cek kesegaran saldo, dan pindahkan dana tanpa kehilangan konteks.")}
-          actions={
-            <>
-              <Button variant="secondary" onClick={() => void refreshForeignBalances()} disabled={!activeAccounts.some((account) => account.currency !== "IDR")} loading={refreshingFx}>
-                <RotateCw className="h-4 w-4" /> {t("Perbarui kurs IDR")}
-              </Button>
-              <div className="min-w-0">
-                <Button variant="secondary" onClick={openTransferDialog} disabled={activeAccounts.length < 2} aria-describedby={activeAccounts.length < 2 ? "transfer-prerequisite" : undefined}>
-                  <ArrowLeftRight className="h-4 w-4" /> {t("Transfer")}
-                </Button>
-                {activeAccounts.length < 2 && <p id="transfer-prerequisite" className="mt-1 max-w-48 text-xs leading-4 text-slate-500">{t("Tambahkan satu akun aktif lagi untuk transfer.")}</p>}
-              </div>
-              <Button onClick={openAccountDialog}>
-                <Plus className="h-4 w-4" /> {t("Tambah Dompet")}
-              </Button>
-            </>
-          }
-        /></div>
+      {pageError&&<div role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</div>}{loading?<main className="pt-20 px-margin"><AccountsSkeleton/></main>:<WalletView accounts={accounts} onAdd={openAccountDialog} onTransfer={openTransferDialog} onDetail={openEditAccountDialog}/>}
 
-        {pageError && (
-          <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-700 sm:flex-row sm:items-center sm:justify-between">
-            <span>{pageError}</span>
-            <Button variant="secondary" size="compact" onClick={() => void loadAccounts()}>
-              <RefreshCw className="h-4 w-4" /> {t("Coba lagi")}
-            </Button>
-          </div>
-        )}
 
-        {fxRefreshMessage && (
-          <div aria-live="polite" className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
-            <p>{fxRefreshMessage}</p>
-            {[...fxRates.values()].filter((rate) => rate.rate !== null && rate.base !== "IDR").map((rate) => (
-              <p key={rate.base} className="mt-1 text-xs text-sky-700">{rate.base}/IDR · Frankfurter · {rate.providerDate ?? t("tanggal kurs tidak tersedia")} · {rate.state}</p>
-            ))}
-          </div>
-        )}
-
-        {loading ? (
-          <AccountsSkeleton />
-        ) : (
-          <>
-            {accounts.length > 0 && <div className="md:hidden"><MobileWalletOverview summary={summary} /></div>}
-            {accounts.length === 0 && <section className="flex min-h-[360px] flex-col items-center justify-center app-card px-6 text-center md:hidden"><span className="grid size-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><WalletCards className="size-6" /></span><h2 className="mt-5 text-lg font-extrabold tracking-tight text-slate-900">{t("Mulai dari dompet pertamamu")}</h2><p className="mt-2 max-w-[290px] text-xs leading-5 text-slate-500">{t("Tambahkan rekening, e-wallet, RDN, atau broker untuk melihat semua uangmu di satu tempat.")}</p><Button onClick={openAccountDialog} className="mt-5 w-full max-w-xs"><Plus className="h-4 w-4" /> {t("Tambah Dompet")}</Button></section>}
-            <div className="hidden md:block"><WealthOverview summary={summary} /></div>
-
-            {missingForeignAccounts.length > 0 && (
-              <div className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-                <div className="flex gap-3">
-                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
-                  <div>
-                    <p className="text-sm font-bold text-amber-900">{t("{count} akun belum masuk total IDR", { count: missingForeignAccounts.length })}</p>
-                    <p className="mt-1 text-xs leading-5 text-amber-800">{t("Isi nilai setara IDR agar net worth tidak kurang dari kondisi sebenarnya.")}</p>
-                  </div>
-                </div>
-                <Button variant="secondary" size="compact" onClick={() => openBalanceDialog(missingForeignAccounts[0])}>
-                  {t("Lengkapi {name}", { name: missingForeignAccounts[0].name })}
-                </Button>
-              </div>
-            )}
-
-            <Surface className={cn("overflow-hidden rounded-none border-0 bg-transparent shadow-none md:rounded-[var(--radius-surface)] md:border md:bg-[var(--surface)] md:shadow-[var(--shadow-surface)]", accounts.length === 0 && "hidden md:block")}>
-              <div className="px-1 py-3 md:border-b md:border-emerald-100 md:px-5 md:py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg font-bold tracking-tight text-slate-900 md:hidden">{t("Dompetmu")}</h2>
-                    <h2 className="hidden text-lg font-bold tracking-tight text-slate-900 md:block">{t("Portofolio dompet")}</h2>
-                    <p className="mt-1 text-xs text-slate-500">{t("{count} dompet terhubung · {active} aktif", { count: accounts.length, active: summary.activeCount })}</p>
-                  </div>
-                </div>
-                <div className="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1" aria-label={t("Filter jenis akun")}>
-                  {accountFilters.map((filter) => (
-                    <button
-                      key={filter.value}
-                      type="button"
-                      aria-pressed={activeFilter === filter.value}
-                      onClick={() => setActiveFilter(filter.value)}
-                      className={cn(
-                        "min-h-10 shrink-0 rounded-xl border px-3.5 text-xs font-bold transition",
-                        activeFilter === filter.value
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                          : "border-slate-200 bg-white text-slate-500 hover:border-emerald-200 hover:text-emerald-700",
-                      )}
-                    >
-                      {t(filter.label)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {accounts.length === 0 ? (
-                <EmptyState
-                  icon={WalletCards}
-                  title={t("Mulai dari dompet pertamamu")}
-                  description={t("Tambahkan rekening bank, e-wallet, RDN, atau broker untuk membangun gambaran uangmu yang utuh.")}
-                  action={<Button onClick={openAccountDialog}><Plus className="h-4 w-4" /> {t("Tambah Dompet")}</Button>}
-                />
-              ) : filteredAccounts.length === 0 ? (
-                <EmptyState
-                  icon={WalletCards}
-                  title={t("Belum ada akun di kelompok ini")}
-                  description={t("Pilih kelompok lain atau kembali ke seluruh akun.")}
-                  action={<Button variant="secondary" onClick={() => setActiveFilter("all")}>{t("Lihat semua akun")}</Button>}
-                />
-              ) : (
-                <AccountLedger accounts={filteredAccounts} onUpdateBalance={openBalanceDialog} onEdit={openEditAccountDialog} onToggleActive={openAccountToggleDialog} onDelete={openAccountDeleteDialog} dateLocale={dateLocale} />
-              )}
-            </Surface>
-
-            <div className={accounts.length === 0 ? "hidden md:block" : undefined}><AccountHistory
-              accounts={accounts}
-              transfers={transfers}
-              reconciliations={reconciliations}
-              dateLocale={dateLocale}
-            /></div>
-          </>
-        )}
-      </main>
-
-      {activeDialog === "account" && (
-        <AccountDialog
-          form={accountForm}
-          setForm={setAccountForm}
-          mode={editingAccount ? "edit" : "create"}
-          errors={formErrors}
-          error={formError}
-          saving={saving}
-          nameInputRef={nameInputRef}
-          onClose={closeDialog}
-          onSubmit={saveAccount}
-        />
-      )}
+      {activeDialog === "account" && <AccountEditor form={accountForm} setForm={form=>setAccountForm({...form,cardColor:form.cardColor??"green",includeInNetWorth:form.includeInNetWorth!==false})} editing={Boolean(editingAccount)} account={editingAccount} busy={saving} error={formError??(Object.values(formErrors).join(" ")||null)} onClose={closeDialog} onSave={saveAccount} onDelete={editingAccount?()=>openAccountDeleteDialog(editingAccount):undefined} onTransfer={openTransferDialog} onAdjust={editingAccount?()=>openBalanceDialog(editingAccount):undefined}/>}
       {accountToToggle && (
         <ConfirmDialog
           titleId="account-lifecycle-title"
@@ -706,22 +574,7 @@ export default function AccountsPage() {
           error={formError}
         />
       )}
-      {activeDialog === "transfer" && (
-        <TransferDialog
-          form={transferForm}
-          setForm={setTransferForm}
-          accounts={activeAccounts}
-          sourceAccount={sourceAccount}
-          destinationAccount={destinationAccount}
-          crossCurrency={isCrossCurrencyTransfer}
-          errors={formErrors}
-          error={formError}
-          saving={saving}
-          sourceInputRef={sourceInputRef}
-          onClose={closeDialog}
-          onSubmit={saveTransfer}
-        />
-      )}
+      {activeDialog === "transfer" && <TransferEditor form={transferForm} setForm={setTransferForm} accounts={activeAccounts} busy={saving} error={formError??(Object.values(formErrors).join(" ")||null)} onSave={saveTransfer} onClose={closeDialog}/>}
       {activeDialog === "balance" && balanceAccount && (
         <BalanceDialog
           account={balanceAccount}
@@ -735,189 +588,7 @@ export default function AccountsPage() {
           onSubmit={saveBalance}
         />
       )}
-    </div>
-  );
-}
-
-function MobileWalletOverview({ summary }: { summary: ReturnType<typeof summarizeAccounts> }) {
-  const { t } = useLanguage();
-  return (
-    <section className="pt-1" aria-label={t("Ringkasan saldo")}>
-      <div className="flex items-center justify-between gap-3"><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-700">{t("Saldo & tabungan")}</p><p className="font-mono text-sm font-bold text-[var(--brand-primary)]">{idrFormatter.format(summary.assets)}</p></div>
-      <p className="mt-1 text-xs text-slate-500">{t("Dari {count} akun aktif yang kamu pantau.", { count: summary.activeCount })}</p>
-    </section>
-  );
-}
-
-function WealthOverview({ summary }: { summary: ReturnType<typeof summarizeAccounts> }) {
-  const { t } = useLanguage();
-  return (
-    <Surface className="overflow-hidden">
-      <div className="grid lg:grid-cols-[1.45fr_1fr]">
-        <div className="border-b border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-white px-5 py-6 sm:px-7 sm:py-7 lg:border-b-0 lg:border-r">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">{t("Kekayaan bersih")}</p>
-          <p className="mt-3 break-words font-mono text-3xl font-bold tracking-[-0.05em] text-slate-950 sm:text-4xl">
-            {idrFormatter.format(summary.netWorth)}
-          </p>
-          <p className="mt-3 max-w-lg text-sm leading-6 text-slate-500">{t("Aset aktif dikurangi kewajiban aktif, berdasarkan nilai laporan IDR terbaru.")}</p>
-        </div>
-        <div className="grid grid-cols-3 divide-x divide-emerald-100 lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
-          <OverviewMetric icon={<ArrowUpRight className="h-4 w-4" />} label={t("Total aset")} value={idrFormatter.format(summary.assets)} tone="positive" />
-          <OverviewMetric icon={<ArrowDownLeft className="h-4 w-4" />} label={t("Kewajiban")} value={idrFormatter.format(summary.liabilities)} tone="negative" />
-          <OverviewMetric icon={<WalletCards className="h-4 w-4" />} label={t("Akun aktif")} value={String(summary.activeCount)} />
-        </div>
-      </div>
-    </Surface>
-  );
-}
-
-function OverviewMetric({ icon, label, value, tone = "neutral" }: { icon: ReactNode; label: string; value: string; tone?: "positive" | "negative" | "neutral" }) {
-  return (
-    <div className="min-w-0 px-3 py-4 sm:px-5 lg:flex lg:items-center lg:gap-4 lg:py-5">
-      <span className={cn(
-        "hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl lg:flex",
-        tone === "positive" && "bg-emerald-50 text-emerald-700",
-        tone === "negative" && "bg-rose-50 text-rose-600",
-        tone === "neutral" && "bg-slate-100 text-slate-600",
-      )}>{icon}</span>
-      <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400 sm:text-xs">{label}</p>
-        <p className="mt-1 truncate text-xs font-bold text-slate-800 sm:text-sm">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function AccountLedger({ accounts, onUpdateBalance, onEdit, onToggleActive, onDelete, dateLocale }: { accounts: AccountOverviewRecord[]; onUpdateBalance: (account: AccountOverviewRecord) => void; onEdit: (account: AccountOverviewRecord) => void; onToggleActive: (account: AccountOverviewRecord) => void; onDelete: (account: AccountOverviewRecord) => void; dateLocale: typeof idLocale }) {
-  const { t } = useLanguage();
-  return (
-    <>
-      <div className="hidden md:block">
-        <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,.8fr)_minmax(0,1fr)_auto] gap-4 border-b border-slate-100 bg-slate-50/70 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
-          <span>{t("Akun")}</span><span>{t("Jenis")}</span><span className="text-right">{t("Saldo")}</span><span className="w-72 text-right">{t("Aksi")}</span>
-        </div>
-        {accounts.map((account) => <AccountRow key={account.id} account={account} onUpdateBalance={onUpdateBalance} onEdit={onEdit} onToggleActive={onToggleActive} onDelete={onDelete} dateLocale={dateLocale} />)}
-      </div>
-      <div className="space-y-3 py-2 md:hidden">
-        {accounts.map((account) => <AccountCard key={account.id} account={account} onUpdateBalance={onUpdateBalance} onEdit={onEdit} onToggleActive={onToggleActive} onDelete={onDelete} dateLocale={dateLocale} />)}
-      </div>
-    </>
-  );
-}
-
-function AccountIdentity({ account, dateLocale }: { account: AccountOverviewRecord; dateLocale: typeof idLocale }) {
-  const { t } = useLanguage();
-  const Icon = kindIcon[account.kind];
-  return (
-    <div className="flex min-w-0 items-center gap-3">
-      <span className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", account.kind === "liability" ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-700")}>
-        <Icon className="h-5 w-5" />
-      </span>
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-bold text-slate-900">{account.name}</p>
-          {!account.is_active && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-slate-500">{t("Nonaktif")}</span>}
-        </div>
-        <p className="mt-1 truncate text-xs text-slate-500">{account.institution || t("Dompet pribadi")} · {t("Diperbarui {date}", { date: format(parseISO(account.updated_at), "dd MMM yyyy", { locale: dateLocale }) })}</p>
-      </div>
-    </div>
-  );
-}
-
-function AccountBalance({ account, align = "right" }: { account: AccountOverviewRecord; align?: "left" | "right" }) {
-  const { t } = useLanguage();
-  return (
-    <div className={align === "right" ? "text-right" : "text-left"}>
-      <p className="font-mono text-sm font-bold text-slate-900">{formatMoney(Number(account.current_balance), account.currency)}</p>
-      {account.currency !== "IDR" && (
-        <p className={cn("mt-1 text-xs", account.reporting_balance_idr === null ? "font-semibold text-amber-700" : "text-slate-500")}>
-          {account.reporting_balance_idr === null ? t("Nilai IDR belum diisi") : `${t("Setara")} ${idrFormatter.format(Number(account.reporting_balance_idr))}`}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function AccountRow({ account, onUpdateBalance, onEdit, onToggleActive, onDelete, dateLocale }: { account: AccountOverviewRecord; onUpdateBalance: (account: AccountOverviewRecord) => void; onEdit: (account: AccountOverviewRecord) => void; onToggleActive: (account: AccountOverviewRecord) => void; onDelete: (account: AccountOverviewRecord) => void; dateLocale: typeof idLocale }) {
-  const { t } = useLanguage();
-  return (
-    <article className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,.8fr)_minmax(0,1fr)_auto] items-center gap-4 border-b border-slate-100 px-5 py-4 last:border-b-0 hover:bg-emerald-50/35">
-      <AccountIdentity account={account} dateLocale={dateLocale} />
-      <div><span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600">{t(getAccountKindLabel(account.kind))} · {account.currency}</span></div>
-      <AccountBalance account={account} />
-      <div className="flex w-72 justify-end gap-1"><Button variant="ghost" size="compact" onClick={() => onEdit(account)}>{t("Edit")}</Button>{account.is_active && account.currency !== "IDR" && <Button variant="ghost" size="compact" onClick={() => onUpdateBalance(account)}>{t("Perbarui nilai IDR")}</Button>}<Button variant="ghost" size="compact" onClick={() => onToggleActive(account)}>{t(account.is_active ? "Arsipkan" : "Aktifkan")}</Button><Button variant="ghost" size="compact" onClick={() => onDelete(account)}>{t("Hapus")}</Button></div>
-    </article>
-  );
-}
-
-function AccountCard({ account, onUpdateBalance, onEdit, onToggleActive, onDelete, dateLocale }: { account: AccountOverviewRecord; onUpdateBalance: (account: AccountOverviewRecord) => void; onEdit: (account: AccountOverviewRecord) => void; onToggleActive: (account: AccountOverviewRecord) => void; onDelete: (account: AccountOverviewRecord) => void; dateLocale: typeof idLocale }) {
-  const { t } = useLanguage();
-  const [expanded, setExpanded] = useState(false);
-  const Icon = kindIcon[account.kind];
-  return (
-    <article className={cn("app-card overflow-hidden p-4", expanded ? "border-[var(--brand-lime)] ring-1 ring-[var(--brand-lime)]/40" : "border-[var(--border-subtle)]")}>
-      <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded} className="flex w-full items-center gap-3 rounded-2xl px-1 py-1 text-left">
-        <span className={cn("grid size-11 shrink-0 place-items-center rounded-2xl", account.kind === "liability" ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-700")}><Icon className="size-5" /></span>
-        <span className="min-w-0 flex-1"><span className="flex items-center justify-between gap-2"><strong className="truncate text-sm text-slate-900">{account.name}</strong><AccountBalance account={account} /></span><span className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500"><span>{account.institution || t("Dompet pribadi")}</span><span>·</span><span>{t(getAccountKindLabel(account.kind))}</span></span></span>
-      </button>
-      {expanded && <div className="mt-3 border-t border-emerald-100 pt-3"><p className="text-[11px] text-slate-500">{t("Diperbarui {date}", { date: format(parseISO(account.updated_at), "dd MMM yyyy", { locale: dateLocale }) })}</p><div className="mt-3 grid grid-cols-2 gap-2"><Button variant="secondary" onClick={() => onEdit(account)}>{t("Ubah")}</Button><Button variant="secondary" onClick={() => onToggleActive(account)}>{t(account.is_active ? "Arsipkan" : "Aktifkan")}</Button>{account.is_active && account.currency !== "IDR" && <Button variant="secondary" onClick={() => onUpdateBalance(account)} className="col-span-2">{t("Perbarui nilai IDR")}</Button>}<Button variant="ghost" onClick={() => onDelete(account)} className="col-span-2 text-rose-700 hover:bg-rose-50 hover:text-rose-800">{t("Hapus")}</Button></div></div>}
-    </article>
-  );
-}
-
-function AccountHistory({ accounts, transfers, reconciliations, dateLocale }: {
-  accounts: AccountOverviewRecord[];
-  transfers: TransferRecord[];
-  reconciliations: ReconciliationRecord[];
-  dateLocale: typeof idLocale;
-}) {
-  const { t } = useLanguage();
-  const accountNames = useMemo(() => new Map(accounts.map((account) => [account.id, account.name])), [accounts]);
-
-  return (
-    <Surface className="overflow-hidden">
-      <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
-        <h2 className="text-lg font-bold tracking-tight text-slate-900">{t("Riwayat akun")}</h2>
-        <p className="mt-1 text-xs text-slate-500">{t("Transfer dan rekonsiliasi terakhir. Riwayat tidak dapat diubah dari sini.")}</p>
-      </div>
-      {transfers.length === 0 && reconciliations.length === 0 ? (
-        <p className="px-4 py-5 text-sm text-slate-500 sm:px-5">{t("Belum ada riwayat akun.")}</p>
-      ) : (
-        <div className="divide-y divide-slate-100">
-          {transfers.map((transfer) => (
-            <div key={transfer.id} className="px-4 py-4 sm:px-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-bold text-slate-800">{t("Transfer")} · {accountNames.get(transfer.source_account_id) ?? t("Akun tidak tersedia")} → {accountNames.get(transfer.destination_account_id) ?? t("Akun tidak tersedia")}</p>
-                  <p className="mt-1 text-xs text-slate-500">{format(parseISO(transfer.date), "dd MMM yyyy", { locale: dateLocale })}{transfer.note ? ` · ${transfer.note}` : ""}</p>
-                </div>
-                <p className="text-right font-mono text-sm font-bold text-slate-800">{formatMoney(Number(transfer.amount), transfer.currency)} → {formatMoney(Number(transfer.destination_amount), transfer.destination_currency)}</p>
-              </div>
-            </div>
-          ))}
-          {reconciliations.map((reconciliation) => {
-            const account = accounts.find((item) => item.id === reconciliation.account_id);
-            const currency = account?.currency ?? "IDR";
-            const difference = Number(reconciliation.statement_balance) - Number(reconciliation.ledger_balance);
-            return (
-              <div key={reconciliation.id} className="px-4 py-4 sm:px-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-bold text-slate-800">{t("Rekonsiliasi akun")} · {account?.name ?? t("Akun tidak tersedia")}</p>
-                    <p className="mt-1 text-xs text-slate-500">{format(parseISO(reconciliation.reconciled_at), "dd MMM yyyy", { locale: dateLocale })}{reconciliation.note ? ` · ${reconciliation.note}` : ""}</p>
-                  </div>
-                  <p className="text-right text-xs leading-5 text-slate-600">{t("Statement {statement}; ledger {ledger}; selisih {difference}", {
-                    statement: formatMoney(Number(reconciliation.statement_balance), currency),
-                    ledger: formatMoney(Number(reconciliation.ledger_balance), currency),
-                    difference: formatMoney(difference, currency),
-                  })}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </Surface>
+    </ReferenceRoot>
   );
 }
 
@@ -965,104 +636,6 @@ function AccountDialogFrame({ title, eyebrow, description, saving, error, initia
   );
 }
 
-function AccountDialog({ form, setForm, mode, errors, error, saving, nameInputRef, onClose, onSubmit }: {
-  form: AccountFormState;
-  setForm: Dispatch<SetStateAction<AccountFormState>>;
-  mode: AccountDialogMode;
-  errors: Record<string, string>;
-  error: string | null;
-  saving: boolean;
-  nameInputRef: RefObject<HTMLInputElement | null>;
-  onClose: () => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
-}) {
-  const { t } = useLanguage();
-  const validation = validateAccountForm(form);
-  const editing = mode === "edit";
-  return (
-    <AccountDialogFrame title={t(editing ? "Ubah Dompet" : "Tambah Dompet")} eyebrow={editing ? t("Identitas akun") : ""} description={editing ? t("Nama dan institusi dapat diperbarui. Saldo memakai form pembaruan saldo terpisah.") : ""} saving={saving} error={error} initialFocusRef={nameInputRef} onClose={onClose} onSubmit={onSubmit} submitLabel={t(editing ? "Simpan perubahan" : "Tambah")} submitDisabled={!validation.valid}>
-      <Field label={t("Nama")} htmlFor="account-name" error={errors.name ? t(errors.name) : undefined} hint={t("Contoh: Jago Utama atau Stockbit.")}>
-        <input ref={nameInputRef} id="account-name" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} placeholder={t("Nama yang mudah dikenali")} className={fieldControlStyles} />
-      </Field>
-      <Field label={t("Institusi")} htmlFor="account-institution" hint={t("Opsional—misalnya Bank Jago, BCA, atau HFM.")}>
-        <input id="account-institution" value={form.institution} onChange={(event) => setForm((current) => ({ ...current, institution: event.target.value }))} placeholder={t("Nama bank atau platform")} className={fieldControlStyles} />
-      </Field>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("Tipe")} htmlFor="account-kind">
-          <select id="account-kind" disabled={editing} value={form.kind} onChange={(event) => setForm((current) => ({ ...current, kind: event.target.value as FinancialAccountKind }))} className={fieldControlStyles}>
-            {accountKinds.map((kind) => <option key={kind.value} value={kind.value}>{t(kind.label)}</option>)}
-          </select>
-        </Field>
-        <Field label={t("Mata uang")} htmlFor="account-currency" error={errors.currency ? t(errors.currency) : undefined}>
-          <input id="account-currency" disabled={editing} minLength={3} maxLength={3} value={form.currency} onChange={(event) => setForm((current) => ({ ...current, currency: event.target.value.toUpperCase() }))} className={fieldControlStyles} />
-        </Field>
-      </div>
-      {!editing && <><Field label={t("Saldo saat ini")} htmlFor="account-balance" error={errors.currentBalance ? t(errors.currentBalance) : undefined} hint={t("Masukkan angka tanpa pemisah ribuan.")}>
-        <input id="account-balance" type="number" step="any" inputMode="decimal" value={form.currentBalance} onChange={(event) => setForm((current) => ({ ...current, currentBalance: event.target.value }))} className={cn(fieldControlStyles, "font-mono text-base font-bold")} />
-      </Field>
-      {form.currency !== "IDR" && (
-        <Field label={t("Nilai setara IDR")} htmlFor="account-reporting-balance" error={errors.reportingBalanceIdr ? t(errors.reportingBalanceIdr) : undefined} hint={t("Opsional, tetapi diperlukan agar akun masuk ke net worth IDR.")}>
-          <input id="account-reporting-balance" type="number" min="0" step="any" inputMode="decimal" value={form.reportingBalanceIdr} onChange={(event) => setForm((current) => ({ ...current, reportingBalanceIdr: event.target.value }))} placeholder="0" className={fieldControlStyles} />
-        </Field>
-      )}</>}
-      {editing && <p className="rounded-xl bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-600">{t("Jenis akun, mata uang, dan saldo terkunci agar riwayat tetap konsisten.")}</p>}
-    </AccountDialogFrame>
-  );
-}
-
-function TransferDialog({ form, setForm, accounts, sourceAccount, destinationAccount, crossCurrency, errors, error, saving, sourceInputRef, onClose, onSubmit }: {
-  form: TransferFormState;
-  setForm: Dispatch<SetStateAction<TransferFormState>>;
-  accounts: AccountOverviewRecord[];
-  sourceAccount?: AccountOverviewRecord;
-  destinationAccount?: AccountOverviewRecord;
-  crossCurrency: boolean;
-  errors: Record<string, string>;
-  error: string | null;
-  saving: boolean;
-  sourceInputRef: RefObject<HTMLSelectElement | null>;
-  onClose: () => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
-}) {
-  const { t } = useLanguage();
-  const validation = validateTransferForm({ sourceAccountId: form.sourceAccountId, destinationAccountId: form.destinationAccountId, sourceAmount: form.amount, destinationAmount: form.destinationAmount, sourceCurrency: sourceAccount?.currency ?? "", destinationCurrency: destinationAccount?.currency ?? "", date: form.date });
-  return (
-    <AccountDialogFrame title={t("Transfer antar akun")} eyebrow={t("Pindahkan dana")} description={t("Saldo akun akan diperbarui otomatis setelah transfer tersimpan.")} saving={saving} error={error} initialFocusRef={sourceInputRef} onClose={onClose} onSubmit={onSubmit} submitLabel={t("Simpan transfer")} submitDisabled={!validation.valid}>
-      <Field label={t("Dari akun")} htmlFor="transfer-source" error={errors.sourceAccountId ? t(errors.sourceAccountId) : undefined}>
-        <select ref={sourceInputRef} id="transfer-source" value={form.sourceAccountId} onChange={(event) => setForm((current) => ({ ...current, sourceAccountId: event.target.value }))} className={fieldControlStyles}>
-          <option value="">{t("Pilih akun asal")}</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.name} · {account.currency}</option>)}
-        </select>
-      </Field>
-      <Field label={t("Ke akun")} htmlFor="transfer-destination" error={errors.destinationAccountId ? t(errors.destinationAccountId) : undefined}>
-        <select id="transfer-destination" value={form.destinationAccountId} onChange={(event) => setForm((current) => ({ ...current, destinationAccountId: event.target.value }))} className={fieldControlStyles}>
-          <option value="">{t("Pilih akun tujuan")}</option>{accounts.map((account) => <option key={account.id} value={account.id} disabled={account.id === form.sourceAccountId}>{account.name} · {account.currency}</option>)}
-        </select>
-      </Field>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("Nominal dikirim{currency}", { currency: sourceAccount ? ` (${sourceAccount.currency})` : "" })} htmlFor="transfer-amount" error={errors.sourceAmount ? t(errors.sourceAmount) : undefined}>
-          <input id="transfer-amount" type="number" min="0.000001" step="any" inputMode="decimal" value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} placeholder="0" className={cn(fieldControlStyles, "font-mono font-bold")} />
-        </Field>
-        <Field label={t("Tanggal")} htmlFor="transfer-date" error={errors.date ? t(errors.date) : undefined}>
-          <input id="transfer-date" type="date" value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} className={fieldControlStyles} />
-        </Field>
-      </div>
-      {crossCurrency ? (
-        <Field label={t("Nominal diterima ({currency})", { currency: destinationAccount?.currency ?? "" })} htmlFor="transfer-destination-amount" error={errors.destinationAmount ? t(errors.destinationAmount) : undefined} hint={t("Masukkan hasil konversi yang benar-benar diterima.")}>
-          <input id="transfer-destination-amount" type="number" min="0.000001" step="any" inputMode="decimal" value={form.destinationAmount} onChange={(event) => setForm((current) => ({ ...current, destinationAmount: event.target.value }))} placeholder="0" className={cn(fieldControlStyles, "font-mono font-bold")} />
-        </Field>
-      ) : sourceAccount && destinationAccount ? (
-        <p className="rounded-xl bg-emerald-50 px-4 py-3 text-xs leading-5 text-emerald-800">{t("Nominal diterima sama dengan nominal dikirim karena kedua akun memakai {currency}.", { currency: sourceAccount.currency })}</p>
-      ) : null}
-      <Field label={t("Jenis transfer")} htmlFor="transfer-kind">
-        <select id="transfer-kind" value={form.kind} onChange={(event) => setForm((current) => ({ ...current, kind: event.target.value }))} className={fieldControlStyles}><option value="transfer">{t("Transfer biasa")}</option><option value="broker_deposit">{t("Deposit ke broker")}</option><option value="broker_withdrawal">{t("Withdraw dari broker")}</option></select>
-      </Field>
-      <Field label={t("Catatan")} htmlFor="transfer-note" hint={t("Opsional—tambahkan konteks untuk peninjauan berikutnya.")}>
-        <textarea id="transfer-note" rows={3} value={form.note} onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))} placeholder={t("Catatan singkat")} className={cn(fieldControlStyles, "resize-none")} />
-      </Field>
-    </AccountDialogFrame>
-  );
-}
-
 function BalanceDialog({ account, form, setForm, errors, error, saving, balanceInputRef, onClose, onSubmit }: {
   account: AccountOverviewRecord;
   form: BalanceFormState;
@@ -1096,12 +669,4 @@ function BalanceDialog({ account, form, setForm, errors, error, saving, balanceI
   );
 }
 
-function AccountsSkeleton() {
-  const { t } = useLanguage();
-  return (
-    <div className="space-y-6" aria-label={t("Memuat akun")}>
-      <Surface className="animate-pulse overflow-hidden"><div className="grid lg:grid-cols-[1.45fr_1fr]"><div className="space-y-4 px-6 py-8"><div className="h-3 w-28 rounded bg-emerald-100" /><div className="h-10 w-64 max-w-full rounded bg-slate-100" /><div className="h-4 w-80 max-w-full rounded bg-slate-100" /></div><div className="grid grid-cols-3 border-t border-emerald-100 lg:grid-cols-1 lg:border-l lg:border-t-0">{[1, 2, 3].map((item) => <div key={item} className="space-y-2 border-r border-emerald-100 px-4 py-5 last:border-r-0 lg:border-b lg:border-r-0"><div className="h-3 rounded bg-slate-100" /><div className="h-4 rounded bg-slate-100" /></div>)}</div></div></Surface>
-      <Surface className="animate-pulse overflow-hidden"><div className="border-b border-slate-100 px-5 py-5"><div className="h-5 w-36 rounded bg-slate-100" /><div className="mt-4 h-10 w-full rounded bg-slate-100" /></div>{[1, 2, 3].map((item) => <div key={item} className="flex items-center gap-4 border-b border-slate-100 px-5 py-5 last:border-b-0"><div className="h-10 w-10 rounded-xl bg-emerald-100" /><div className="flex-1 space-y-2"><div className="h-4 w-40 rounded bg-slate-100" /><div className="h-3 w-56 max-w-full rounded bg-slate-100" /></div><div className="hidden h-5 w-24 rounded bg-slate-100 sm:block" /></div>)}</Surface>
-    </div>
-  );
-}
+function AccountsSkeleton() { return <PageSkeleton variant="wallet"/>; }
