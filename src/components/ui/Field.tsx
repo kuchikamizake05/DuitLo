@@ -4,7 +4,7 @@ import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode 
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/LanguageProvider";
 
-export const fieldControlStyles = "min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-[var(--shadow-control)] placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400";
+export const fieldControlStyles = "min-h-12 w-full rounded-2xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-[var(--shadow-control)] placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400";
 
 type FieldProps = {
   label: string;
