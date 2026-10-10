@@ -23,6 +23,8 @@ async function wait(milliseconds: number) {
 
 export async function POST(request: NextRequest) {
   const requestUrl = new URL(request.url);
+  const host=request.headers.get("host");
+  if(host)requestUrl.host=host;
   const security = validateReceiptParseSecurity({
     origin: request.headers.get("origin"),
     requestOrigin: requestUrl.origin,
@@ -81,8 +83,8 @@ export async function POST(request: NextRequest) {
     return json({ error: "Layanan pembacaan struk otomatis belum dikonfigurasi." }, 503);
   }
 
-  const model = process.env.GEMINI_RECEIPT_MODEL?.trim() || "gemini-1.5-flash";
-  const timeout = createTimeoutSignal(15_000);
+  const model = process.env.GEMINI_RECEIPT_MODEL?.trim() || "gemini-3.5-flash";
+  const timeout = createTimeoutSignal(60_000);
 
   try {
     const arrayBuffer = await file.arrayBuffer();
@@ -92,28 +94,33 @@ export async function POST(request: NextRequest) {
       base64Data,
     });
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    let usedModel=model;
+    const models=[model,process.env.GEMINI_RECEIPT_FALLBACK_MODEL?.trim()||"gemini-3.1-flash-lite"];
 
     let providerResponse: Response | null = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
+      usedModel=models[attempt];
+      const endpoint=`https://generativelanguage.googleapis.com/v1beta/models/${usedModel}:generateContent`;
       providerResponse = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-goog-api-key":apiKey,
         },
         body: JSON.stringify(geminiPayload),
         cache: "no-store",
         signal: timeout.signal,
       });
 
-      if (providerResponse.ok || providerResponse.status < 500 || attempt === 1) {
+      if (providerResponse.ok || (providerResponse.status < 500&&providerResponse.status!==404&&providerResponse.status!==429) || attempt === 1) {
         break;
       }
       await wait(100 + Math.floor(Math.random() * 100));
     }
 
     if (!providerResponse?.ok) {
-      const failure = mapGeminiFailure(providerResponse?.status ?? 500);
+      console.error("Receipt provider rejected request",{model,status:providerResponse?.status});
+      const failure = providerResponse?.status===503?{message:"Layanan AI sedang sibuk. Coba lagi sebentar.",status:503}:mapGeminiFailure(providerResponse?.status ?? 500);
       const retryAfter = providerResponse?.headers.get("retry-after");
       return json({ error: failure.message }, failure.status, retryAfter ? { "Retry-After": retryAfter } : {});
     }
@@ -124,7 +131,7 @@ export async function POST(request: NextRequest) {
     return json(
       {
         extraction,
-        model,
+        model:usedModel,
       },
       200,
     );
