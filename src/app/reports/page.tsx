@@ -1,11 +1,11 @@
 "use client";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CalendarClock, CheckCircle2, Download, FileText, LockKeyhole, RefreshCw } from "lucide-react";
+import {ReferenceRoot,Symbol} from "@/components/reference/runtime";
 import { useLanguage } from "@/components/LanguageProvider";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/Button";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
 import { useToast } from "@/components/ui/ToastProvider";
 import { supabase } from "@/infrastructure/supabase/browser-client";
@@ -139,37 +139,31 @@ export default function ReportsPage() {
   const active = schedule?.is_active ?? false;
 
   return (
-    <div className="app-page">
+    <ReferenceRoot page="laporan-klasik">
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="app-page-content max-w-6xl space-y-6 outline-none">
-        <PageHeader
-          eyebrow="Arsip keuangan"
-          title="Laporan bulanan"
-          description="Rangkuman keuangan bulanan yang disimpan privat dan siap kamu unduh kapan saja."
-        />
+      <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col w-full pt-20 pb-32 px-margin gap-space-lg outline-none">
+        <div className="flex flex-col gap-1"><h1 className="font-headline-sm text-headline-lg font-bold text-on-surface">{t("Laporan bulanan")}</h1><p className="font-body-md text-body-md text-on-surface-variant">{t("Rangkuman keuangan bulanan yang disimpan privat dan siap kamu unduh kapan saja.")}</p></div>
 
         {message && <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{message}</div>}
-        {loadError && <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-700 sm:flex-row sm:items-center sm:justify-between"><span>{loadError}</span><Button variant="secondary" size="compact" onClick={() => void load()}><RefreshCw className="h-4 w-4" /> {t("Coba lagi")}</Button></div>}
+        {loadError && <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-700 sm:flex-row sm:items-center sm:justify-between"><span>{loadError}</span><Button variant="secondary" size="compact" onClick={() => void load()}><Symbol className="text-[20px] h-4 w-4">refresh</Symbol> {t("Coba lagi")}</Button></div>}
 
         {!loadError && (
-          <Surface className="relative overflow-hidden border-0 bg-[var(--brand-ink)] p-5 text-white shadow-[0_20px_48px_rgba(18,53,36,0.20)] sm:p-7">
-            <div aria-hidden="true" className="absolute -right-16 -top-20 h-56 w-56 rounded-full border-[28px] border-emerald-300/15" />
-            <div aria-hidden="true" className="absolute -bottom-20 right-24 h-36 w-36 rounded-full bg-emerald-400/10" />
+          <Surface className="relative overflow-hidden !rounded-[32px] border-0 bg-[linear-gradient(125deg,#102e25,#1b4e3b,#27674e)] dark:bg-[#202024] p-space-lg text-on-primary shadow-lg">
             <div className="relative grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
               <div>
                 <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.13em] ${active ? "bg-emerald-300/15 text-emerald-100" : "bg-white/10 text-white/75"}`}><span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-emerald-300" : "bg-white/50"}`} />{t(active ? "Laporan otomatis aktif" : "Laporan otomatis belum aktif")}</span>
                 <h2 className="mt-4 text-2xl font-bold tracking-[-0.04em] !text-white sm:text-[1.75rem]">{t(active ? "Keuangan bulanan, tersimpan rapi." : "Mulai arsipkan setiap bulan.")}</h2>
                 <p className="mt-2 max-w-xl text-sm leading-6 !text-emerald-50/85">{t(active ? "FinTrack akan menyimpan ringkasan setiap bulan tanpa mengubah arsip yang sudah ada." : "Aktifkan sekali, lalu ringkasan bulan yang selesai akan tersimpan otomatis.")}</p>
-                {schedule?.enabled_from_period && <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-emerald-100"><CheckCircle2 className="h-4 w-4 text-emerald-300" />{t("Aktif sejak periode {period}", { period: formatPeriod(schedule.enabled_from_period, locale) })}</p>}
+                {schedule?.enabled_from_period && <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-emerald-100"><Symbol className="text-[20px] h-4 w-4 text-emerald-300">check_circle</Symbol>{t("Aktif sejak periode {period}", { period: formatPeriod(schedule.enabled_from_period, locale) })}</p>}
               </div>
               <Button
                 variant={active ? "secondary" : "primary"}
                 loading={saving}
                 aria-pressed={active}
                 onClick={() => void setReportsActive(!active)}
-                className={active ? "border-white/20 bg-white/10 text-white hover:bg-white/20" : "bg-emerald-400 text-emerald-950 hover:bg-emerald-300"}
+                className={active ? "rounded-full bg-white/10 text-white hover:shadow-md" : "rounded-full bg-primary-container text-on-primary hover:shadow-md"}
               >
-                <CalendarClock className="h-4 w-4" /> {t(active ? "Nonaktifkan" : "Aktifkan laporan")}
+                <Symbol className="text-[20px] h-4 w-4">calendar_month</Symbol> {t(active ? "Nonaktifkan" : "Aktifkan laporan")}
               </Button>
             </div>
           </Surface>
@@ -179,8 +173,8 @@ export default function ReportsPage() {
           <section aria-labelledby="report-archive-title">
             <div className="mb-3 flex items-end justify-between gap-4">
               <div className="max-w-xl">
-                <h2 id="report-archive-title" className="text-xl font-bold tracking-tight text-slate-900">{t("Arsip laporan")}</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">{t("Setiap periode disimpan satu kali, sehingga catatan bulan lalu tetap utuh saat transaksi baru masuk.")}</p>
+                <h2 id="report-archive-title" className="text-xl font-bold tracking-tight text-on-surface">{t("Arsip laporan")}</h2>
+                <p className="mt-1 text-sm leading-6 text-on-surface-variant">{t("Setiap periode disimpan satu kali, sehingga catatan bulan lalu tetap utuh saat transaksi baru masuk.")}</p>
               </div>
               {!loading && reports.length > 0 && <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">{t("{count} laporan", { count: reports.length })}</span>}
             </div>
@@ -189,27 +183,27 @@ export default function ReportsPage() {
               <Surface className="relative overflow-hidden p-5 sm:p-7">
                 <div aria-hidden="true" className="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-emerald-50" />
                 <div className="relative grid gap-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700 shadow-[var(--shadow-control)]"><FileText className="h-6 w-6" /></span>
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-primary shadow-[var(--shadow-control)]"><Symbol className="text-[20px] h-6 w-6">description</Symbol></span>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-700">{t("Arsip pertama")}</p>
-                    <h3 className="mt-2 text-lg font-bold tracking-tight text-slate-900">{t(active ? "Laporan pertama sedang menunggu bulan selesai." : "Belum ada laporan untuk ditampilkan.")}</h3>
-                    <p className="mt-1.5 max-w-xl text-sm leading-6 text-slate-500">{t(active ? "Begitu periode ini selesai, ringkasan pemasukan, pengeluaran, dan kategori akan muncul di sini." : "Aktifkan laporan otomatis untuk menyimpan ringkasan dan CSV privat setiap bulan.")}</p>
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-500"><span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5"><LockKeyhole className="h-3.5 w-3.5 text-emerald-700" />{t("Privat untuk akunmu")}</span><span className="rounded-full bg-slate-50 px-3 py-1.5">CSV</span></div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-primary">{t("Arsip pertama")}</p>
+                    <h3 className="mt-2 text-lg font-bold tracking-tight text-on-surface">{t(active ? "Laporan pertama sedang menunggu bulan selesai." : "Belum ada laporan untuk ditampilkan.")}</h3>
+                    <p className="mt-1.5 max-w-xl text-sm leading-6 text-on-surface-variant">{t(active ? "Begitu periode ini selesai, ringkasan pemasukan, pengeluaran, dan kategori akan muncul di sini." : "Aktifkan laporan otomatis untuk menyimpan ringkasan dan CSV privat setiap bulan.")}</p>
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-on-surface-variant"><span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5"><Symbol className="text-[20px] h-3.5 w-3.5 text-primary">lock</Symbol>{t("Privat untuk akunmu")}</span><span className="rounded-full bg-slate-50 px-3 py-1.5">CSV</span></div>
                   </div>
                 </div>
               </Surface>
             ) : (
               <div className="space-y-4">
                 {reports.map((report) => (
-                  <Surface key={report.id} variant="interactive" className="p-5 sm:p-6">
+                  <Surface key={report.id} variant="interactive" className="!rounded-[32px] bg-surface-container-lowest p-space-lg">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">{formatPeriod(report.period_start, locale)}</p>
-                        <h3 className="mt-1 text-lg font-bold text-slate-900">{t("Ringkasan {period}", { period: formatPeriod(report.period_start, locale) })}</h3>
-                        <p className="mt-1 text-xs text-slate-500">{t("Dibuat {date}", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(report.generated_at)) })}</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary">{formatPeriod(report.period_start, locale)}</p>
+                        <h3 className="mt-1 text-lg font-bold text-on-surface">{t("Ringkasan {period}", { period: formatPeriod(report.period_start, locale) })}</h3>
+                        <p className="mt-1 text-xs text-on-surface-variant">{t("Dibuat {date}", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(report.generated_at)) })}</p>
                       </div>
                       <Button variant="secondary" size="compact" loading={openingReportId === report.id} disabled={openingReportId !== null} onClick={() => void downloadReport(report)}>
-                        <Download className="h-4 w-4" /> {t("Unduh CSV")}
+                        <Symbol className="text-[20px] h-4 w-4">download</Symbol> {t("Unduh CSV")}
                       </Button>
                     </div>
 
@@ -217,17 +211,17 @@ export default function ReportsPage() {
                       {report.currency_groups.map((group) => {
                         const categories = report.category_totals.filter((item) => item.currency === group.currency).slice(0, 5);
                         return (
-                          <div key={group.currency} className="rounded-2xl border border-emerald-100 bg-emerald-50/55 p-4">
+                          <div key={group.currency} className="rounded-[24px] border border-outline-variant/20 bg-surface-container-low p-4">
                             <div className="flex items-center justify-between gap-3">
-                              <strong className="text-base text-slate-900">{group.currency}</strong>
-                              <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${group.rate.state === "fresh" ? "bg-white text-emerald-700" : "bg-amber-100 text-amber-800"}`}>{t(group.rate.state === "fresh" ? "Kurs tersedia" : "Kurs tidak tersedia")}</span>
+                              <strong className="text-base text-on-surface">{group.currency}</strong>
+                              <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${group.rate.state === "fresh" ? "bg-white text-primary" : "bg-amber-100 text-amber-800"}`}>{t(group.rate.state === "fresh" ? "Kurs tersedia" : "Kurs tidak tersedia")}</span>
                             </div>
                             <dl className="mt-3 grid grid-cols-3 gap-2 text-sm">
-                              <div><dt className="text-xs text-slate-500">{t("Pemasukan")}</dt><dd className="mt-1 font-bold text-emerald-700">{formatMoney(group.income, group.currency, locale)}</dd></div>
-                              <div><dt className="text-xs text-slate-500">{t("Pengeluaran")}</dt><dd className="mt-1 font-bold text-rose-600">{formatMoney(group.expense, group.currency, locale)}</dd></div>
-                              <div><dt className="text-xs text-slate-500">{t("Bersih")}</dt><dd className="mt-1 font-bold text-slate-900">{formatMoney(group.net, group.currency, locale)}</dd></div>
+                              <div><dt className="text-xs text-on-surface-variant">{t("Pemasukan")}</dt><dd className="mt-1 font-bold text-primary">{formatMoney(group.income, group.currency, locale)}</dd></div>
+                              <div><dt className="text-xs text-on-surface-variant">{t("Pengeluaran")}</dt><dd className="mt-1 font-bold text-rose-600">{formatMoney(group.expense, group.currency, locale)}</dd></div>
+                              <div><dt className="text-xs text-on-surface-variant">{t("Bersih")}</dt><dd className="mt-1 font-bold text-on-surface">{formatMoney(group.net, group.currency, locale)}</dd></div>
                             </dl>
-                            {categories.length > 0 && <div className="mt-4 border-t border-emerald-100 pt-3"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">{t("Kategori pengeluaran teratas")}</p><ol className="mt-2 space-y-1.5">{categories.map((item) => <li key={`${item.currency}:${item.category}`} className="flex items-center justify-between gap-3 text-sm"><span className="truncate text-slate-600">{t(item.category)}</span><strong className="shrink-0 text-slate-800">{formatMoney(item.amount, item.currency, locale)}</strong></li>)}</ol></div>}
+                            {categories.length > 0 && <div className="mt-4 border-t border-emerald-100 pt-3"><p className="text-xs font-bold uppercase tracking-wide text-on-surface-variant">{t("Kategori pengeluaran teratas")}</p><ol className="mt-2 space-y-1.5">{categories.map((item) => <li key={`${item.currency}:${item.category}`} className="flex items-center justify-between gap-3 text-sm"><span className="truncate text-on-surface-variant">{t(item.category)}</span><strong className="shrink-0 text-on-surface">{formatMoney(item.amount, item.currency, locale)}</strong></li>)}</ol></div>}
                           </div>
                         );
                       })}
@@ -239,7 +233,7 @@ export default function ReportsPage() {
           </section>
         )}
       </main>
-    </div>
+    </ReferenceRoot>
   );
 }
 
@@ -255,6 +249,4 @@ function formatMoney(value: number, currency: string, locale: string) {
   }
 }
 
-function ReportsSkeleton() {
-  return <div aria-label="Memuat laporan bulanan" className="grid animate-pulse gap-4 lg:grid-cols-2"><div className="h-72 rounded-2xl border border-emerald-100 bg-white/80" /><div className="h-72 rounded-2xl border border-emerald-100 bg-white/80" /></div>;
-}
+function ReportsSkeleton() { return <PageSkeleton variant="archive"/>; }
