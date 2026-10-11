@@ -1,88 +1,74 @@
 "use client";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
+import { useFinancialRefresh } from "@/components/reference/useFinancialRefresh";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type Dispatch,
-  type FormEvent,
-  type ReactNode,
-  type RefObject,
-  type SetStateAction,
-} from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { format, parseISO } from "date-fns";
-import { enUS, id as idLocale } from "date-fns/locale";
-import {
-  CalendarDays,
-  Camera,
-  ChevronDown,
-  Download,
-  Edit3,
-  Eye,
-  FileSpreadsheet,
-  Loader2,
-  CheckCircle2,
-  Plus,
-  ReceiptText,
-  RotateCcw,
-  Search,
-  SlidersHorizontal,
-  Tags,
-  Printer,
-  Trash2,
-  WalletCards,
-  X,
-} from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { useLanguage } from "@/components/LanguageProvider";
+import Navbar from "@/components/Navbar";
+import { ActivityView } from "@/components/reference/ActivityView";
+import { ReferenceRoot } from "@/components/reference/runtime";
+import {takePendingReceipt,takePendingExtraction} from "@/lib/pending-receipt";
+import {DialogFrame} from "@/components/ui/DialogFrame";
+import { TransactionDetail } from "@/components/reference/TransactionDetail";
+import { EditTransactionEditor,TransactionEditor } from "@/components/reference/TransactionEditor";
+import { TransactionDelete,TransactionResult } from "@/components/reference/TransactionFeedback";
 import { Button } from "@/components/ui/Button";
-import { buttonStyles } from "@/components/ui/button-styles";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { DialogFrame } from "@/components/ui/DialogFrame";
-import { Field, fieldControlStyles } from "@/components/ui/Field";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { Surface } from "@/components/ui/Surface";
 import { useToast } from "@/components/ui/ToastProvider";
-import { reportHandledError } from "@/lib/errors";
-import { getIdrRates, type FxRateResult } from "@/lib/fx";
-import {
-  buildCategoryFilterOptions,
-  buildTransactionCategoryOptions,
-  type CategoryRecord,
-  type CategoryType,
-} from "@/lib/categories";
-import { filterTransactions, type TransactionFilters } from "@/lib/finance";
-import { getPrivateReceiptObjectPath, validateSharedReceiptFile } from "@/lib/shared-receipt";
-import type { ReceiptExtraction } from "@/lib/receipt-vision";
 import { supabase } from "@/infrastructure/supabase/browser-client";
 import {
-  applyReceiptExtractionToTransactionForm,
-  canApproveTransaction,
-  getTransactionSaveStatus,
-  getTransactionSourceLabel,
-  getTransactionStatusLabel,
-  hasActiveTransactionFilters,
-  validateTransactionForm,
-} from "@/lib/transactions";
-import { canWriteOnline, offlineWriteMessage } from "@/lib/pwa";
+buildCategoryFilterOptions,
+buildTransactionCategoryOptions,
+type CategoryRecord,
+type CategoryType,
+} from "@/lib/categories";
+import { reportHandledError } from "@/lib/errors";
+import { filterTransactions,type TransactionFilters } from "@/lib/finance";
+import { getIdrRates,type FxRateResult } from "@/lib/fx";
+import {
+createQueuedTransactionOperation,
+listQueuedTransactionOperations,
+projectQueuedTransactionOperations,
+queueTransactionOperation,
+removeQueuedTransactionOperation,
+replayQueuedTransactionOperations,
+updateQueuedTransactionOperation,
+type QueuedTransactionOperation,
+} from "@/lib/offline-transaction-queue";
 import { formatLocalDate } from "@/lib/planning";
+import { canWriteOnline,offlineWriteMessage } from "@/lib/pwa";
+import type { ReceiptExtraction } from "@/lib/receipt-vision";
+import { buildFinancialReport,serializeFinancialReportCsv,serializeRichTransactionCsv,type FinancialReport } from "@/lib/reporting";
+import { getPrivateReceiptObjectPath,validateSharedReceiptFile } from "@/lib/shared-receipt";
 import { parseTransactionDate } from "@/lib/transaction-date";
 import {
-  createQueuedTransactionOperation,
-  listQueuedTransactionOperations,
-  projectQueuedTransactionOperations,
-  queueTransactionOperation,
-  removeQueuedTransactionOperation,
-  replayQueuedTransactionOperations,
-  updateQueuedTransactionOperation,
-  type QueuedTransactionOperation,
-} from "@/lib/offline-transaction-queue";
-import { buildFinancialReport, serializeFinancialReportCsv, serializeRichTransactionCsv, type FinancialReport } from "@/lib/reporting";
+applyReceiptExtractionToTransactionForm,
+canApproveTransaction,
+getTransactionSaveStatus,
+getTransactionStatusLabel,
+hasActiveTransactionFilters,
+validateTransactionForm
+} from "@/lib/transactions";
 import { cn } from "@/lib/utils";
+import { enUS,id as idLocale } from "date-fns/locale";
+import {
+CheckCircle2,
+Edit3,
+Eye,
+RotateCcw,
+Trash2
+} from "lucide-react";
+import { useRouter,useSearchParams } from "next/navigation";
+import {
+useCallback,
+useEffect,
+useMemo,
+useRef,
+useState,
+type Dispatch,
+type FormEvent,
+type RefObject,
+type SetStateAction
+} from "react";
 
 type Transaction = {
   id: string;
@@ -104,6 +90,8 @@ type Transaction = {
 };
 
 type FinancialAccount = {
+  current_balance?: number;
+  institution?: string;
   id: string;
   name: string;
   currency: string;
@@ -141,18 +129,6 @@ function createDefaultForm(): TransactionFormState {
   };
 }
 
-function MobileFilterSelect({ icon: Icon, label, value, onChange, className, children }: { icon: typeof SlidersHorizontal; label: string; value: string; onChange: (value: string) => void; className: string; children: ReactNode }) {
-  return (
-    <div className={cn("relative shrink-0", className)}>
-      <Icon aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-emerald-700" />
-      <select aria-label={label} value={value} onChange={(event) => onChange(event.target.value)} className="h-10 min-h-10 w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-0 pl-9 pr-8 text-[11px] font-bold leading-5 text-slate-700 shadow-[var(--shadow-control)] outline-none transition-colors focus:border-emerald-500 focus:ring-0 focus-visible:!outline-none focus-visible:!outline-offset-0">
-        {children}
-      </select>
-      <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
-    </div>
-  );
-}
-
 export default function TransactionsPage() {
   const { language, t } = useLanguage();
   const { showToast } = useToast();
@@ -172,6 +148,7 @@ export default function TransactionsPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [printIds,setPrintIds]=useState<string[]|null>(null);
   const [reportRates, setReportRates] = useState<Map<string, FxRateResult>>(new Map());
   const [queueUserId, setQueueUserId] = useState<string | null>(null);
   const [queuedOperations, setQueuedOperations] = useState<QueuedTransactionOperation[]>([]);
@@ -187,7 +164,11 @@ export default function TransactionsPage() {
   const [filters, setFilters] = useState<TransactionFilters>(() => ({ ...defaultFilters, startDate: chosenDate ?? "", endDate: chosenDate ?? "" }));
   const [dateFiltersOpen, setDateFiltersOpen] = useState(Boolean(chosenDate));
   const [modalOpen, setModalOpen] = useState(false);
+  const [savedResult,setSavedResult] = useState<{form:TransactionFormState;edited:boolean}|null>(null);
+  const [detailTx, setDetailTx] = useState<Transaction | null>(null);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const openedDetailRef = useRef<string|null>(null);
+  useEffect(()=>{const requested=searchParams.get("id");if(loading||searchParams.get("view")!=="detail"||!requested||openedDetailRef.current===requested)return;const record=transactions.find(item=>item.id===requested);if(record){openedDetailRef.current=requested;const timer=window.setTimeout(()=>setDetailTx(record),0);return()=>window.clearTimeout(timer);}},[loading,searchParams,transactions]);
   const [scanDerived, setScanDerived] = useState(false);
   const [form, setForm] = useState<TransactionFormState>(createDefaultForm);
   const merchantInputRef = useRef<HTMLInputElement>(null);
@@ -245,6 +226,7 @@ export default function TransactionsPage() {
     }
   }, []);
 
+  useFinancialRefresh(fetchTransactions);
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void fetchTransactions();
@@ -325,8 +307,8 @@ export default function TransactionsPage() {
     [queuedOperations, transactions],
   );
   const filteredTx = useMemo(
-    () => filterTransactions(displayedTransactions, filters),
-    [displayedTransactions, filters],
+    () => filterTransactions(displayedTransactions, filters).filter(tx=>!searchParams.get("account")||tx.account_id===searchParams.get("account")),
+    [displayedTransactions, filters,searchParams],
   );
   const filteredServerTx = useMemo(
     () => filterTransactions(transactions, filters),
@@ -399,7 +381,8 @@ export default function TransactionsPage() {
     );
   };
 
-  const printReport = async () => {
+  const printReport = async (ids:string[]) => {
+    setPrintIds(ids);
     await refreshReportRates().catch(() => undefined);
     window.setTimeout(() => window.print(), 0);
   };
@@ -435,7 +418,7 @@ export default function TransactionsPage() {
       autoOpenedRef.current = actionKey;
       if (action === "new") {
         openAdd();
-        router.replace(chosenDate ? `/transactions?date=${chosenDate}` : "/transactions", { scroll: false });
+        const remainingParams=new URLSearchParams(searchParams.toString());remainingParams.delete("new");router.replace(`/transactions${remainingParams.size?`?${remainingParams}`:""}`, { scroll: false });
         return;
       }
       setFilters((current) => ({ ...current, status: "review" }));
@@ -521,6 +504,7 @@ export default function TransactionsPage() {
         : await supabase.from("transactions").insert([{ user_id: user.id, ...onlinePayload }]);
       if (result.error) throw result.error;
 
+      setSavedResult({form:{...form},edited:isEditMode});
       setModalOpen(false);
       await fetchTransactions();
       showToast(isEditMode ? "Transaksi diperbarui." : "Transaksi disimpan.");
@@ -691,274 +675,14 @@ export default function TransactionsPage() {
   const conflictQueuedOperations = queuedOperations.filter((operation) => operation.state === "conflict");
 
   return (
-    <div className="app-page">
+    <ReferenceRoot page="aktivitas">
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="app-page-content space-y-5 outline-none sm:space-y-6">
-        <section className="flex items-start justify-between gap-4 pt-1 md:hidden">
-          <div>
-            <h1 className="text-[1.75rem] font-bold leading-[1.06] tracking-[-0.045em] text-slate-900">{t("Transaksi")}</h1>
-            <p className="mt-2 text-[13px] leading-5 text-slate-500">{t("Uangmu lari ke mana aja?")}</p>
-          </div>
-          <Button onClick={openAdd} size="icon" className="h-11 min-h-11 w-11 rounded-xl shadow-[0_8px_18px_rgba(21,128,61,0.25)]" aria-label={t("Catat transaksi")}>
-            <Plus className="h-5 w-5" />
-          </Button>
-        </section>
+      {pageError&&<p role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</p>}{loading?<main className="pt-20 px-margin" aria-busy="true"><PageSkeleton variant="activity"/></main>:<ActivityView transactions={displayedTransactions} filtered={filteredTx} accounts={financialAccounts} filters={filters} setFilters={setFilters} initialDate={chosenDate} onOpen={tx=>{const actual=displayedTransactions.find(item=>item.id===tx.id);if(actual)setDetailTx(actual);}} onAdd={date=>{openAdd();if(date)setForm(current=>({...current,date}));}} onExport={ids=>{const selected=new Set(ids);downloadCsv(serializeRichTransactionCsv(buildFinancialReport(transactions.filter(tx=>selected.has(tx.id)),accountNames,accountCurrencies,reportRates)),`fintrack-transaksi-${formatLocalDate(new Date())}.csv`);}} onPrint={ids=>void printReport(ids)}/>}
+      {queuedOperations.length>0&&<section aria-label={t("Sinkronisasi transaksi")} className="mx-margin mb-24 rounded-[24px] bg-surface-container-lowest p-space-lg shadow-sm"><h2 className="text-headline-sm font-headline-sm">{t("Sinkronisasi transaksi")}</h2><p role="status" className="mt-2 text-body-sm text-on-surface-variant">{syncingQueue?t("Menyinkronkan data..."):`${pendingQueuedOperations.length} ${t("menunggu sinkronisasi")} · ${conflictQueuedOperations.length} ${t("perlu ditinjau")}`}</p>{queueMessage&&<p className="mt-2 text-body-sm text-on-surface-variant">{t(queueMessage)}</p>}<div className="mt-3 flex flex-col gap-3">{queuedOperations.map(operation=><QueueOperationStatus key={operation.opId} operation={operation} onRetry={retryQueuedOperation} onDiscard={setConflictTarget}/>)}</div></section>}
+      <PrintReport report={printIds?buildFinancialReport(transactions.filter(tx=>printIds.includes(tx.id)),accountNames,accountCurrencies,reportRates):report} filterSummary={printIds?t("Transaksi sesuai periode dan filter yang dipilih"):filterSummary}/>
 
-        <div className="hidden md:block">
-        <PageHeader
-          eyebrow={t("Ledger keuangan")}
-          title={t("Transaksi")}
-          description={t("{shown} dari {total} transaksi ditampilkan. Cari, tinjau, dan catat arus uang tanpa kehilangan konteks.", { shown: filteredTx.length, total: transactions.length })}
-          titleAction={(
-            <Button
-              variant="secondary"
-              size="compact"
-              onClick={() => void syncQueuedOperations()}
-              loading={syncingQueue}
-              disabled={pendingQueuedOperations.length === 0}
-              data-print-hide
-            >
-              <RotateCcw className="h-3.5 w-3.5" /> {t("Sinkronkan")}
-            </Button>
-          )}
-          actions={(
-            <>
-              <details className="group relative sm:hidden" data-print-hide>
-                <summary className={cn(buttonStyles({ variant: "secondary" }), "cursor-pointer list-none [&::-webkit-details-marker]:hidden")}>
-                  {t("Lainnya")} <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-56 gap-1 rounded-xl border border-emerald-100 bg-white p-1.5 shadow-[var(--shadow-elevated)]">
-                  <Button variant="ghost" size="compact" onClick={exportLedger}>
-                    <Download className="h-4 w-4" /> {t("Ekspor transaksi CSV")}
-                  </Button>
-                  <Button variant="ghost" size="compact" onClick={() => void exportReport()}>
-                    <FileSpreadsheet className="h-4 w-4" /> {t("Ekspor laporan CSV")}
-                  </Button>
-                  <Button variant="ghost" size="compact" onClick={() => void printReport()}>
-                    <Printer className="h-4 w-4" /> {t("Cetak laporan")}
-                  </Button>
-                </div>
-              </details>
-              <div className="hidden items-center gap-2 sm:flex">
-                <Button variant="secondary" onClick={exportLedger}>
-                  <Download className="h-4 w-4" /> {t("Ekspor transaksi CSV")}
-                </Button>
-                <Button variant="secondary" onClick={() => void exportReport()}>
-                  <FileSpreadsheet className="h-4 w-4" /> {t("Ekspor laporan CSV")}
-                </Button>
-                <Button variant="secondary" onClick={() => void printReport()}>
-                  <Printer className="h-4 w-4" /> {t("Cetak laporan")}
-                </Button>
-              </div>
-              <Button onClick={openAdd} data-print-hide>
-                <Plus className="h-4 w-4" /> {t("Catat")}
-              </Button>
-            </>
-          )}
-        />
-        </div>
 
-        <div className="hidden md:block"><CurrencySummary report={report} /></div>
-
-        {pageError && (
-          <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
-            <span>{pageError}</span>
-            <Button variant="ghost" size="compact" onClick={() => void fetchTransactions()}>
-              <RotateCcw className="h-4 w-4" /> {t("Coba lagi")}
-            </Button>
-          </div>
-        )}
-
-        {(queueMessage || pendingQueuedOperations.length > 0 || conflictQueuedOperations.length > 0) && (
-          <div aria-live="polite" className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-            {queueMessage && <p>{queueMessage}</p>}
-            {pendingQueuedOperations.length > 0 && <p className={queueMessage ? "mt-1" : ""}>{t("{count} perubahan manual menunggu sinkronisasi.", { count: pendingQueuedOperations.length })}</p>}
-            {conflictQueuedOperations.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <p>{t("{count} perubahan offline perlu ditinjau.", { count: conflictQueuedOperations.length })}</p>
-                {conflictQueuedOperations.map((operation) => (
-                  <div key={operation.opId} className="flex items-center gap-2">
-                    <Button variant="secondary" size="compact" onClick={() => void retryQueuedOperation(operation)} disabled={resolvingConflict}>
-                      {t("Coba ulang dengan data server terbaru")}
-                    </Button>
-                    <Button variant="ghost" size="compact" onClick={() => { setConflictTarget(operation); setConflictError(null); }}>
-                      {t("Buang perubahan offline")}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        <Surface className="border-0 bg-transparent p-0 shadow-none md:rounded-2xl md:border md:bg-[var(--surface)] md:p-5 md:shadow-[var(--shadow-surface)]">
-          <div className="hidden items-center justify-between gap-3 md:flex">
-            <div>
-              <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                <SlidersHorizontal className="h-4 w-4 text-emerald-700" /> {t("Cari dan filter")}
-              </h2>
-              <p className="mt-1 text-xs text-slate-500">{t("Persempit ledger berdasarkan detail yang kamu ingat.")}</p>
-            </div>
-            {filtersActive && (
-              <Button variant="ghost" size="compact" onClick={resetFilters}>
-                <RotateCcw className="h-3.5 w-3.5" /> {t("Reset")}
-              </Button>
-            )}
-          </div>
-
-          <div className="md:hidden">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                aria-label={t("Cari transaksi")}
-                type="search"
-                placeholder={t("Cari catatan...")}
-                value={filters.search}
-                onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-                className={cn(fieldControlStyles, "h-12 min-h-12 rounded-2xl pl-11")}
-              />
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <MobileFilterSelect icon={SlidersHorizontal} label={t("Filter tipe transaksi")} value={filters.type} onChange={(value) => setFilters((current) => ({ ...current, type: value as TransactionFilters["type"] }))} className="w-[132px]">
-                <option value="all">{t("Semua tipe")}</option>
-                <option value="expense">{t("Pengeluaran")}</option>
-                <option value="income">{t("Pemasukan")}</option>
-              </MobileFilterSelect>
-              <MobileFilterSelect icon={Tags} label={t("Filter kategori")} value={filters.category} onChange={(value) => setFilters((current) => ({ ...current, category: value }))} className="w-[160px]">
-                <option value="all">{t("Semua kategori")}</option>
-                {filterCategoryOptions.map((category) => <option key={category} value={category}>{t(category)}</option>)}
-              </MobileFilterSelect>
-              <MobileFilterSelect icon={ReceiptText} label={t("Filter status transaksi")} value={filters.status} onChange={(value) => setFilters((current) => ({ ...current, status: value as TransactionFilters["status"] }))} className="w-[112px]">
-                <option value="active">{t("Aktif")}</option>
-                <option value="review">{t("Perlu ditinjau")}</option>
-                <option value="confirmed">{t("Terkonfirmasi")}</option>
-                <option value="pending_approval">{t("Perlu persetujuan")}</option>
-                <option value="needs_review">{t("Perlu ditinjau")}</option>
-                <option value="deleted">{t("Sampah")}</option>
-                <option value="all">{t("Semua riwayat")}</option>
-              </MobileFilterSelect>
-              {filtersActive && <Button variant="secondary" size="compact" onClick={resetFilters} className="h-10 min-h-10 shrink-0 rounded-xl px-3 text-[11px]"><RotateCcw className="h-3.5 w-3.5" /> {t("Reset")}</Button>}
-              </div>
-              <button type="button" onClick={() => setDateFiltersOpen((value) => !value)} aria-expanded={dateFiltersOpen} className="flex h-10 min-h-10 shrink-0 items-center gap-1.5 rounded-xl border border-emerald-700 bg-emerald-700 px-3 text-[11px] font-bold text-white shadow-[0_6px_14px_rgba(21,128,61,0.22)] transition-colors active:bg-emerald-800">
-                <SlidersHorizontal className="h-4 w-4" /> {t("Filter")}
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-3 hidden grid-cols-2 gap-2.5 sm:mt-4 sm:gap-3 md:grid md:grid-cols-2 lg:grid-cols-[minmax(240px,1.5fr)_repeat(3,minmax(150px,0.75fr))]">
-            <div className="relative col-span-2 sm:col-span-2 lg:col-span-1">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                aria-label={t("Cari transaksi")}
-                type="search"
-                placeholder={t("Cari merchant, catatan, atau kategori")}
-                value={filters.search}
-                onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-                className={cn(fieldControlStyles, "pl-11")}
-              />
-            </div>
-            <select
-              aria-label={t("Filter tipe transaksi")}
-              value={filters.type}
-              onChange={(event) => setFilters((current) => ({ ...current, type: event.target.value as TransactionFilters["type"] }))}
-              className={fieldControlStyles}
-            >
-              <option value="all">{t("Semua tipe")}</option>
-              <option value="expense">{t("Pengeluaran")}</option>
-              <option value="income">{t("Pemasukan")}</option>
-            </select>
-            <select
-              aria-label={t("Filter kategori")}
-              value={filters.category}
-              onChange={(event) => setFilters((current) => ({ ...current, category: event.target.value }))}
-              className={fieldControlStyles}
-            >
-              <option value="all">{t("Semua kategori")}</option>
-              {filterCategoryOptions.map((category) => <option key={category} value={category}>{t(category)}</option>)}
-            </select>
-            <select
-              aria-label={t("Filter status transaksi")}
-              value={filters.status}
-              onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value as TransactionFilters["status"] }))}
-              className={fieldControlStyles}
-            >
-              <option value="active">{t("Transaksi aktif")}</option>
-              <option value="review">{t("Perlu ditinjau & persetujuan")}</option>
-              <option value="confirmed">{t("Terkonfirmasi")}</option>
-              <option value="pending_approval">{t("Perlu persetujuan")}</option>
-              <option value="needs_review">{t("Perlu ditinjau")}</option>
-              <option value="deleted">{t("Sampah")}</option>
-              <option value="all">{t("Semua riwayat")}</option>
-            </select>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setDateFiltersOpen((value) => !value)}
-            aria-expanded={dateFiltersOpen}
-            className="hidden"
-          >
-            <span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-emerald-700" /> {t("Rentang tanggal")}</span>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", dateFiltersOpen && "rotate-180")} />
-          </button>
-          <div className={cn("mt-3 gap-3 sm:grid sm:grid-cols-2", dateFiltersOpen ? "grid" : "hidden")}>
-            <Field label={t("Mulai tanggal")} htmlFor="filter-start-date">
-              <input
-                id="filter-start-date"
-                type="date"
-                value={filters.startDate}
-                onChange={(event) => setFilters((current) => ({ ...current, startDate: event.target.value }))}
-                className={fieldControlStyles}
-              />
-            </Field>
-            <Field label={t("Sampai tanggal")} htmlFor="filter-end-date">
-              <input
-                id="filter-end-date"
-                type="date"
-                value={filters.endDate}
-                onChange={(event) => setFilters((current) => ({ ...current, endDate: event.target.value }))}
-                className={fieldControlStyles}
-              />
-            </Field>
-          </div>
-        </Surface>
-
-        <PrintReport report={report} filterSummary={filterSummary} />
-
-        {loading ? (
-          <TransactionSkeleton />
-        ) : filteredTx.length === 0 ? (
-          <Surface>
-            <EmptyState
-              icon={filtersActive ? Search : ReceiptText}
-              title={filtersActive ? t("Tidak ada transaksi yang cocok") : t("Belum ada transaksi")}
-              description={filtersActive ? t("Coba ubah kata kunci atau reset filter untuk melihat transaksi lain.") : t("Catat pemasukan atau pengeluaran pertama agar arus kas mulai terbaca.")}
-              action={filtersActive
-                ? <Button variant="secondary" onClick={resetFilters}><RotateCcw className="h-4 w-4" /> {t("Reset filter")}</Button>
-                : <Button onClick={openAdd}><Plus className="h-4 w-4" /> {t("Catat")}</Button>}
-            />
-          </Surface>
-        ) : (
-          <TransactionResults
-            transactions={filteredTx}
-            accountNames={accountNames}
-            accountCurrencies={accountCurrencies}
-            dateLocale={dateLocale}
-            onEdit={openEdit}
-            onDelete={requestDelete}
-            onRestore={handleRestore}
-            onApprove={requestApproval}
-            deletingId={deletingId}
-            restoringId={restoringId}
-            approvingId={approvingId}
-            queuedOperations={queuedOperationByTransactionId}
-            onRetryQueue={retryQueuedOperation}
-            onDiscardQueue={(operation) => { setConflictTarget(operation); setConflictError(null); }}
-          />
-        )}
-      </main>
-
+      {detailTx&&<TransactionDetail transaction={detailTx} accountName={accountNames.get(detailTx.account_id??"")??"—"} accountInstitution={financialAccounts.find(account=>account.id===detailTx.account_id)?.institution??undefined} currency={accountCurrencies.get(detailTx.account_id??"")??"IDR"} onClose={()=>setDetailTx(null)} onEdit={()=>{openEdit(detailTx);setDetailTx(null);}} onDelete={()=>{requestDelete(detailTx);setDetailTx(null);}} extra={canApproveTransaction(detailTx.status)?<div className="flex gap-3"><button type="button" disabled={Boolean(approvingId)||Boolean(deletingId)} onClick={()=>requestApproval(detailTx)} className="flex-1 rounded-full bg-primary-container px-4 py-3 font-semibold text-white" style={{color:"#fff"}}><CheckCircle2 className="mr-2 inline h-4 w-4"/>{t("Setujui")}</button><button type="button" disabled={Boolean(approvingId)||Boolean(deletingId)} onClick={()=>requestDelete(detailTx)} className="flex-1 rounded-full bg-error-container px-4 py-3 font-semibold text-error"><Trash2 className="mr-2 inline h-4 w-4"/>{t("Tolak")}</button></div>:detailTx.status!=="confirmed"?<TransactionActions transaction={detailTx} onEdit={openEdit} onDelete={requestDelete} onRestore={handleRestore} onApprove={requestApproval} deletingId={deletingId} restoringId={restoringId} approvingId={approvingId}/>:undefined}/>}
       {approveTarget && (
         <ConfirmDialog
           titleId="approve-transaction-title"
@@ -978,25 +702,8 @@ export default function TransactionsPage() {
         />
       )}
 
-      {deleteTarget && (
-        <ConfirmDialog
-          titleId="delete-transaction-title"
-          descriptionId="delete-transaction-description"
-          title={t("Hapus “{name}”?", { name: deleteTarget.merchant || deleteTarget.category })}
-          description={t("Transaksi akan dipindahkan ke Sampah. Saldo dan riwayat tetap dapat dipulihkan dari sana.")}
-          confirmLabel={t("Hapus transaksi")}
-          onClose={() => {
-            if (!deletingId) {
-              setDeleteTarget(null);
-              setDeleteError(null);
-            }
-          }}
-          onConfirm={() => void handleDelete()}
-          loading={Boolean(deletingId)}
-          error={deleteError}
-        />
-      )}
-
+      {deleteTarget&&<TransactionDelete transaction={deleteTarget} accountName={accountNames.get(deleteTarget.account_id??"")??"—"} currency={accountCurrencies.get(deleteTarget.account_id??"")??"IDR"} busy={Boolean(deletingId)} error={deleteError} onClose={()=>{if(!deletingId){setDeleteTarget(null);setDeleteError(null);}}} onConfirm={()=>void handleDelete()}/>}
+      {savedResult&&<TransactionResult form={savedResult.form} edited={savedResult.edited} accountName={accountNames.get(savedResult.form.accountId)??"—"} currency={accountCurrencies.get(savedResult.form.accountId)??"IDR"} onClose={()=>setSavedResult(null)} onAdd={()=>{setSavedResult(null);openAdd();}}/>}
       {conflictTarget && (
         <ConfirmDialog
           titleId="discard-offline-operation-title"
@@ -1033,32 +740,7 @@ export default function TransactionsPage() {
           onSubmit={handleSave}
         />
       )}
-    </div>
-  );
-}
-
-function CurrencySummary({ report }: { report: FinancialReport }) {
-  const { t } = useLanguage();
-  return (
-    <Surface className="overflow-hidden">
-      <div className="border-b border-emerald-100 px-5 py-4">
-        <h2 className="text-sm font-bold text-slate-900">{t("Ringkasan arus kas")}</h2>
-        <p className="mt-1 text-xs text-slate-500">{t("Nilai hanya dijumlahkan dalam mata uang yang sama.")}</p>
-      </div>
-      {report.currencyGroups.length ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3">
-          {report.currencyGroups.map((group) => (
-            <div key={group.currency} className="border-b border-emerald-100 px-5 py-4 last:border-b-0 sm:border-r sm:last:border-r-0 lg:border-b-0">
-              <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-500">{group.currency}</p>
-              <p className={cn("mt-2 text-xl font-bold tracking-[-0.03em]", group.net >= 0 ? "text-emerald-700" : "text-rose-600")}>{formatCurrency(group.net, group.currency)}</p>
-              <p className="mt-1 text-xs text-slate-500">{t("Masuk")} {formatCurrency(group.income, group.currency)} · {t("Keluar")} {formatCurrency(group.expense, group.currency)}</p>
-              {group.convertedNetIdr !== null && group.currency !== "IDR" && <p className="mt-2 text-[11px] text-sky-700">{t("Setara IDR terbaru")} {formatCurrency(group.convertedNetIdr, "IDR")} · Frankfurter · {group.rate.state}</p>}
-              {group.rate.state === "missing" && group.currency !== "IDR" && <p className="mt-2 text-[11px] text-amber-700">{t("Kurs IDR belum tersedia. Nilai tidak digabung.")}</p>}
-            </div>
-          ))}
-        </div>
-      ) : <p className="px-5 py-4 text-sm text-slate-500">{t("Belum ada transaksi terkonfirmasi pada filter ini.")}</p>}
-    </Surface>
+    </ReferenceRoot>
   );
 }
 
@@ -1082,204 +764,6 @@ function PrintReport({ report, filterSummary }: { report: FinancialReport; filte
         {report.rows.map((row, index) => <tr key={`${row.date}-${row.account}-${index}`}><td>{row.date}</td><td>{t(row.type === "income" ? "Pemasukan" : "Pengeluaran")}</td><td>{row.merchant ?? ""}</td><td>{t(row.category)}</td><td>{formatCurrency(row.amount, row.currency)}</td><td>{row.currency}</td><td>{row.account}</td><td>{t(getTransactionStatusLabel(row.status))}</td></tr>)}
       </tbody></table>
     </section>
-  );
-}
-
-function TransactionResults({ transactions, accountNames, accountCurrencies, dateLocale, onEdit, onDelete, onRestore, onApprove, deletingId, restoringId, approvingId, queuedOperations, onRetryQueue, onDiscardQueue }: {
-  transactions: Transaction[];
-  accountNames: ReadonlyMap<string, string>;
-  accountCurrencies: ReadonlyMap<string, string>;
-  dateLocale: typeof idLocale;
-  onEdit: (transaction: Transaction) => void;
-  onDelete: (transaction: Transaction) => void;
-  onRestore: (transactionId: string) => Promise<void>;
-  onApprove: (transaction: Transaction) => void;
-  deletingId: string | null;
-  restoringId: string | null;
-  approvingId: string | null;
-  queuedOperations: ReadonlyMap<string, QueuedTransactionOperation>;
-  onRetryQueue: (operation: QueuedTransactionOperation) => Promise<void>;
-  onDiscardQueue: (operation: QueuedTransactionOperation) => void;
-}) {
-  const { t } = useLanguage();
-  return (
-    <>
-      <Surface className="hidden overflow-hidden md:block">
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-          <div>
-            <h2 className="text-base font-bold text-slate-900">{t("Ledger transaksi")}</h2>
-            <p className="mt-1 text-xs text-slate-500">{t("Urutan terbaru berdasarkan tanggal transaksi.")}</p>
-          </div>
-          <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">{t("{count} item", { count: transactions.length })}</span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[860px] text-left">
-            <thead className="bg-slate-50/80 text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400">
-              <tr>
-                <th className="px-5 py-3">{t("Transaksi")}</th>
-                <th className="px-5 py-3">{t("Akun & kategori")}</th>
-                <th className="px-5 py-3 text-right">{t("Jumlah")}</th>
-                <th className="px-5 py-3">{t("Status")}</th>
-                <th className="px-5 py-3 text-right">{t("Aksi")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {transactions.map((transaction) => (
-                <tr key={transaction.id} className="group hover:bg-emerald-50/35">
-                  <td className="px-5 py-4">
-                    <p className="font-bold text-slate-800">{transaction.merchant || t(transaction.category)}</p>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
-                      <CalendarDays className="h-3.5 w-3.5" /> {format(parseISO(transaction.date), "dd MMM yyyy", { locale: dateLocale })}
-                      {transaction.note && <span className="max-w-[220px] truncate">· {transaction.note}</span>}
-                    </p>
-                  </td>
-                  <td className="px-5 py-4">
-                    <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                      <WalletCards className="h-4 w-4 text-emerald-700" /> {transaction.account_id ? accountNames.get(transaction.account_id) ?? t("Akun tidak tersedia") : t("Tanpa akun")}
-                    </p>
-                    <span className="mt-1.5 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">{t(transaction.category)}</span>
-                  </td>
-                  <td className={cn("px-5 py-4 text-right text-sm font-bold", transaction.type === "income" ? "text-emerald-700" : "text-slate-800")}>
-                    {transaction.type === "income" ? "+" : "−"}{formatCurrency(transaction.amount, transaction.account_id ? accountCurrencies.get(transaction.account_id) ?? "IDR" : "IDR")}
-                  </td>
-                  <td className="px-5 py-4">
-                    <StatusBadge status={transaction.status} />
-                    <QueueOperationStatus operation={queuedOperations.get(transaction.id)} onRetry={onRetryQueue} onDiscard={onDiscardQueue} />
-                    <p className="mt-1.5 text-[11px] font-medium text-slate-400">{t(getTransactionSourceLabel(transaction.source))}</p>
-                  </td>
-                  <td className="px-5 py-4">
-                    <TransactionActions transaction={transaction} onEdit={onEdit} onDelete={onDelete} onRestore={onRestore} onApprove={onApprove} deletingId={deletingId} restoringId={restoringId} approvingId={approvingId} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Surface>
-
-      <MobileTransactionList
-        transactions={transactions}
-        accountNames={accountNames}
-        accountCurrencies={accountCurrencies}
-        dateLocale={dateLocale}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onRestore={onRestore}
-        onApprove={onApprove}
-        deletingId={deletingId}
-        restoringId={restoringId}
-        approvingId={approvingId}
-        queuedOperations={queuedOperations}
-        onRetryQueue={onRetryQueue}
-        onDiscardQueue={onDiscardQueue}
-      />
-    </>
-  );
-}
-
-function MobileTransactionList({ transactions, accountNames, accountCurrencies, dateLocale, onEdit, onDelete, onRestore, onApprove, deletingId, restoringId, approvingId, queuedOperations, onRetryQueue, onDiscardQueue }: {
-  transactions: Transaction[];
-  accountNames: ReadonlyMap<string, string>;
-  accountCurrencies: ReadonlyMap<string, string>;
-  dateLocale: typeof idLocale;
-  onEdit: (transaction: Transaction) => void;
-  onDelete: (transaction: Transaction) => void;
-  onRestore: (transactionId: string) => Promise<void>;
-  onApprove: (transaction: Transaction) => void;
-  deletingId: string | null;
-  restoringId: string | null;
-  approvingId: string | null;
-  queuedOperations: ReadonlyMap<string, QueuedTransactionOperation>;
-  onRetryQueue: (operation: QueuedTransactionOperation) => Promise<void>;
-  onDiscardQueue: (operation: QueuedTransactionOperation) => void;
-}) {
-  const { t } = useLanguage();
-  const groupedTransactions = useMemo(() => {
-    const groups = new Map<string, Transaction[]>();
-    transactions.forEach((transaction) => groups.set(transaction.date, [...(groups.get(transaction.date) ?? []), transaction]));
-    return [...groups.entries()];
-  }, [transactions]);
-
-  return (
-    <div className="space-y-5 md:hidden">
-      {groupedTransactions.map(([date, dayTransactions]) => {
-        const expense = dayTransactions.filter((transaction) => transaction.type === "expense").reduce((sum, transaction) => sum + transaction.amount, 0);
-        const income = dayTransactions.filter((transaction) => transaction.type === "income").reduce((sum, transaction) => sum + transaction.amount, 0);
-        const currency = dayTransactions[0]?.account_id ? accountCurrencies.get(dayTransactions[0].account_id) ?? "IDR" : "IDR";
-        return (
-          <section key={date}>
-            <div className="mb-2 flex items-center justify-between gap-3 px-1">
-              <h2 className="text-[11px] font-extrabold uppercase tracking-[0.13em] text-slate-400">{format(parseISO(date), "dd MMM yyyy", { locale: dateLocale })}</h2>
-              <p className={cn("text-xs font-bold", income > expense ? "text-emerald-700" : "text-slate-500")}>{income > 0 ? "+" : "−"}{formatCurrency(Math.abs(income - expense), currency)}</p>
-            </div>
-            <div className="space-y-2.5">
-              {dayTransactions.map((transaction) => (
-                <MobileTransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                  accountName={transaction.account_id ? accountNames.get(transaction.account_id) ?? t("Dompet tidak tersedia") : t("Tanpa dompet")}
-                  currency={transaction.account_id ? accountCurrencies.get(transaction.account_id) ?? "IDR" : "IDR"}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onRestore={onRestore}
-                  onApprove={onApprove}
-                  deletingId={deletingId}
-                  restoringId={restoringId}
-                  approvingId={approvingId}
-                  queuedOperation={queuedOperations.get(transaction.id)}
-                  onRetryQueue={onRetryQueue}
-                  onDiscardQueue={onDiscardQueue}
-                />
-              ))}
-            </div>
-          </section>
-        );
-      })}
-    </div>
-  );
-}
-
-function MobileTransactionCard({ transaction, accountName, currency, onEdit, onDelete, onRestore, onApprove, deletingId, restoringId, approvingId, queuedOperation, onRetryQueue, onDiscardQueue }: {
-  transaction: Transaction;
-  accountName: string;
-  currency: string;
-  onEdit: (transaction: Transaction) => void;
-  onDelete: (transaction: Transaction) => void;
-  onRestore: (transactionId: string) => Promise<void>;
-  onApprove: (transaction: Transaction) => void;
-  deletingId: string | null;
-  restoringId: string | null;
-  approvingId: string | null;
-  queuedOperation?: QueuedTransactionOperation;
-  onRetryQueue: (operation: QueuedTransactionOperation) => Promise<void>;
-  onDiscardQueue: (operation: QueuedTransactionOperation) => void;
-}) {
-  const { t } = useLanguage();
-  const [expanded, setExpanded] = useState(false);
-  return (
-    <Surface className={cn("overflow-hidden rounded-2xl p-0", expanded && "border-emerald-300 ring-1 ring-emerald-200")}>
-      <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded} className="flex w-full items-center gap-3 p-3.5 text-left">
-        <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg", transaction.type === "income" ? "bg-emerald-50" : "bg-rose-50")}>{transaction.type === "income" ? "↗" : "↘"}</span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-bold text-slate-900">{transaction.merchant || t(transaction.category)}</span>
-          <span className="mt-1 block truncate text-xs text-slate-500">{accountName} · {t(transaction.category)}</span>
-        </span>
-        <span className={cn("shrink-0 text-sm font-extrabold", transaction.type === "income" ? "text-emerald-700" : "text-slate-900")}>{transaction.type === "income" ? "+" : "−"}{formatCurrency(transaction.amount, currency)}</span>
-      </button>
-      {expanded && (
-        <div className="border-t border-slate-100 bg-slate-50/70 p-3.5">
-          {transaction.note && <p className="mb-3 text-xs leading-5 text-slate-500">{transaction.note}</p>}
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge status={transaction.status} />
-            <QueueOperationStatus operation={queuedOperation} onRetry={onRetryQueue} onDiscard={onDiscardQueue} compact />
-            <span className="text-[11px] text-slate-400">{t(getTransactionSourceLabel(transaction.source))}</span>
-          </div>
-          <div className="mt-3 border-t border-slate-200 pt-3">
-            <TransactionActions transaction={transaction} onEdit={onEdit} onDelete={onDelete} onRestore={onRestore} onApprove={onApprove} deletingId={deletingId} restoringId={restoringId} approvingId={approvingId} />
-          </div>
-        </div>
-      )}
-    </Surface>
   );
 }
 
@@ -1401,9 +885,15 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
 }) {
   const { t } = useLanguage();
   const receiptInputRef = useRef<HTMLInputElement>(null);
+  const captureParams=useSearchParams();
+  const [photoChoice,setPhotoChoice]=useState(false);
+  useEffect(()=>{if(captureParams.get("capture")!=="1")return;const timer=window.setTimeout(()=>setPhotoChoice(true),0);return()=>window.clearTimeout(timer);},[captureParams]);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [scanningReceipt, setScanningReceipt] = useState(false);
   const [selectedReceiptName, setSelectedReceiptName] = useState<string | null>(null);
+  const [receiptFile,setReceiptFile]=useState<File|null>(null);
+  const receiptPreview=useRef<HTMLImageElement>(null);
+  useEffect(()=>{if(!receiptFile)return;const url=URL.createObjectURL(receiptFile);if(receiptPreview.current)receiptPreview.current.src=url;return()=>URL.revokeObjectURL(url);},[receiptFile]);
   const [receiptSuccess, setReceiptSuccess] = useState<string | null>(null);
   const [receiptError, setReceiptError] = useState<string | null>(null);
   const [scanHistory, setScanHistory] = useState<string[]>([]);
@@ -1430,7 +920,7 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
       setReceiptError(t(offlineWriteMessage));
       return;
     }
-    setSelectedReceiptName(file.name);
+    setSelectedReceiptName(file.name);setReceiptFile(file);
     setScanningReceipt(true);
     setReceiptSuccess(null);
     setReceiptError(null);
@@ -1468,215 +958,14 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
       setScanningReceipt(false);
     }
   };
-  return (
-    <DialogFrame
-      titleId="transaction-dialog-title"
-      descriptionId="transaction-dialog-description"
-      initialFocusRef={merchantInputRef}
-      onClose={onClose}
-      closeDisabled={saving}
-    >
-      <form onSubmit={onSubmit}>
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-100 bg-white/95 px-5 py-4 backdrop-blur sm:px-6">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.1em] text-emerald-700">{isEditMode ? t("Perbarui ledger") : t("Transaksi baru")}</p>
-            <h2 id="transaction-dialog-title" className="mt-1 text-xl font-bold tracking-tight text-slate-900">
-              {isEditMode ? t("Edit transaksi") : t("Catat transaksi")}
-            </h2>
-            <p id="transaction-dialog-description" className="mt-1 text-xs leading-5 text-slate-500">{t("Isi detail utama. Biasanya selesai kurang dari satu menit.")}</p>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose} disabled={saving} aria-label={t("Tutup form transaksi")}>
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-
-        <div className="space-y-5 px-5 py-5 sm:px-6">
-          {!isEditMode && (
-            <section aria-labelledby="receipt-scan-title" className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3.5">
-              <input
-                ref={receiptInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void scanReceipt(file);
-                }}
-              />
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                capture="environment"
-                className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void scanReceipt(file);
-                }}
-              />
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p id="receipt-scan-title" className="text-xs font-bold uppercase tracking-[0.1em] text-emerald-800">{t("Scan struk")}</p>
-                  <p className="mt-1 text-xs leading-5 text-slate-600">{t("Pilih gambar untuk mengisi form otomatis. Gambar tidak disimpan.")}</p>
-                </div>
-                {selectedReceiptName && !scanningReceipt && <button type="button" onClick={clearReceiptSelection} className="shrink-0 text-xs font-bold text-slate-500 underline underline-offset-2 hover:text-slate-700">{t("Hapus pilihan")}</button>}
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button type="button" size="compact" onClick={() => cameraInputRef.current?.click()} disabled={scanningReceipt}>
-                  <Camera className="h-4 w-4" /> {t("Ambil foto")}
-                </Button>
-                <Button type="button" variant="secondary" size="compact" onClick={() => receiptInputRef.current?.click()} disabled={scanningReceipt}>
-                  <ReceiptText className="h-4 w-4" /> {t("Pilih gambar")}
-                </Button>
-              </div>
-              {selectedReceiptName && <p className="mt-3 truncate rounded-lg bg-white/80 px-3 py-2 text-xs font-semibold text-slate-600">{t("Struk terpilih: {name}", { name: selectedReceiptName })}</p>}
-              {scanningReceipt && <p role="status" className="mt-3 flex items-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-800"><Loader2 className="h-4 w-4 animate-spin" /> {t("Memproses struk...")}</p>}
-              {receiptError && <p role="alert" className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-800">{receiptError}</p>}
-              {receiptSuccess && <p role="status" className="mt-3 rounded-lg border border-emerald-200 bg-white/80 px-3 py-2 text-xs leading-5 text-emerald-800">{receiptSuccess}</p>}
-              {scanHistory.length > 0 && (
-                <div className="mt-3 rounded-lg border border-emerald-100 bg-white px-3 py-2 text-xs text-slate-600">
-                  <p className="font-bold text-emerald-800">{t("Hasil scan sesi ini")}</p>
-                  <ul className="mt-1 space-y-1">{scanHistory.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul>
-                  <p className="mt-2 text-amber-800">{t("Transaksi hasil scan akan perlu ditinjau sebelum mengubah saldo.")}</p>
-                </div>
-              )}
-            </section>
-          )}
-          <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1" aria-label={t("Tipe transaksi")}>
-            <button
-              type="button"
-              aria-pressed={form.type === "expense"}
-              onClick={() => changeType("expense")}
-              className={cn("min-h-11 rounded-lg text-sm font-bold transition", form.type === "expense" ? "bg-white text-rose-700 shadow-sm" : "text-slate-500")}
-            >
-              {t("Pengeluaran")}
-            </button>
-            <button
-              type="button"
-              aria-pressed={form.type === "income"}
-              onClick={() => changeType("income")}
-              className={cn("min-h-11 rounded-lg text-sm font-bold transition", form.type === "income" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500")}
-            >
-              {t("Pemasukan")}
-            </button>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("Merchant atau sumber")} htmlFor="transaction-merchant" hint={t("Contoh: Superindo atau Gaji bulanan.")}>
-              <input
-                ref={merchantInputRef}
-                id="transaction-merchant"
-                value={form.merchant}
-                onChange={(event) => setForm((current) => ({ ...current, merchant: event.target.value }))}
-                placeholder={t("Nama transaksi")}
-                className={fieldControlStyles}
-              />
-            </Field>
-            <Field label={t("Tanggal")} htmlFor="transaction-date">
-              <input
-                id="transaction-date"
-                type="date"
-                required
-                value={form.date}
-                onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))}
-                className={fieldControlStyles}
-              />
-            </Field>
-          </div>
-
-          <Field label={t("Akun")} htmlFor="transaction-account" hint={accounts.length === 0 ? t("Tambahkan akun dahulu melalui halaman Akun & saldo.") : t("Saldo akun akan mengikuti transaksi ini.")}>
-            <select
-              id="transaction-account"
-              required
-              value={form.accountId}
-              onChange={(event) => setForm((current) => ({ ...current, accountId: event.target.value }))}
-              className={fieldControlStyles}
-            >
-              <option value="">{t("Pilih akun")}</option>
-              {accounts.map((account) => <option key={account.id} value={account.id}>{account.name} · {account.currency}</option>)}
-            </select>
-          </Field>
-
-          <Field label={t("Nominal")} htmlFor="transaction-amount" hint={t("Masukkan angka tanpa tanda titik atau koma.")} descriptionId="transaction-amount-hint">
-            <div className="relative">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Rp</span>
-              <input
-                id="transaction-amount"
-                aria-describedby="transaction-amount-hint"
-                type="number"
-                inputMode="numeric"
-                min="1"
-                step="1"
-                required
-                value={form.amount}
-                onFocus={(event) => { if (!isEditMode && event.target.value === "0") event.target.select(); }}
-                onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))}
-                placeholder="0"
-                className={cn(fieldControlStyles, "pl-11 text-lg font-bold")}
-              />
-            </div>
-          </Field>
-
-          <Field label={t("Kategori")} htmlFor="transaction-category" hint={t("Pilih dari kategori yang sudah ada atau ketik kategori baru.")}>
-            <input
-              id="transaction-category"
-              required
-              list="transaction-category-options"
-              value={form.category}
-              onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
-              placeholder={t("Contoh: Makan")}
-              className={fieldControlStyles}
-            />
-            <datalist id="transaction-category-options">
-              {categoryOptions.map((category) => <option key={category} value={category}>{t(category)}</option>)}
-            </datalist>
-          </Field>
-
-          <Field label={t("Catatan")} htmlFor="transaction-note" hint={t("Opsional—tambahkan konteks yang berguna saat ditinjau nanti.")}>
-            <textarea
-              id="transaction-note"
-              rows={3}
-              value={form.note}
-              onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))}
-              placeholder={t("Catatan singkat")}
-              className={cn(fieldControlStyles, "resize-none")}
-            />
-          </Field>
-
-          {transaction && canApproveTransaction(transaction.status) && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-              <p className="font-bold">{t("Transaksi masih perlu ditinjau.")}</p>
-              <p>{t("Simpan perubahan tidak mengubah saldo. Gunakan Setujui setelah detail benar.")}</p>
-              {transaction.receipt_url && <p className="mt-2">{t("Bukti struk tersedia.")}</p>}
-              {transaction.ai_confidence !== null && <p>{t("Keyakinan ekstraksi AI: {confidence}%", { confidence: Math.round(transaction.ai_confidence * 100) })}</p>}
-              {transaction.raw_text && <details className="mt-2"><summary className="cursor-pointer font-semibold">{t("Lihat teks hasil ekstraksi")}</summary><p className="mt-2 max-h-32 overflow-y-auto whitespace-pre-wrap rounded-lg bg-white/70 p-2 text-xs text-slate-700">{transaction.raw_text}</p></details>}
-            </div>
-          )}
-
-          <div aria-live="polite" aria-atomic="true">
-            {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">{error}</p>}
-          </div>
-        </div>
-
-        <div className="sticky bottom-0 flex gap-2 border-t border-slate-100 bg-white/95 px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 backdrop-blur sm:justify-end sm:px-6 sm:pb-4">
-          <Button variant="secondary" onClick={onClose} disabled={saving} className="flex-1 sm:flex-none">{t("Batal")}</Button>
-          <Button type="submit" disabled={saving || accounts.length === 0} className="flex-[1.4] sm:flex-none">
-            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> {t("Menyimpan...")}</> : <><FileSpreadsheet className="h-4 w-4" /> {isEditMode ? t("Simpan perubahan") : t("Simpan transaksi")}</>}
-          </Button>
-        </div>
-      </form>
-    </DialogFrame>
-  );
-}
-
-function TransactionSkeleton() {
-  return (
-    <Surface className="animate-pulse overflow-hidden" aria-label="Memuat transaksi">
-      <div className="h-16 border-b border-slate-100 bg-white" />
-      {[0, 1, 2, 3].map((item) => <div key={item} className="h-20 border-b border-slate-100 bg-slate-50/50 last:border-0" />)}
-      <span className="sr-only">Memuat transaksi...</span>
-    </Surface>
-  );
+  useEffect(()=>{if(captureParams.get("receipt")!=="1")return;const timer=window.setTimeout(()=>{const file=takePendingReceipt();const extraction=takePendingExtraction();if(file&&extraction){setReceiptFile(file);setSelectedReceiptName(file.name);setForm(current=>applyReceiptExtractionToTransactionForm(current,extraction,buildTransactionCategoryOptions(categories,extraction.type??current.type)));onScan();}else if(file)void scanReceipt(file);},0);return()=>window.clearTimeout(timer);},[captureParams]);
+  if (isEditMode) return <EditTransactionEditor form={form} onChange={next=>setForm({...form,...next})} accounts={accounts} categories={categoryOptions} busy={saving} error={error} onClose={onClose} onSave={onSubmit} transactionId={transaction?.id}/>;
+  return <><TransactionEditor form={form} onChange={next=>setForm({...form,...next})} accounts={accounts} categories={categoryOptions} busy={saving || scanningReceipt} error={error || receiptError} onClose={onClose} onSave={onSubmit} attachment={<>
+    <input ref={receiptInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={event=>{const file=event.target.files?.[0];if(file)void scanReceipt(file);}}/>
+    <input ref={cameraInputRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="sr-only" onChange={event=>{const file=event.target.files?.[0];if(file)void scanReceipt(file);}}/>
+    {scanningReceipt&&<p role="status" className="text-body-sm text-on-surface-variant">{t("Membaca struk...")}</p>}
+    {selectedReceiptName&&<div className="flex items-center gap-3 rounded-2xl bg-surface-container-low p-3">{receiptFile&&<img ref={receiptPreview} alt={t("Pratinjau struk")} className="w-14 h-16 rounded-lg object-cover shrink-0"/>}<span className="text-body-sm text-on-surface-variant truncate">{selectedReceiptName}</span></div>}{receiptSuccess&&<p role="status" className="mt-2 text-body-sm text-primary">{receiptSuccess}</p>}
+  </>}/>{photoChoice&&<DialogFrame titleId="receipt-source-title" onClose={()=>setPhotoChoice(false)}><div className="p-5 flex flex-col gap-4"><h2 id="receipt-source-title" className="text-headline-sm font-bold">{t("Foto struk")}</h2><p className="text-body-sm text-on-surface-variant">{t("Gemini membaca struk dan mengisi data transaksi. Periksa hasilnya sebelum menyimpan.")}</p><div className="flex gap-3"><Button type="button" className="flex-1" onClick={()=>{cameraInputRef.current?.click();setPhotoChoice(false);}}>{t("Kamera")}</Button><Button type="button" variant="secondary" className="flex-1" onClick={()=>{receiptInputRef.current?.click();setPhotoChoice(false);}}>{t("Galeri")}</Button></div></div></DialogFrame>}</>;
 }
 
 function formatCurrency(value: number, currency: string) {
