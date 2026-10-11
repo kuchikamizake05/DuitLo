@@ -1,23 +1,24 @@
 "use client";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
-import { Bot, Check, ChevronDown, Clipboard, Database, Eye, EyeOff, Fingerprint, Globe2, LogOut, ShieldCheck, Smartphone, User, WalletCards, Wifi, WifiOff } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/components/LanguageProvider";
-import { Button } from "@/components/ui/Button";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { Surface } from "@/components/ui/Surface";
+import Navbar from "@/components/Navbar";
+import { ReferenceRoot } from "@/components/reference/runtime";
+import { SettingsView } from "@/components/reference/SettingsView";
+import { useTheme } from "@/components/ThemeProvider";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { maskUserIdentifier } from "@/lib/settings";
-import { clearPasskeyDeviceState, getPasskeyErrorMessage, isWebAuthnSupported, maskPasskeyEmail, readPasskeyDeviceState, writePasskeyDeviceState } from "@/lib/passkeys";
-import { getNetworkSnapshot, getServerNetworkSnapshot, subscribeToNetworkStatus } from "@/lib/pwa";
+import { Surface } from "@/components/ui/Surface";
 import { supabase } from "@/infrastructure/supabase/browser-client";
+import { clearPasskeyDeviceState,getPasskeyErrorMessage,isWebAuthnSupported,maskPasskeyEmail,readPasskeyDeviceState,writePasskeyDeviceState } from "@/lib/passkeys";
+import { getNetworkSnapshot,getServerNetworkSnapshot,subscribeToNetworkStatus } from "@/lib/pwa";
+import { useRouter } from "next/navigation";
+import { useEffect,useRef,useState,useSyncExternalStore } from "react";
 
 export default function SettingsPage() {
   const { language, t } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const [userName,setUserName]=useState("");
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,7 @@ export default function SettingsPage() {
         return;
       }
       setUserEmail(session.user.email ?? null);
+      setUserName(session.user.user_metadata?.full_name??session.user.email?.split("@")[0]??"FinTrack");
       setUserId(session.user.id);
       const { data, error } = await supabase.auth.passkey.list();
       if (!error) {
@@ -157,124 +159,13 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="app-page">
+    <ReferenceRoot page="pengaturan">
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="app-page-content max-w-6xl space-y-5 outline-none sm:space-y-6">
-        <PageHeader
-          eyebrow={t("Workspace settings")}
-          title={t("Pengaturan")}
-          description={language === "en" ? "Make FinTrack feel yours. Manage your account, preferences, and security." : "Atur FinTrack sesuai kebutuhanmu. Kelola akun, preferensi, dan keamanan."}
-        />
+      {loading?<main className="pt-20 px-margin" aria-busy="true"><SettingsSkeleton/></main>:<SettingsView email={userEmail} name={userName} online={online} biometric={deviceLockEnabled} biometricAvailable={passkeys.length>0&&isWebAuthnSupported()} onBiometric={toggleDeviceLock} onEnroll={()=>void enrollPasskey()} onLock={lockNow} onLogout={()=>void handleLogout()} loggingOut={loggingOut} passkeys={passkeys} onDeletePasskey={setPasskeyDeleteId} error={passkeyError??logoutError}/>}
 
-        {loading ? <SettingsSkeleton /> : <div className="grid items-start gap-4 lg:grid-cols-2 sm:gap-5">
-          <div className="space-y-4 sm:space-y-5">
-            <Surface className="p-5 sm:p-6">
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-900 text-white"><User className="h-5 w-5" /></span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">{loading ? t("Memuat akun...") : userEmail || t("Email tidak tersedia")}</p>
-                  <p className="mt-0.5 text-xs text-slate-500">{t("Pemilik workspace pribadi")}</p>
-                </div>
-              </div>
-            </Surface>
-            <Surface className="overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 p-5">
-                <div><h2 className="text-sm font-bold">{t("Bahasa tampilan")}</h2><p className="mt-1 text-xs text-slate-500">{t("Pilih bahasa yang digunakan di seluruh aplikasi.")}</p></div>
-                <LanguageSwitcher detailed />
-              </div>
-              <dl className="divide-y divide-slate-100 px-5">
-                <SystemRow icon={WalletCards} label={t("Mata uang utama")} value={t("IDR · Rupiah")} />
-                <SystemRow icon={Globe2} label={t("Zona waktu")} value="Asia/Jakarta" />
-              </dl>
-            </Surface>
-            <Surface className="p-5 sm:p-6">
-              <h2 className="flex items-center gap-2 text-sm font-bold"><ShieldCheck className="h-5 w-5 text-emerald-700" />{language === "en" ? "Account security" : "Keamanan akun"}</h2>
-              <div className="mt-5 rounded-xl bg-slate-50 p-3">
-                <p className="flex items-center gap-2 text-xs font-bold text-slate-700"><ShieldCheck className="h-4 w-4 text-emerald-700" /> {t("Sesi privat")}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">{t("Data keuangan hanya dibuka lewat akun terautentikasi ini.")}</p>
-              </div>
-              <div className="mt-5 rounded-xl border border-slate-200 p-3">
-                <div className="flex items-center gap-2"><Fingerprint className="h-4 w-4 text-emerald-700" /><p className="text-xs font-bold text-slate-700">{t("Passkey perangkat")}</p></div>
-                {!isWebAuthnSupported() && <p role="alert" className="mt-3 text-xs leading-5 text-rose-700">{t("Perangkat atau browser ini belum mendukung Passkey.")}</p>}
-                {passkeyError && <p role="alert" className="mt-3 text-xs leading-5 text-rose-700">{passkeyError}</p>}
-                <div className="mt-3 space-y-2">
-                  {passkeys.map((passkey) => <div key={passkey.id} className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2"><div className="min-w-0"><p className="truncate text-xs font-bold text-slate-700">{passkey.friendly_name || t("Passkey perangkat")}</p><p className="text-[11px] text-slate-500">{passkey.last_used_at ? t("Pernah digunakan") : t("Baru didaftarkan")}</p></div><Button variant="ghost" size="compact" onClick={() => setPasskeyDeleteId(passkey.id)} disabled={passkeyBusy !== null}>{t("Hapus")}</Button></div>)}
-                </div>
-                <Button variant="secondary" size="compact" loading={passkeyBusy === "enroll"} onClick={() => void enrollPasskey()} disabled={!userId || !isWebAuthnSupported() || passkeyBusy !== null} className="mt-3 w-full"><Fingerprint className="h-4 w-4" /> {t("Daftarkan Passkey")}</Button>
-                <label className="mt-4 flex min-h-11 cursor-pointer items-center justify-between gap-3 border-t border-slate-100 pt-4"><span className="text-xs font-semibold text-slate-700">{t("Kunci FinTrack di perangkat ini")}</span><span className="relative inline-flex shrink-0"><input type="checkbox" role="switch" checked={deviceLockEnabled} onChange={(event) => toggleDeviceLock(event.target.checked)} disabled={!passkeys.length || !isWebAuthnSupported()} className="peer sr-only" /><span className="h-6 w-11 rounded-full bg-slate-200 transition-colors peer-checked:bg-emerald-700 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-40" /><span className="pointer-events-none absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5" /></span></label>
-                {deviceLockEnabled && <Button variant="secondary" size="compact" onClick={lockNow} className="mt-3 w-full">{t("Kunci sekarang")}</Button>}
-              </div>
-            </Surface>
-
-            <Surface className="overflow-hidden">
-              <div className="border-b border-emerald-100 px-5 py-4"><h2 className="text-sm font-bold">{t("Lingkungan aplikasi")}</h2><p className="mt-1 text-xs text-slate-500">{t("Konfigurasi aktif pada perangkat ini.")}</p></div>
-              <dl className="divide-y divide-slate-100 px-5">
-                <SystemRow icon={Smartphone} label={t("Mode tampilan")} value={standalone ? t("Aplikasi terpasang") : t("Browser")} />
-                <SystemRow icon={online ? Wifi : WifiOff} label={t("Koneksi")} value={online ? t("Online") : t("Offline")} tone={online ? "text-emerald-700" : "text-amber-700"} />
-              </dl>
-            </Surface>
-          </div>
-
-          <div className="space-y-4 sm:space-y-5">
-            <Surface className="overflow-hidden">
-             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center gap-3 p-5 focus-visible:outline-emerald-700 [&::-webkit-details-marker]:hidden">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><Database className="h-5 w-5" /></span>
-                <div className="flex-1"><h2 className="text-sm font-bold">{t("Identitas integrasi")}</h2><p className="mt-1 text-xs leading-5 text-slate-500">{language === "en" ? "Your account ID for connected workflows." : "ID akun untuk menghubungkan workflow kamu."}</p></div>
-                <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
-              </summary>
-              <div className="border-t border-slate-100 px-5 pb-5">
-              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <code className="min-w-0 truncate text-xs font-semibold text-slate-700">{revealed ? userId || t("Memuat identitas...") : maskUserIdentifier(userId)}</code>
-                  <div className="flex shrink-0 gap-1">
-                    <Button variant="ghost" size="icon" className="h-9 min-h-9 w-9" onClick={() => setRevealed((value) => !value)} aria-label={revealed ? t("Sembunyikan User ID") : t("Tampilkan User ID")}>{revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</Button>
-                    <Button variant="secondary" size="compact" onClick={() => void copyUserId()} disabled={!userId}>{copied ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Clipboard className="h-3.5 w-3.5" />} {copied ? t("Tersalin") : t("Salin")}</Button>
-                  </div>
-                </div>
-              </div>
-              {copyError && <p role="alert" className="mt-2 text-xs text-rose-700">{copyError}</p>}
-              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3"><p className="text-xs font-bold text-amber-900">{t("Jaga batas kredensial")}</p><p className="mt-1 text-xs leading-5 text-amber-800/80">{t("Anon key boleh dipakai client dengan RLS aktif. Jangan pernah menaruh service-role key di browser, Telegram, atau workflow yang dapat dibaca publik.")}</p></div>
-              </div>
-             </details>
-            </Surface>
-
-            <Surface className="overflow-hidden">
-             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center gap-3 p-5 focus-visible:outline-emerald-700 [&::-webkit-details-marker]:hidden"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><Bot className="h-5 w-5" /></span><div className="flex-1"><h2 className="text-sm font-bold">{t("Hubungkan bot Telegram")}</h2><p className="mt-1 text-xs leading-5 text-slate-500">{t("Empat langkah dari bot baru sampai workflow aktif.")}</p></div><ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" /></summary>
-              <div className="divide-y divide-slate-100 border-t border-slate-100 px-5">
-                <SetupStep number="1" title={t("Buat bot melalui BotFather")}>{language === "en" ? <>Open the official <code className="font-bold text-emerald-700">@BotFather</code> account, run <code>/newbot</code>, then store the token in n8n credentials—not in source code.</> : <>Buka akun resmi <code className="font-bold text-emerald-700">@BotFather</code>, jalankan <code>/newbot</code>, lalu simpan token di credential n8n—bukan di source code.</>}</SetupStep>
-                <SetupStep number="2" title={t("Batasi pengguna Telegram")}>{t("Ambil Telegram User ID Anda melalui bot informasi akun, lalu gunakan sebagai allowlist agar bot pribadi tidak dapat dipakai orang lain.")}</SetupStep>
-                <SetupStep number="3" title={t("Atur environment n8n")}><VariableList items={["TELEGRAM_ALLOWED_USER_ID", "GEMINI_API_KEY", "SUPABASE_URL", "SUPABASE_ANON_KEY", "SUPABASE_USER_ID"]} /></SetupStep>
-                <SetupStep number="4" title={t("Import dan aktifkan workflow")}>{language === "en" ? <>Import the workflow from the <code className="font-bold text-emerald-700">n8n/</code> folder, connect the Telegram credential, test one transaction, then activate the workflow.</> : <>Import workflow dari folder <code className="font-bold text-emerald-700">n8n/</code>, hubungkan Telegram credential, uji satu transaksi, lalu aktifkan workflow.</>}</SetupStep>
-              </div>
-             </details>
-            </Surface>
-            <div className="px-1 pt-2">
-              {logoutError && <p role="alert" className="mb-3 text-xs leading-5 text-rose-700">{t(logoutError)}</p>}
-              <Button variant="secondary" loading={loggingOut} onClick={() => void handleLogout()} className="w-full border-rose-100 text-rose-700 hover:bg-rose-50"><LogOut className="h-4 w-4" /> {t("Keluar dari sesi")}</Button>
-            </div>
-          </div>
-        </div>}
-      </main>
       {passkeyDeleteId && <ConfirmDialog titleId="passkey-delete-title" descriptionId="passkey-delete-description" title={t("Hapus Passkey?")} description={t("Perangkat ini tidak lagi dapat membuka FinTrack dengan Passkey tersebut.")} confirmLabel={t("Hapus")} onClose={() => { if (!passkeyBusy) setPasskeyDeleteId(null); }} onConfirm={() => void deletePasskey()} loading={passkeyBusy === "delete"} error={passkeyError} />}
-    </div>
+    </ReferenceRoot>
   );
 }
 
-function SystemRow({ icon: Icon, label, value, tone = "text-slate-700" }: { icon: typeof WalletCards; label: string; value: string; tone?: string }) {
-  return <div className="flex items-center justify-between gap-3 py-3.5"><dt className="flex items-center gap-2 text-xs font-semibold text-slate-500"><Icon className="h-4 w-4 text-emerald-700" /> {label}</dt><dd className={`text-right text-xs font-bold ${tone}`}>{value}</dd></div>;
-}
-
-function SettingsSkeleton() {
-  const { t } = useLanguage();
-  return <div role="status" aria-label={t("Memuat pengaturan")} className="grid animate-pulse gap-5 lg:grid-cols-2"><div className="space-y-5"><Surface className="h-24 bg-white/80" /><Surface className="h-52 bg-white/80" /><Surface className="h-80 bg-white/80" /></div><div className="space-y-5"><Surface className="h-24 bg-white/80" /><Surface className="h-24 bg-white/80" /><Surface className="h-12 bg-white/80" /></div><span className="sr-only">{t("Memuat pengaturan")}</span></div>;
-}
-
-function SetupStep({ number, title, children }: { number: string; title: string; children: React.ReactNode }) {
-  return <article className="flex gap-3 py-5"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-xs font-bold text-emerald-700">{number}</span><div><h3 className="text-sm font-bold">{title}</h3><div className="mt-1 text-xs leading-5 text-slate-500">{children}</div></div></article>;
-}
-
-function VariableList({ items }: { items: string[] }) {
-  return <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">{items.map((item) => <li key={item}><code className="block rounded-lg bg-slate-50 px-2.5 py-2 text-[11px] font-semibold text-slate-700">{item}</code></li>)}</ul>;
-}
+function SettingsSkeleton() { return <PageSkeleton variant="settings"/>; }
