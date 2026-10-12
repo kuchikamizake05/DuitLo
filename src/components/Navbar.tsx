@@ -1,326 +1,79 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type Ref } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { BrainCircuit, CalendarClock, ChevronDown, FileClock, LayoutDashboard, LogOut, MoreHorizontal, Plus, Receipt, Settings, User, WalletCards, X } from "lucide-react";
-import { isNavigationActive, primaryNavigation } from "@/lib/navigation";
-import { reportHandledError } from "@/lib/errors";
-import { clearPasskeyDeviceState } from "@/lib/passkeys";
-import { supabase } from "@/infrastructure/supabase/browser-client";
-import BrandLockup from "@/components/BrandLockup";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import {Camera,FilePenLine,Images,LoaderCircle} from "lucide-react";
+import {DialogFrame} from "@/components/ui/DialogFrame";
+import {supabase} from "@/infrastructure/supabase/browser-client";
+import type {ReceiptExtraction} from "@/lib/receipt-vision";
+import {setPendingReceipt,setPendingExtraction} from "@/lib/pending-receipt";
 import { useLanguage } from "@/components/LanguageProvider";
 import { QuickTransactionDialog } from "@/components/QuickTransactionDialog";
-import { DialogFrame } from "@/components/ui/DialogFrame";
+import { useTheme } from "@/components/ThemeProvider";
+import { usePathname,useRouter } from "next/navigation";
+import { useEffect,useRef,useState } from "react";
+import { ReferencePart,ReferenceRoot,useReferencePage,type ReferencePage } from "./reference/runtime";
+import navigationContainers from "./reference/navigation-containers.json";
+import shellNodes from "./reference/shell-nodes.json";
 
-const profileItems = [
-  { name: "Dompet & akun", href: "/accounts", icon: WalletCards },
-  { name: "Analisis keuangan", href: "/insights", icon: BrainCircuit },
-  { name: "Rencana keuangan", href: "/planning", icon: CalendarClock },
-  { name: "Ringkasan bulanan", href: "/reports", icon: FileClock },
-  { name: "Pengaturan", href: "/settings", icon: Settings },
-];
+const pageRoutes: Record<string, ReferencePage> = {
+  "/dashboard": "beranda", "/accounts": "dompet", "/transactions": "aktivitas",
+  "/insights": "laporan", "/reports": "laporan-klasik", "/settings": "pengaturan",
+  "/planning": "anggaran", "/goals": "target", "/investments": "portofolio",
+};
 
-type ProfileOrigin = "desktop" | "mobile" | null;
-
-export default function Navbar() {
-  const { t } = useLanguage();
+export default function Navbar({ onBack, onMenu }: { onBack?: () => void; onMenu?:()=>void } = {}) {
   const pathname = usePathname();
   const router = useRouter();
-  const desktopProfileTriggerRef = useRef<HTMLButtonElement>(null);
-  const mobileProfileTriggerRef = useRef<HTMLButtonElement>(null);
-  const profileMenuRef = useRef<HTMLDivElement>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [profileOrigin, setProfileOrigin] = useState<ProfileOrigin>(null);
-  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
-  const [quickTransactionOpen, setQuickTransactionOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
-  const [logoutError, setLogoutError] = useState<string | null>(null);
-  const closeMobileMore = useCallback(() => setMobileMoreOpen(false), []);
-
-  const closeProfile = useCallback((restoreFocus = false) => {
-    const origin = profileOrigin;
-    setProfileOrigin(null);
-    if (restoreFocus && origin) {
-      window.setTimeout(() => (origin === "desktop" ? desktopProfileTriggerRef : mobileProfileTriggerRef).current?.focus(), 0);
+  const parentPage = useReferencePage();
+  const page = parentPage ?? pageRoutes[pathname] ?? "beranda";
+  const { language, setLanguage } = useLanguage();
+  const { theme } = useTheme();
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [quickMenu,setQuickMenu]=useState(false);
+  const [photoChoice,setPhotoChoice]=useState(false);const [photoBusy,setPhotoBusy]=useState(false);const [photoError,setPhotoError]=useState("");const cameraFile=useRef<HTMLInputElement>(null);const galleryFile=useRef<HTMLInputElement>(null);
+  const {t}=useLanguage();
+  const quickTriggerRef=useRef<HTMLElement|null>(null);
+  useEffect(()=>{if(quickOpen||!quickTriggerRef.current)return;const timer=window.setTimeout(()=>quickTriggerRef.current?.focus(),0);return()=>window.clearTimeout(timer);},[quickOpen]);
+  const nodes = shellNodes[page];
+  const headerPage=page==="detail-rekening"||page==="detail-target"||page==="tambah-target"?"detail":page;
+  const headerNodes=shellNodes[headerPage];
+  const navigationName=page==="portofolio"?"dompet":page==="laporan-klasik"?"laporan":page;
+  const targetIndex=["beranda","dompet","catat","aktivitas","laporan"].indexOf(navigationName);
+  const attributes: Record<string, Record<string, unknown>> = {};
+  for (const [code, key] of Object.entries(headerNodes.languages)) {
+    const selected = language === code.toLowerCase();
+    attributes[key] = {
+      "aria-pressed": selected,
+      style: { width: 30, height: 30, borderRadius: 999, fontSize: 10, fontWeight: 900,
+        color: selected ? (theme === "dark" ? "#16417d" : "#79db8d") : (theme === "dark" ? "#96969f" : "#758b80"),
+        background: selected ? (theme === "dark" ? "#a8c4fc" : "#123524") : "transparent" },
+    };
+  }
+  const navigationKey=(key:string)=>{if(page!=="portofolio"||theme!=="dark")return key;const [name,index]=key.split(".");return `${name}.${Number(index)-1}`;};
+  const active = page === "portofolio" ? "dompet" : page === "laporan-klasik" ? "laporan" : page;
+  for (const [name, sourceKey] of Object.entries(nodes.navigation)) {
+    const key=navigationKey(sourceKey);
+    attributes[key] = { "aria-current": name === active ? "page" : undefined,
+      ...(name === active ? {className:"flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 rounded-full text-primary font-bold transition-colors"} : {}),
+      ...(name === "catat" ? {onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {event.preventDefault();quickTriggerRef.current=event.currentTarget;setQuickMenu(current=>!current);}} : {}),
+    };
+  }
+  const navContainer=navigationContainers[page]?.[theme];
+  if(navContainer)attributes[navContainer]={"data-moving-indicator":true,style:{"--nav-index":Math.max(0,targetIndex),"--nav-visible":targetIndex<0?0:1}};
+  const addKey="catat" in nodes.navigation?navigationKey(nodes.navigation.catat):undefined;
+  if(addKey){const [name,index]=addKey.split(".");attributes[`${name}.${Number(index)+1}`]={style:{fontWeight:700,fontVariationSettings:'"wght" 700',WebkitTextStroke:"0.8px currentColor"}};}
+  if(onBack&&page==="catat")attributes["catat.3"]={onClick:onBack};
+  function action(value: string) {
+    if (value.endsWith(":ID")) setLanguage("id");
+    else if (value.endsWith(":EN")) setLanguage("en");
+    else if (value === "more_vert") onMenu?.();
+    else if (value === "Profil Akun" || /fintrack-pengaturan-reference/.test(value)) router.push("/settings");
+    else if (/Kembali|Tutup|arrow_back|history.back|location.assign|location.href/.test(value)) {
+      if (onBack) onBack();
+      else router.push(page==="target"?"/dashboard":page==="portofolio"?"/accounts":page==="edit-anggaran"?"/planning":/target/.test(page)?"/goals":/aset|investasi/.test(page)?"/investments":/rekening|akun|transfer|anggaran/.test(page)?"/accounts":"/dashboard");
     }
-  }, [profileOrigin]);
-
-  useEffect(() => {
-    let active = true;
-    void supabase.auth.getSession().then(({ data }) => {
-      if (active) {
-        setUserEmail(data.session?.user.email ?? null);
-        setUserId(data.session?.user.id ?? null);
-      }
-    });
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) {
-        setUserEmail(session?.user.email ?? null);
-        setUserId(session?.user.id ?? null);
-      }
-    });
-    return () => {
-      active = false;
-      subscription.subscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!profileOrigin) return;
-    profileMenuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
-
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target as Node;
-      const trigger = profileOrigin === "desktop" ? desktopProfileTriggerRef.current : mobileProfileTriggerRef.current;
-      if (!profileMenuRef.current?.contains(target) && !trigger?.contains(target)) closeProfile();
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        closeProfile(true);
-      }
-      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
-        const menu = profileMenuRef.current;
-        if (!menu?.contains(document.activeElement)) return;
-        const items = Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])'));
-        if (!items.length) return;
-        event.preventDefault();
-        const current = items.indexOf(document.activeElement as HTMLElement);
-        const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
-        items[next].focus();
-      }
-    };
-    const handleFocusIn = (event: FocusEvent) => {
-      const target = event.target as Node;
-      const trigger = profileOrigin === "desktop" ? desktopProfileTriggerRef.current : mobileProfileTriggerRef.current;
-      if (!profileMenuRef.current?.contains(target) && !trigger?.contains(target)) closeProfile();
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("focusin", handleFocusIn);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("focusin", handleFocusIn);
-    };
-  }, [closeProfile, profileOrigin]);
-
-  const handleLogout = async () => {
-    if (loggingOut) return;
-    setLoggingOut(true);
-    setLogoutError(null);
-    try {
-      closeProfile();
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      if (userId) clearPasskeyDeviceState(userId);
-      router.replace("/login");
-    } catch (error) {
-      reportHandledError("Navbar logout failed", error, "Sesi belum dapat ditutup. Coba lagi.");
-      setLogoutError("Sesi belum dapat ditutup. Coba lagi.");
-    } finally {
-      setLoggingOut(false);
-    }
-  };
-
-  const isActive = (href: string) => isNavigationActive(href, pathname);
-  const toggleProfile = (origin: Exclude<ProfileOrigin, null>) => {
-    setProfileOrigin((current) => current === origin ? null : origin);
-  };
-
-  return (
-    <>
-      <header className="sticky top-0 z-40 hidden w-full border-b border-[color:rgba(18,53,36,0.15)] bg-[color:rgba(233,248,238,0.92)] backdrop-blur-xl md:block">
-        <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-6 xl:px-8">
-          <div className="flex h-full items-center gap-10 xl:gap-14">
-            <BrandLockup href="/dashboard" priority ariaLabel="FinTrack dashboard" />
-            <nav className="flex h-full items-center gap-7 xl:gap-9" aria-label={t("Navigasi utama")}>
-              {primaryNavigation.map((item) => {
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    prefetch={true}
-                    aria-current={active ? "page" : undefined}
-                    className={`group relative flex h-full items-center text-sm font-extrabold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-4 ${active ? "text-[var(--brand-ink)]" : "text-[color:rgba(18,53,36,0.66)] hover:text-[var(--brand-ink)]"}`}
-                  >
-                    {t(item.name)}
-                    <span
-                      aria-hidden="true"
-                      className={`absolute inset-x-0 bottom-0 h-[3px] origin-left rounded-t-full bg-[var(--brand-ink)] transition-transform duration-150 ${active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`}
-                    />
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <div className="relative">
-              <button
-                ref={desktopProfileTriggerRef}
-                type="button"
-                onClick={() => toggleProfile("desktop")}
-                aria-expanded={profileOrigin === "desktop"}
-                aria-haspopup="menu"
-                aria-controls="profile-menu"
-                className="flex min-h-11 items-center gap-2.5 rounded-full bg-[var(--brand-primary)] px-4 text-xs font-extrabold text-white shadow-[0_8px_0_rgba(18,53,36,0.10)] transition-[transform,box-shadow,background-color] hover:-translate-y-0.5 hover:bg-[var(--brand-ink)] hover:shadow-[0_10px_0_rgba(18,53,36,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-ink)] focus-visible:ring-offset-2"
-              >
-                <User className="h-4 w-4" aria-hidden="true" />
-                <span className="max-w-[170px] truncate">{userEmail || t("Profil")}</span>
-                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${profileOrigin === "desktop" ? "rotate-180" : ""}`} aria-hidden="true" />
-              </button>
-              {profileOrigin === "desktop" && <ProfileMenu ref={profileMenuRef} onClose={() => closeProfile(true)} onLogout={handleLogout} loggingOut={loggingOut} error={logoutError} />}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <header className="sticky top-0 z-40 flex min-h-[74px] items-center justify-between border-b border-[color:rgba(18,53,36,0.15)] bg-[color:rgba(233,248,238,0.94)] px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] backdrop-blur-xl md:hidden">
-        <BrandLockup href="/dashboard" priority compact ariaLabel="FinTrack dashboard" />
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher compact />
-          <button
-            ref={mobileProfileTriggerRef}
-            type="button"
-            onClick={() => toggleProfile("mobile")}
-            aria-label={profileOrigin === "mobile" ? t("Tutup menu profil") : t("Buka menu profil")}
-            aria-expanded={profileOrigin === "mobile"}
-            aria-haspopup="menu"
-            aria-controls="profile-menu"
-            className="grid h-[42px] w-[42px] place-items-center rounded-full bg-[var(--brand-ink)] text-[var(--brand-lime)] shadow-[0_6px_0_rgba(18,53,36,0.10)] transition-transform active:translate-y-0.5 active:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2"
-          >
-            <User className="h-[18px] w-[18px]" aria-hidden="true" />
-          </button>
-        </div>
-        {profileOrigin === "mobile" && <ProfileMenu ref={profileMenuRef} onClose={() => closeProfile(true)} onLogout={handleLogout} mobile loggingOut={loggingOut} error={logoutError} />}
-      </header>
-
-      <nav aria-label={t("Navigasi utama")} className="fixed inset-x-0 bottom-0 z-40 border-t border-[color:rgba(18,53,36,0.12)] bg-[color:rgba(244,251,246,0.96)] px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_32px_rgba(18,53,36,0.08)] backdrop-blur-xl md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 items-center">
-          <MobileNavItem href="/dashboard" icon={LayoutDashboard} label={t("Beranda")} active={isActive("/dashboard")} />
-          <MobileNavItem href="/accounts" icon={WalletCards} label={t("Dompet")} active={isActive("/accounts")} />
-          <button type="button" onClick={() => setQuickTransactionOpen(true)} aria-label={t("Buka form catat")} className="group relative -mt-5 flex flex-col items-center justify-center gap-0.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2"><span className="grid h-12 w-12 place-items-center rounded-full bg-[var(--brand-primary)] text-white shadow-[0_8px_16px_rgba(21,128,61,0.35)] transition-transform group-active:scale-95"><Plus className="h-6 w-6 stroke-[2.5]" aria-hidden="true" /></span><span className="text-[10px] font-extrabold text-[var(--brand-ink)]">{t("Catat")}</span></button>
-          <MobileNavItem href="/transactions" icon={Receipt} label={t("Transaksi")} active={isActive("/transactions")} />
-          <button type="button" onClick={() => setMobileMoreOpen((open) => !open)} aria-expanded={mobileMoreOpen} aria-controls="mobile-more-menu" aria-haspopup="dialog" className={`relative flex min-h-[62px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-extrabold transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] ${mobileMoreOpen ? "text-[var(--brand-ink)]" : "text-[color:rgba(18,53,36,0.48)]"}`}><span className={`grid h-8 w-8 place-items-center rounded-full ${mobileMoreOpen ? "bg-[var(--brand-ink)] text-[var(--brand-lime)]" : ""}`}><MoreHorizontal className="h-[20px] w-[20px]" aria-hidden="true" /></span><span>{t("Lainnya")}</span></button>
-        </div>
-      </nav>
-      {mobileMoreOpen && <MobileMoreMenu onClose={closeMobileMore} />}
-      {quickTransactionOpen && <QuickTransactionDialog onClose={() => setQuickTransactionOpen(false)} />}
-    </>
-  );
+  }
+  async function choosePhoto(file:File|undefined){if(!file||photoBusy)return;setPhotoBusy(true);setPhotoError("");try{const {data:{session}}=await supabase.auth.getSession();if(!session)throw new Error(t("Masuk kembali untuk melanjutkan."));const body=new FormData();body.append("file",file);const response=await fetch("/api/receipts/parse",{method:"POST",headers:{Authorization:`Bearer ${session.access_token}`},body});const result=await response.json() as {extraction?:ReceiptExtraction;error?:string};if(!response.ok||!result.extraction)throw new Error(result.error||t("Struk belum dapat dibaca."));setPendingReceipt(file);setPendingExtraction(result.extraction);setPhotoChoice(false);router.push("/transactions?new=1&receipt=1");}catch(error){setPhotoError(error instanceof Error?error.message:t("Struk belum dapat dibaca."));}finally{setPhotoBusy(false);}}
+  const shell = <><input ref={cameraFile} hidden type="file" accept="image/jpeg,image/png,image/webp" capture="environment" onChange={event=>{choosePhoto(event.target.files?.[0]);event.target.value="";}}/><input ref={galleryFile} hidden type="file" accept="image/jpeg,image/png,image/webp" onChange={event=>{choosePhoto(event.target.files?.[0]);event.target.value="";}}/>{photoChoice&&<DialogFrame titleId="navbar-photo-title" onClose={()=>setPhotoChoice(false)} closeDisabled={photoBusy}><div className="p-5 flex flex-col gap-4"><h2 id="navbar-photo-title" className="text-headline-sm font-bold">{t("Foto struk")}</h2><p className="text-body-sm text-on-surface-variant">{t("Pilih kamera atau galeri untuk membaca struk.")}</p><div className="flex gap-3"><button type="button" disabled={photoBusy} onClick={()=>cameraFile.current?.click()} className="flex-1 rounded-full py-3 flex justify-center items-center gap-2 font-semibold" style={{background:"#a8c4fc",color:"#173456"}}><Camera className="w-5 h-5" style={{strokeWidth:1.75}}/>{t("Kamera")}</button><button type="button" disabled={photoBusy} onClick={()=>galleryFile.current?.click()} className="flex-1 rounded-full py-3 flex justify-center items-center gap-2 font-semibold" style={{background:"#a8c4fc",color:"#173456"}}><Images className="w-5 h-5" style={{strokeWidth:1.75}}/>{t("Galeri")}</button></div>{photoBusy&&<div role="status" className="flex items-center justify-center gap-3 py-4 text-body-sm text-on-surface-variant"><LoaderCircle className="w-6 h-6 animate-spin" style={{strokeWidth:2}}/>{t("Membaca struk...")}</div>}{photoError&&<p role="alert" className="text-body-sm text-error">{photoError}</p>}</div></DialogFrame>}
+<ReferencePart page={headerPage} part="header" attributes={attributes} onAction={action}/><ReferencePart key={`navigation-${targetIndex}`} page={page} part="navigation" values={{"icon:add":quickMenu?"close":"add"}} attributes={attributes} onAction={action}/>{quickMenu&&<><button type="button" aria-label={t("Tutup")} onClick={()=>setQuickMenu(false)} className="fixed inset-0 z-[49] bg-black/25"/><div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[55] flex items-end gap-6 pb-4"><button type="button" aria-label={t("Catat manual")} title={t("Catat manual")} onClick={()=>{setQuickMenu(false);setQuickOpen(true);}} className="w-12 h-12 rounded-full bg-[#087f8c] text-white shadow-lg flex items-center justify-center"><FilePenLine aria-hidden="true" className="w-6 h-6" strokeWidth={1.75} style={{strokeWidth:1.75}}/></button><button type="button" aria-label={t("Foto struk")} title={t("Foto struk")} onClick={()=>{setQuickMenu(false);setPhotoChoice(true);}} className="w-12 h-12 rounded-full bg-[#056893] text-white shadow-lg flex items-center justify-center"><Camera aria-hidden="true" className="w-6 h-6" strokeWidth={1.75} style={{strokeWidth:1.75}}/></button></div></>}{quickOpen && <QuickTransactionDialog onClose={() => setQuickOpen(false)}/>}</>;
+  return parentPage ? shell : <ReferenceRoot page={page} contents>{shell}</ReferenceRoot>;
 }
-
-function MobileNavItem({ href, icon: Icon, label, active }: { href: string; icon: typeof LayoutDashboard; label: string; active: boolean }) {
-  return (
-    <Link href={href} prefetch={false} aria-current={active ? "page" : undefined} className={`relative flex min-h-[62px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-extrabold transition-colors duration-100 active:scale-95 ${active ? "text-[var(--brand-ink)]" : "text-[color:rgba(18,53,36,0.48)] hover:text-[var(--brand-ink)]"}`}>
-      <span className={`grid h-8 w-8 place-items-center rounded-full ${active ? "bg-[var(--brand-ink)] text-[var(--brand-lime)]" : ""}`}><Icon className={`h-[18px] w-[18px] ${active ? "stroke-[2.5]" : "stroke-2"}`} aria-hidden="true" /></span>
-      <span className="truncate px-1">{label}</span>
-    </Link>
-  );
-}
-
-function MobileMoreMenu({ onClose }: { onClose: () => void }) {
-  const { t } = useLanguage();
-  const items = [
-    { name: "Budget", href: "/planning", icon: CalendarClock },
-    { name: "Goals", href: "/goals", icon: CalendarClock },
-    { name: "Portofolio", href: "/investments", icon: BrainCircuit },
-    { name: "Analisis", href: "/insights", icon: BrainCircuit },
-    { name: "Laporan bulanan", href: "/reports", icon: FileClock },
-    { name: "Pengaturan", href: "/settings", icon: Settings },
-  ];
-  return (
-    <DialogFrame
-      titleId="mobile-more-menu-title"
-      onClose={onClose}
-      className="bg-[rgba(18,53,36,0.12)] px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] backdrop-blur-none sm:items-end md:hidden"
-      contentClassName="max-w-md rounded-2xl border-[color:rgba(18,53,36,0.14)] p-3 shadow-[var(--shadow-elevated)] sm:max-w-md"
-    >
-      <div id="mobile-more-menu">
-        <div className="flex items-center justify-between px-2 py-1">
-          <h2 id="mobile-more-menu-title" className="text-sm font-extrabold text-[var(--brand-ink)]">{t("Lainnya")}</h2>
-          <button type="button" onClick={onClose} aria-label={t("Tutup menu")} className="grid h-8 w-8 place-items-center rounded-full bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)]">
-            <X className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
-        <div className="mt-2 grid grid-cols-2 gap-1">
-          {items.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link key={item.href} href={item.href} onClick={onClose} className="flex min-h-12 items-center gap-2.5 rounded-xl px-3 text-xs font-bold text-[color:rgba(18,53,36,0.75)] hover:bg-[var(--brand-mint)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)]">
-                <Icon className="h-4 w-4 text-[var(--brand-primary)]" aria-hidden="true" />
-                {t(item.name)}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </DialogFrame>
-  );
-}
-
-type ProfileMenuProps = {
-  onClose: () => void;
-  onLogout: () => void;
-  mobile?: boolean;
-  loggingOut: boolean;
-  error: string | null;
-};
-
-const ProfileMenu = ({ onClose, onLogout, mobile = false, loggingOut, error, ref }: ProfileMenuProps & { ref: Ref<HTMLDivElement> }) => {
-  const { t } = useLanguage();
-  return (
-    <div
-      ref={ref}
-      id="profile-menu"
-      role="menu"
-      aria-label={t("Profil dan navigasi lainnya")}
-      className={`${mobile ? "fixed inset-x-4 top-[calc(4.75rem+env(safe-area-inset-top))] mx-auto" : "absolute right-0 top-14"} z-50 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-[color:rgba(18,53,36,0.14)] bg-white p-2.5 text-[var(--brand-ink)] shadow-[var(--shadow-elevated)]`}
-    >
-      <div className="flex items-center justify-between border-b border-[color:rgba(18,53,36,0.10)] px-2.5 py-2.5 text-[11px] font-black uppercase tracking-[0.13em] text-[color:rgba(18,53,36,0.58)]">
-        <span>{t("Menu akun")}</span>
-        {mobile && (
-          <button type="button" onClick={onClose} aria-label={t("Tutup menu")} className="grid h-8 w-8 place-items-center rounded-full hover:bg-[var(--brand-mint)]">
-            <X className="h-4 w-4" aria-hidden="true" />
-          </button>
-        )}
-      </div>
-      <div className="py-1.5">
-        {profileItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              role="menuitem"
-              onClick={onClose}
-              key={item.href}
-              href={item.href}
-              className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-[color:rgba(18,53,36,0.72)] transition-colors hover:bg-[var(--brand-mint)] hover:text-[var(--brand-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)]"
-            >
-              <Icon className="h-4 w-4 text-[var(--brand-primary)]" aria-hidden="true" />
-              {t(item.name)}
-            </Link>
-          );
-        })}
-      </div>
-      {error && <p role="alert" className="border-t border-rose-100 px-3 py-2 text-xs leading-5 text-rose-700">{error}</p>}
-      <button
-        type="button"
-        role="menuitem"
-        onClick={onLogout}
-        disabled={loggingOut}
-        aria-busy={loggingOut || undefined}
-        className="flex min-h-11 w-full items-center gap-3 rounded-xl border-t border-[color:rgba(18,53,36,0.08)] px-3 py-2.5 text-sm font-bold text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 disabled:cursor-wait disabled:opacity-60"
-      >
-        <LogOut className="h-4 w-4" aria-hidden="true" />
-        {loggingOut ? t("Menutup sesi...") : t("Keluar akun")}
-      </button>
-    </div>
-  );
-};
