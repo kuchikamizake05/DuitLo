@@ -1,4 +1,5 @@
 "use client";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
@@ -137,7 +138,7 @@ export default function FinancialJourney({ journey }: { journey: ReturnType<type
       <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700">{copy("Langkah kecil, kebiasaan baik", "Small steps, lasting habits")}</p><h2 id={titleId} className="mt-1 text-lg font-bold tracking-tight text-slate-900">Financial Journey</h2></div>
       <Sprout aria-hidden="true" className="h-9 w-9 shrink-0 rounded-xl bg-emerald-50 p-2 text-emerald-700" />
     </div>
-    {loading && !data && <div role="status" aria-label={copy("Memuat perjalananmu", "Loading your journey")} className="mt-5 animate-pulse space-y-4"><div className="h-4 w-36 rounded bg-emerald-100" /><div className="h-2 w-full rounded-full bg-emerald-100" /><div className="h-28 rounded-xl bg-emerald-50" /><span className="sr-only">{copy("Memuat perjalananmu", "Loading your journey")}</span></div>}
+    {loading && !data && <PageSkeleton variant="journey"/>}
     {error && <div role="alert" className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900"><p>{copy("Journey belum bisa tersambung. Coba lagi untuk memeriksa progres yang tersimpan.", "Journey could not sync. Retry to check your saved progress.")}</p><button type="button" disabled={loading || !!saving} onClick={() => void refresh()} className="mt-1 min-h-11 font-semibold underline disabled:opacity-50">{copy("Coba lagi", "Retry")}</button></div>}
     {data && <>
       <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2"><p className="text-sm font-bold text-slate-800">Level {level} · {level >= 3 ? copy("Makin konsisten", "Growing steadily") : level >= 2 ? copy("Mulai teratur", "Finding your rhythm") : copy("Langkah awal", "First steps")}</p><p className="text-xs font-medium text-slate-600">{progress} / 300 XP</p></div>

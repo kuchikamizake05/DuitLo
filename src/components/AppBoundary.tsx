@@ -5,6 +5,7 @@ import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AlertTriangle, CloudOff, Database, RefreshCw } from "lucide-react";
+import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import { Button } from "@/components/ui/Button";
 import { getAuthGateState, sanitizeNextPath } from "@/lib/auth";
 import { getNetworkSnapshot, getServerNetworkSnapshot, subscribeToNetworkStatus } from "@/lib/pwa";
@@ -115,56 +116,10 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
 }
 
 export function ApplicationLoading() {
-  const { t } = useLanguage();
-  return (
-    <div className="min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#e9f8ee_0%,#f7fbf8_21rem,#f8faf9_100%)]">
-      <div aria-hidden="true" className="sticky top-0 z-40 h-[74px] border-b border-emerald-900/[0.08] bg-[rgba(233,248,238,0.94)] px-4 md:h-[76px] md:px-6">
-        <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between">
-          <div className="h-9 w-32 rounded-xl bg-emerald-900/10 animate-pulse motion-reduce:animate-none md:w-40" />
-          <div className="flex items-center gap-3">
-            <div className="hidden h-9 w-72 rounded-xl bg-emerald-900/[0.07] animate-pulse motion-reduce:animate-none md:block" />
-            <div className="h-10 w-10 rounded-full bg-emerald-900/10 animate-pulse motion-reduce:animate-none" />
-          </div>
-        </div>
-      </div>
-
-      <main id="main-content" tabIndex={-1} role="status" aria-live="polite" aria-busy="true" className="mx-auto w-full max-w-7xl px-4 py-5 outline-none sm:px-6 sm:py-8 md:py-10">
-      <span className="sr-only">{t("Memuat aplikasi")}</span>
-        <div aria-hidden="true" className="animate-pulse space-y-5 motion-reduce:animate-none sm:space-y-6">
-          <div className="space-y-3">
-            <div className="h-6 w-28 rounded-full bg-emerald-900/[0.08]" />
-            <div className="h-9 w-52 rounded-xl bg-emerald-900/[0.14] sm:h-11 sm:w-72" />
-            <div className="h-4 w-full max-w-md rounded-md bg-emerald-900/[0.07]" />
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-            <div className="h-28 rounded-2xl border border-emerald-100 bg-white/85 shadow-[0_10px_35px_rgba(22,101,52,0.05)]" />
-            <div className="hidden h-28 rounded-2xl border border-emerald-100 bg-white/85 shadow-[0_10px_35px_rgba(22,101,52,0.05)] sm:block" />
-            <div className="hidden h-28 rounded-2xl border border-emerald-100 bg-white/85 shadow-[0_10px_35px_rgba(22,101,52,0.05)] sm:block" />
-          </div>
-
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-            <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-white/90 shadow-[0_10px_35px_rgba(22,101,52,0.05)]">
-              <div className="h-36 bg-emerald-950/[0.09] sm:h-44" />
-              <div className="space-y-3 p-5 sm:p-6">
-                <div className="h-5 w-40 rounded-lg bg-emerald-900/[0.10]" />
-                <div className="h-12 rounded-xl bg-slate-100/90" />
-                <div className="h-12 rounded-xl bg-slate-100/90" />
-              </div>
-            </section>
-            <aside className="hidden rounded-2xl border border-emerald-100 bg-white/90 p-6 shadow-[0_10px_35px_rgba(22,101,52,0.05)] lg:block">
-              <div className="h-5 w-32 rounded-lg bg-emerald-900/[0.10]" />
-              <div className="mt-5 space-y-4">
-                <div className="h-16 rounded-xl bg-slate-100/90" />
-                <div className="h-16 rounded-xl bg-slate-100/90" />
-                <div className="h-16 rounded-xl bg-slate-100/90" />
-              </div>
-            </aside>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
+ const pathname=usePathname();
+ const variants={"/dashboard":"dashboard","/accounts":"wallet","/transactions":"activity","/insights":"insights","/investments":"portfolio","/settings":"settings","/planning":"budget","/goals":"goals","/trading":"trading","/reports":"archive","/journey":"journey","/onboarding":"onboarding","/shared-receipt":"receipt"} as const;
+ const variant=variants[pathname as keyof typeof variants]??"dashboard";
+ return <div className="ft-application-loading"><main id="main-content" tabIndex={-1} className="px-margin pt-5"><PageSkeleton variant={variant}/></main></div>;
 }
 
 export function ConfigurationRequired() {
