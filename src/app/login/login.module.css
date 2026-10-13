@@ -71,11 +71,14 @@
 .unlock .footer{padding-top:24px}
 .welcome .main{padding-top:0;gap:12px}
 .welcome .card{text-align:center}
-.welcomeArt{min-height:300px;flex:1;display:grid;place-items:center;background:var(--auth-input);margin:0 -24px 24px;padding:32px 24px 44px;border-radius:0 0 50% 50% / 0 0 12% 12%;color:var(--auth-link)}
-.welcomeArt svg{width:100%;max-width:300px;height:auto}
+.welcomeArt{min-height:300px;flex:1;display:grid;place-items:center;background:var(--canvas);margin:0 -24px 24px;padding:32px 24px 44px;border-radius:0 0 50% 50% / 0 0 12% 12%;color:var(--auth-link)}
+.welcomeArt img{width:100%;max-width:392px;height:auto}
+.welcomeDark{display:none}
+:global(html.dark) .welcomeLight{display:none}
+:global(html.dark) .welcomeDark{display:block}
 .welcomeActions{display:flex;flex-direction:column;gap:12px;margin:28px 0 12px}
 @media(min-width:768px){.page{padding-top:32px;padding-bottom:32px}.header{padding-bottom:32px}.main{max-width:440px;min-height:min(620px,calc(100svh - 160px))}.welcomeArt{min-height:280px}}
-@media(max-height:700px){.header{padding-top:16px;padding-bottom:12px;min-height:68px}.main{padding-top:12px;gap:20px}.unlock .card>div:first-child{margin-bottom:20px}.pinEntry{margin-bottom:20px}.key{min-height:54px}.welcomeArt{min-height:200px;padding-top:16px;padding-bottom:24px}.welcomeArt svg{max-width:230px}}
+@media(max-height:700px){.header{padding-top:16px;padding-bottom:12px;min-height:68px}.main{padding-top:12px;gap:20px}.unlock .card>div:first-child{margin-bottom:20px}.pinEntry{margin-bottom:20px}.key{min-height:54px}.welcomeArt{min-height:200px;padding-top:16px;padding-bottom:24px}.welcomeArt img{max-width:260px}}
 
 .account input{min-height:52px}
 

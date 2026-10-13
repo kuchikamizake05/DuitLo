@@ -5,6 +5,11 @@ for(const theme of ["light","dark"]){
   await page.addInitScript(value=>localStorage.setItem("fintrack-theme",value),theme);
   await page.goto("/login?welcome=1");
   await expect(page.getByRole("heading",{name:"Hai, Selamat Datang!"})).toBeVisible();
+  const welcome=page.getByRole("region",{name:"Hai, Selamat Datang!",exact:true});
+  const illustration=welcome.locator(`img[data-welcome-theme="${theme}"]`);
+  await expect(illustration).toBeVisible();
+  await expect(welcome.locator(`img[data-welcome-theme="${theme==="dark"?"light":"dark"}"]`)).toBeHidden();
+  await expect.poll(()=>illustration.evaluate(image=>(image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   await page.screenshot({path:`.frontend/stitch-welcome-${theme}-${info.project.name}.png`,fullPage:true});
   await page.getByRole("button",{name:"Buat akun",exact:true}).click();
   await expect(page.getByLabel("Konfirmasi kata sandi")).toBeVisible();
