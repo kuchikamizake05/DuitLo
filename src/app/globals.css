@@ -694,8 +694,7 @@ html.dark .app-page :is(.text-sky-700, .text-sky-800) {
 @keyframes ft-skeleton-breathe { 0%,100% { opacity:1; } 50% { opacity:.65; } }
 @media(prefers-reduced-motion:reduce) { .ft-skeleton-line,.ft-skeleton-circle,.ft-skeleton-donut { animation:none; } }
 
-.ft-application-loading {min-height:100svh;background:#f3faf6;}
-.dark .ft-application-loading {background:#111214;}
+.ft-application-loading {min-height:100svh;background:var(--canvas);}
 .ft-skeleton-header {padding:20px; padding-bottom:16px;}
 
 .dark .ft-inline-skeleton>div {background:#303136!important;animation:ft-skeleton-breathe 2.4s ease-in-out infinite;}

@@ -5,6 +5,7 @@ import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AlertTriangle, CloudOff, Database, RefreshCw } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import { Button } from "@/components/ui/Button";
 import { getAuthGateState, sanitizeNextPath } from "@/lib/auth";
@@ -121,7 +122,7 @@ export function ApplicationLoading() {
  const pathname=usePathname();
  const variants={"/dashboard":"dashboard","/accounts":"wallet","/transactions":"activity","/insights":"insights","/investments":"portfolio","/settings":"settings","/planning":"budget","/goals":"goals","/trading":"trading","/reports":"archive","/journey":"journey","/onboarding":"onboarding","/shared-receipt":"receipt"} as const;
  const variant=variants[pathname as keyof typeof variants]??"dashboard";
- return <div className="ft-application-loading"><main id="main-content" tabIndex={-1} className="px-margin pt-5"><PageSkeleton variant={variant}/></main></div>;
+ return <div className="ft-application-loading"><Navbar/><main id="main-content" tabIndex={-1} className="px-margin pt-20"><PageSkeleton variant={variant}/></main></div>;
 }
 
 export function ConfigurationRequired() {

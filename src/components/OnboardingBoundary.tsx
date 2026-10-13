@@ -155,7 +155,6 @@ export default function OnboardingBoundary({ children }: { children: React.React
     if (!contextValue || destination) return <ApplicationLoading />;
   }
   if (destination) return <ApplicationLoading />;
-  if (!contextValue) return children;
 
   return <OnboardingContext.Provider value={contextValue}>{children}</OnboardingContext.Provider>;
 }
