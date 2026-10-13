@@ -12,8 +12,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:list": "playwright test --list",
-    "check": "npm run lint && npm run typecheck && npm test && npm run build",
-    "audit:security": "npm audit --omit=dev --audit-level=high"
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "audit:security": "pnpm audit --prod --audit-level=high"
   },
   "engines": {
     "node": ">=20.9.0"
@@ -50,8 +50,5 @@
     "typescript": "^5",
     "vitest": "^4.1.11"
   },
-  "overrides": {
-    "postcss": "8.5.26",
-    "sharp": "0.35.5"
-  }
+  "packageManager": "pnpm@10.30.3"
 }

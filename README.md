@@ -191,7 +191,7 @@ See [the architecture guide](docs/architecture.md) for dependency rules and the 
 ### Prerequisites
 
 - Node.js **20.9.0 or newer**
-- npm
+- pnpm **10.30.3** (pinned in `package.json`)
 - A Supabase project
 - Git
 
@@ -202,8 +202,11 @@ Optional integrations require an n8n instance, Telegram bot, Gemini API key, and
 ```bash
 git clone https://github.com/kuchikamizake05/FinTrack.git
 cd FinTrack
-npm ci
+corepack enable
+pnpm install --frozen-lockfile
 ```
+
+If migrating an existing npm checkout, remove the old `node_modules` directory before installing with pnpm so leftover npm binaries cannot shadow the new dependencies. If Corepack is unavailable, install the pinned pnpm version using the [official installation guide](https://pnpm.io/installation).
 
 ### 2. Create the local environment file
 
@@ -228,7 +231,7 @@ Run [the base schema](supabase/schema.sql), then every file in [`supabase/migrat
 ### 4. Start development
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -348,17 +351,17 @@ Never export live n8n credentials. Use the `.private.json` suffix for local priv
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the Next.js development server |
-| `npm run build` | Create a production build |
-| `npm run start` | Serve the production build |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run TypeScript without emitting files |
-| `npm test` | Run the Vitest unit suite once |
-| `npm run test:coverage` | Run unit tests with coverage |
-| `npm run test:e2e` | Run Playwright across desktop and mobile projects |
-| `npm run test:e2e:list` | List all discovered Playwright tests |
-| `npm run check` | Run lint, typecheck, unit tests, and production build |
-| `npm run audit:security` | Audit production dependencies at high severity or above |
+| `pnpm dev` | Start the Next.js development server |
+| `pnpm build` | Create a production build |
+| `pnpm start` | Serve the production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm typecheck` | Run TypeScript without emitting files |
+| `pnpm test` | Run the Vitest unit suite once |
+| `pnpm test:coverage` | Run unit tests with coverage |
+| `pnpm test:e2e` | Run Playwright across desktop and mobile projects |
+| `pnpm test:e2e:list` | List all discovered Playwright tests |
+| `pnpm check` | Run lint, typecheck, unit tests, and production build |
+| `pnpm audit:security` | Audit production dependencies at high severity or above |
 
 Playwright starts its own production server on port `3100`; do not start the application manually before running E2E tests.
 
@@ -367,9 +370,9 @@ Playwright starts its own production server on port `3100`; do not start the app
 Before opening a pull request, run:
 
 ```bash
-npm run check
-npm run audit:security
-npm run test:e2e
+pnpm check
+pnpm audit:security
+pnpm test:e2e
 ```
 
 The test suite covers deterministic finance calculations, configuration and security boundaries, authentication, onboarding, application smoke routes, Smart Insights, production headers, PWA behavior, and responsive overflow.
@@ -456,3 +459,17 @@ Financial data, credentials, receipts, local exports, and private automation sta
 <p align="center">
   Built for clearer decisions, calmer reviews, and financial data that stays under your control.
 </p>
+
+## Repository layout
+
+- `src/`: application routes, components, domain logic, and unit tests.
+- `public/`: runtime images, institution logos, and PWA assets.
+- `e2e/`: browser tests and mocked service fixtures.
+- `supabase/`: database migrations and local configuration.
+- `worker/`: Go worker for monthly reports.
+- `n8n/`: integration workflow templates.
+- `scripts/`: demo data and the historical October commit helper.
+- `docs/`: architecture, operational guidance, and feature documentation.
+- `design-preview/` and `.frontend/`: design references and the licensed logo library used by the local logo editor.
+
+Use pnpm for application dependencies. Commit `pnpm-lock.yaml`; do not recreate `package-lock.json`. Dependabot uses its `npm` ecosystem identifier for pnpm projects too. Build output, test reports, local logs, environment secrets, and editor state are ignored.

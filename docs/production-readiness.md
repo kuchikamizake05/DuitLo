@@ -53,8 +53,8 @@ Vercel rollback: Dashboard Deployments, choose last known-good deployment, use *
 ## CI and release commands
 
 ```bash
-npm run check
-npm run test:e2e -- --workers=1
+pnpm check
+pnpm test:e2e --workers=1
 git diff --check
 ```
 

@@ -31,7 +31,7 @@ export default defineConfig({
     { name: "mobile-chromium", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: `npm run build && npm run start -- -H 127.0.0.1 -p ${port}`,
+    command: `pnpm build && pnpm start -H 127.0.0.1 -p ${port}`,
     url: baseURL,
     reuseExistingServer: false,
     timeout: 180_000,

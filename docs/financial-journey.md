@@ -16,6 +16,6 @@ The card always shows the current week, independently of the dashboard reporting
 
 ## Verification
 
-- `npm run check` covers lint, TypeScript, unit tests, and production build.
-- `npm run test:e2e -- e2e/journey.spec.ts e2e/authenticated-smoke.spec.ts` covers desktop/mobile confirmation, cancellation, reload persistence, new-week presentation, service recovery, and application smoke routes with mocked Supabase.
+- `pnpm check` covers lint, TypeScript, unit tests, and production build.
+- `pnpm test:e2e e2e/journey.spec.ts e2e/authenticated-smoke.spec.ts` covers desktop/mobile confirmation, cancellation, reload persistence, new-week presentation, service recovery, and application smoke routes with mocked Supabase.
 - `psql -v ON_ERROR_STOP=1 -f supabase/tests/financial-journey.sql` runs in an **empty disposable PostgreSQL database** as postgres. The script creates minimal auth fixtures, applies the real migration, verifies duplicates, ownership, restricted writes, goal badges, historical XP, and anonymous rejection, then rolls back. Do not run this fixture against a real Supabase database.
