@@ -47,13 +47,23 @@ export function ReportsView({ snapshot, month, setMonth, budget, incomeCategorie
   const categoryRows = <div className="space-y-3 pt-4 mt-2">{categories.map(category=>{
     const previous=(type==="expense"?snapshot.previousCategoryAmounts:snapshot.previousIncomeCategoryAmounts)?.[category.name]??0;
     const change=previous>0?(category.amount-previous)/previous*100:null;
+    const badgeTone=change===null?null:change<0?"green":change<=5?"yellow":"red";
+    const badgeColors=badgeTone===null?{background:"var(--ref-surface-container)",color:"var(--ref-on-surface-variant)"}:theme==="dark"?{
+      green:{background:"#203b2d",color:"#8aceaa"},
+      yellow:{background:"#40351d",color:"#f0cc75"},
+      red:{background:"#48262c",color:"#ffadb4"},
+    }[badgeTone]:{
+      green:{background:"#c5ecd2",color:"#00652c"},
+      yellow:{background:"#fff0c2",color:"#765500"},
+      red:{background:"#ffdadf",color:"#a12638"},
+    }[badgeTone];
     const comparison=change===null?t("Belum ada data bulan lalu"):`${change>0?"+":""}${change.toLocaleString(language==="en"?"en-ID":"id-ID",{maximumFractionDigits:1})}% ${t("vs bulan lalu")}`;
     return <ReferencePart key={category.name} page="laporan" part="category-row" values={{"icon:receipt_long":categorySymbol(category.name),"Tagihan & Utilitas":category.name,"Naik 2% vs Sep":<><span style={{color:theme==="light"?"#00652c":"#aac7ff"}}>{category.share.toLocaleString(language==="en"?"en-ID":"id-ID",{maximumFractionDigits:1})}%</span>{" "}<span className="text-on-surface-variant">{t("dari total")}</span></>,"Rp 2.425.000":money(category.amount),"65.9%":comparison}} attributes={{
       "laporan.128":{className:"flex flex-col gap-2 p-3 rounded-[20px] bg-surface-container-low"},
       "laporan.129":{className:"flex items-center justify-between gap-3"},
       "laporan.131":categoryAttributes(category.name,"w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"),
       "laporan.136":{className:"text-right flex-shrink-0 max-w-[48%]"},
-      "laporan.138":{className:"inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-medium",style:{background:change===null?"var(--ref-surface-container)":theme==="dark"?"#203b2d":"#c5ecd2",color:change===null?"var(--ref-on-surface-variant)":theme==="dark"?"#8aceaa":"#00652c"}},
+      "laporan.138":{className:"inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-medium",style:badgeColors},
       "laporan.139":{className:"w-full bg-surface-container rounded-full h-1.5 overflow-hidden"},
       "laporan.140":{className:"h-full rounded-full",style:{width:`${category.share.toFixed(1)}%`,background:categoryColor(category.name,theme)}}
     }}/>;
