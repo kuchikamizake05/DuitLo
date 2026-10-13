@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowRight,
   CheckCircle2,
   Eye,
   EyeOff,
@@ -12,6 +11,7 @@ import {
   LockKeyhole,
   Mail,
 } from "lucide-react";
+import {AuthWelcome} from "@/components/AuthWelcome";
 import {AuthShell} from "@/components/AuthShell";
 import { useLanguage } from "@/components/LanguageProvider";
 import { sanitizeNextPath } from "@/lib/auth";
@@ -39,6 +39,8 @@ function getLocationState() {
 export default function LoginPage() {
   const { t } = useLanguage();
   const router = useRouter();
+  const searchParams=useSearchParams();
+  const [welcome,setWelcome]=useState(searchParams.get("welcome")==="1");
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -194,22 +196,32 @@ export default function LoginPage() {
         ? "Daftar dengan email atau gunakan akun Google."
         : "Masuk menggunakan email dan kata sandi atau akun Google.";
 
-  return <AuthShell titleId="login-title">
+  if(welcome)return <AuthWelcome onLogin={()=>{setWelcome(false);changeMode("login");}} onSignup={()=>{setWelcome(false);changeMode("signup");}}/>;
+  return <AuthShell titleId="login-title" onBack={()=>{if(busy)return;if(mode!=="login")changeMode("login");else setWelcome(true);}} footer={!isUpdate && mode !== "reset" ? (
+            <p className="mt-6 text-center text-xs text-slate-500">
+              {t(mode === "signup" ? "Sudah punya akun?" : "Belum punya akun?")} {" "}
+              <button type="button" onClick={() => changeMode(mode === "signup" ? "login" : "signup")} disabled={busy} className="font-extrabold text-emerald-700 hover:text-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-50">
+                {t(mode === "signup" ? "Masuk" : "Daftar")}
+              </button>
+            </p>
+          ) : null
+}>
           <div className={`${styles.cardHeader} text-left`}>
-            <h1 id="login-title" className={`${styles.cardTitle} mt-4 text-[30px] font-black leading-[1.06] tracking-[-0.055em] text-[var(--brand-ink)] sm:mt-3 sm:text-[30px]`}>{title}</h1>
+            <h1 id="login-title" className={`${styles.cardTitle} `}>{title}</h1>
             <p className="mt-2.5 text-[14px] leading-5 text-slate-500 sm:mt-2 sm:text-[13px]">{t(description)}</p>
           </div>
 
-          <form onSubmit={isUpdate ? handlePasswordUpdate : handleCredentials} className="space-y-2">
+          <form onSubmit={isUpdate ? handlePasswordUpdate : handleCredentials} className={styles.form}>
             {!isSupabaseConfigured && <p role="alert" className={styles.error}>{t("Layanan login belum tersedia. Coba lagi nanti.")}</p>}
 
             {!isUpdate && <EmailField value={email} onChange={setEmail} disabled={busy} />}
-            {mode !== "reset" && <PasswordField id="password" label="Kata sandi" value={password} onChange={setPassword} disabled={busy} autoComplete={mode === "login" ? "current-password" : "new-password"} onForgotPassword={mode === "login" ? () => changeMode("reset") : undefined} />}
+            {mode !== "reset" && <PasswordField id="password" label="Kata sandi" value={password} onChange={setPassword} disabled={busy} autoComplete={mode === "login" ? "current-password" : "new-password"} />}
             {(mode === "signup" || isUpdate) && <PasswordField id="password-confirmation" label="Konfirmasi kata sandi" value={confirmation} onChange={setConfirmation} disabled={busy} autoComplete="new-password" />}
 
+            {mode === "login"&&<button type="button" disabled={busy} onClick={()=>changeMode("reset")} className={styles.forgot}>{t("Lupa kata sandi?")}</button>}
             <button type="submit" disabled={busy || !isSupabaseConfigured || (!isUpdate && !email)} className={styles.primary}>
               {busy && loading !== "oauth" ? <Loader2 className="h-4.5 w-4.5 animate-spin" /> : isUpdate ? <KeyRound className="h-4.5 w-4.5" /> : null}
-              {loading && loading !== "oauth" ? t("Memproses...") : isUpdate ? t("Simpan kata sandi baru") : mode === "reset" ? t("Kirim tautan pemulihan") : mode === "signup" ? t("Buat akun") : <><span>{t("Masuk ke FinTrack")}</span><ArrowRight className="h-4.5 w-4.5" /></>}
+              {loading && loading !== "oauth" ? t("Memproses...") : isUpdate ? t("Simpan kata sandi baru") : mode === "reset" ? t("Kirim tautan pemulihan") : mode === "signup" ? t("Buat akun") : <span>{t("Masuk ke FinTrack")}</span>}
             </button>
           </form>
 
@@ -222,14 +234,6 @@ export default function LoginPage() {
             </>
           )}
 
-          {!isUpdate && mode !== "reset" && (
-            <p className="mt-6 text-center text-xs text-slate-500">
-              {t(mode === "signup" ? "Sudah punya akun?" : "Belum punya akun?")} {" "}
-              <button type="button" onClick={() => changeMode(mode === "signup" ? "login" : "signup")} disabled={busy} className="font-extrabold text-emerald-700 hover:text-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-50">
-                {t(mode === "signup" ? "Masuk" : "Daftar")}
-              </button>
-            </p>
-          )}
 
           {(mode === "reset" || isUpdate) && <button type="button" onClick={() => changeMode("login")} disabled={busy} className="mt-3 min-h-10 w-full text-sm font-bold text-slate-500 hover:text-emerald-700">{t("Kembali ke halaman masuk")}</button>}
 

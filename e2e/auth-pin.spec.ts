@@ -11,7 +11,7 @@ for(const theme of ["light","dark"] as const){
  test(`normal login follows the ${theme} application palette`,async({page},info)=>{
   await mockSupabase(page,false);await page.addInitScript(value=>localStorage.setItem("fintrack-theme",value),theme);await page.goto("/login");
   const card=page.getByRole("region",{name:"Selamat datang kembali",exact:true});await expect(card).toBeVisible();
-  await expect(card).toHaveCSS("background-color",theme==="dark"?"rgb(32, 32, 36)":"rgb(255, 255, 255)");
+  await expect(card).toHaveCSS("background-color","rgba(0, 0, 0, 0)");
   await expect(page.getByLabel("Alamat email")).toHaveCSS("background-color",theme==="dark"?"rgb(28, 29, 32)":"rgb(238, 245, 240)");
   await expect(page.getByLabel("Alamat email")).toHaveCSS("border-top-width","0px");
   await expect(page.getByRole("button",{name:"Masuk ke FinTrack",exact:true})).toHaveCSS("background-color",theme==="dark"?"rgb(168, 196, 252)":"rgb(197, 236, 210)");

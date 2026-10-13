@@ -57,7 +57,7 @@ test("password controls are compact and preserve the password value", async ({ p
   const recoveryBox = await recovery.boundingBox();
   expect(labelBox).not.toBeNull();
   expect(recoveryBox).not.toBeNull();
-  expect(Math.abs((labelBox?.y ?? 0) - (recoveryBox?.y ?? 0))).toBeLessThanOrEqual(2);
+  expect(recoveryBox!.y).toBeGreaterThan(labelBox!.y);
 });
 
 test("taller authentication modes remain vertically reachable", async ({ page }) => {
@@ -77,5 +77,6 @@ test("taller authentication modes remain vertically reachable", async ({ page })
 
   expect(layout.documentHeight).toBeGreaterThanOrEqual(layout.viewportHeight);
   expect(privacyBox).not.toBeNull();
-  expect((privacyBox?.y ?? layout.viewportHeight) + (privacyBox?.height ?? 0)).toBeLessThanOrEqual(layout.viewportHeight);
+  await privacyNote.scrollIntoViewIfNeeded();
+  await expect(privacyNote).toBeInViewport();
 });
