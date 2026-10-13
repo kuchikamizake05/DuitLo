@@ -11,6 +11,14 @@ const ThemeContext = createContext<ThemeContextValue>({ theme: "light", system:f
 function applyTheme(theme: Theme) {
     document.documentElement.classList.toggle("dark", theme === "dark");
     document.documentElement.style.colorScheme = theme;
+    const color = theme === "dark" ? "#a8c4fc" : "#15803d";
+    let themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!themeColor) {
+        themeColor = document.createElement("meta");
+        themeColor.name = "theme-color";
+        document.head.appendChild(themeColor);
+    }
+    themeColor.content = color;
 }
 export function ThemeProvider({ children }: {
     children: ReactNode;
