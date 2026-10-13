@@ -32,7 +32,10 @@ const archivoBlack = Archivo_Black({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#15803d",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#111214" },
+    { media: "(prefers-color-scheme: light)", color: "#f4fbf6" },
+  ],
   colorScheme: "light",
   viewportFit: "cover",
 };

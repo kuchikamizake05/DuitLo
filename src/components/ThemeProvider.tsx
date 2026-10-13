@@ -11,20 +11,32 @@ const ThemeContext = createContext<ThemeContextValue>({ theme: "light", system:f
 function applyTheme(theme: Theme) {
     document.documentElement.classList.toggle("dark", theme === "dark");
     document.documentElement.style.colorScheme = theme;
-    const color = theme === "dark" ? "#a8c4fc" : "#15803d";
+    const color = getComputedStyle(document.documentElement).getPropertyValue("--canvas").trim()
+        || (theme === "dark" ? "#111214" : "#f4fbf6");
     let themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!themeColor) {
         themeColor = document.createElement("meta");
         themeColor.name = "theme-color";
         document.head.appendChild(themeColor);
     }
-    themeColor.content = color;
+    document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach(meta => {
+        if (meta.content !== color) meta.content = color;
+        if (meta.hasAttribute("media")) meta.removeAttribute("media");
+    });
 }
 export function ThemeProvider({ children }: {
     children: ReactNode;
 }) {
     const [system,setSystemState] = useState(false);
     const [theme, setThemeState] = useState<Theme>("light");
+    useEffect(() => {
+        // Navigation can replace Next.js metadata after the theme is applied.
+        const observer = new MutationObserver(() => {
+            applyTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+        observer.observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ["content", "media"] });
+        return () => observer.disconnect();
+    }, []);
     useEffect(() => {
         let stored: Theme = "light";
         try {
