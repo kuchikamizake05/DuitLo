@@ -890,10 +890,6 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
   useEffect(()=>{if(captureParams.get("capture")!=="1")return;const timer=window.setTimeout(()=>setPhotoChoice(true),0);return()=>window.clearTimeout(timer);},[captureParams]);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [scanningReceipt, setScanningReceipt] = useState(false);
-  const [selectedReceiptName, setSelectedReceiptName] = useState<string | null>(null);
-  const [receiptFile,setReceiptFile]=useState<File|null>(null);
-  const receiptPreview=useRef<HTMLImageElement>(null);
-  useEffect(()=>{if(!receiptFile)return;const url=URL.createObjectURL(receiptFile);if(receiptPreview.current)receiptPreview.current.src=url;return()=>URL.revokeObjectURL(url);},[receiptFile]);
   const [receiptSuccess, setReceiptSuccess] = useState<string | null>(null);
   const [receiptError, setReceiptError] = useState<string | null>(null);
   const [scanHistory, setScanHistory] = useState<string[]>([]);
@@ -904,7 +900,6 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
   const clearReceiptSelection = () => {
     if (receiptInputRef.current) receiptInputRef.current.value = "";
     if (cameraInputRef.current) cameraInputRef.current.value = "";
-    setSelectedReceiptName(null);
     setReceiptSuccess(null);
     setReceiptError(null);
   };
@@ -920,7 +915,6 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
       setReceiptError(t(offlineWriteMessage));
       return;
     }
-    setSelectedReceiptName(file.name);setReceiptFile(file);
     setScanningReceipt(true);
     setReceiptSuccess(null);
     setReceiptError(null);
@@ -958,13 +952,13 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
       setScanningReceipt(false);
     }
   };
-  useEffect(()=>{if(captureParams.get("receipt")!=="1")return;const timer=window.setTimeout(()=>{const file=takePendingReceipt();const extraction=takePendingExtraction();if(file&&extraction){setReceiptFile(file);setSelectedReceiptName(file.name);setForm(current=>applyReceiptExtractionToTransactionForm(current,extraction,buildTransactionCategoryOptions(categories,extraction.type??current.type)));onScan();}else if(file)void scanReceipt(file);},0);return()=>window.clearTimeout(timer);},[captureParams]);
+  useEffect(()=>{if(captureParams.get("receipt")!=="1")return;const timer=window.setTimeout(()=>{const file=takePendingReceipt();const extraction=takePendingExtraction();if(file&&extraction){setForm(current=>applyReceiptExtractionToTransactionForm(current,extraction,buildTransactionCategoryOptions(categories,extraction.type??current.type)));onScan();}else if(file)void scanReceipt(file);},0);return()=>window.clearTimeout(timer);},[captureParams]);
   if (isEditMode) return <EditTransactionEditor form={form} onChange={next=>setForm({...form,...next})} accounts={accounts} categories={categoryOptions} busy={saving} error={error} onClose={onClose} onSave={onSubmit} transactionId={transaction?.id}/>;
   return <><TransactionEditor form={form} onChange={next=>setForm({...form,...next})} accounts={accounts} categories={categoryOptions} busy={saving || scanningReceipt} error={error || receiptError} onClose={onClose} onSave={onSubmit} attachment={<>
     <input ref={receiptInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={event=>{const file=event.target.files?.[0];if(file)void scanReceipt(file);}}/>
     <input ref={cameraInputRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="sr-only" onChange={event=>{const file=event.target.files?.[0];if(file)void scanReceipt(file);}}/>
     {scanningReceipt&&<p role="status" className="text-body-sm text-on-surface-variant">{t("Membaca struk...")}</p>}
-    {selectedReceiptName&&<div className="flex items-center gap-3 rounded-2xl bg-surface-container-low p-3">{receiptFile&&<img ref={receiptPreview} alt={t("Pratinjau struk")} className="w-14 h-16 rounded-lg object-cover shrink-0"/>}<span className="text-body-sm text-on-surface-variant truncate">{selectedReceiptName}</span></div>}{receiptSuccess&&<p role="status" className="mt-2 text-body-sm text-primary">{receiptSuccess}</p>}
+    {receiptSuccess&&<p role="status" className="mt-2 text-body-sm text-primary">{receiptSuccess}</p>}
   </>}/>{photoChoice&&<DialogFrame titleId="receipt-source-title" onClose={()=>setPhotoChoice(false)}><div className="p-5 flex flex-col gap-4"><h2 id="receipt-source-title" className="text-headline-sm font-bold">{t("Foto struk")}</h2><p className="text-body-sm text-on-surface-variant">{t("Gemini membaca struk dan mengisi data transaksi. Periksa hasilnya sebelum menyimpan.")}</p><div className="flex gap-3"><Button type="button" className="flex-1" onClick={()=>{cameraInputRef.current?.click();setPhotoChoice(false);}}>{t("Kamera")}</Button><Button type="button" variant="secondary" className="flex-1" onClick={()=>{receiptInputRef.current?.click();setPhotoChoice(false);}}>{t("Galeri")}</Button></div></div></DialogFrame>}</>;
 }
 
