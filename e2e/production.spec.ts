@@ -26,7 +26,7 @@ test("serves a complete install manifest", async ({ request }) => {
   expect(response.ok()).toBe(true);
   const manifest = await response.json();
   expect(manifest.display).toBe("standalone");
-  expect(manifest.theme_color).toBe("#15803d");
+  expect(manifest.theme_color).toBe("#f4fbf6");
   expect(manifest.icons).toEqual(expect.arrayContaining([
     expect.objectContaining({ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }),
     expect.objectContaining({ src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" }),

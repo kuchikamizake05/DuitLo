@@ -4,7 +4,6 @@ const protectedRoutes = [
   "/dashboard",
   "/transactions",
   "/accounts",
-  "/categories",
   "/investments",
   "/trading",
   "/insights",

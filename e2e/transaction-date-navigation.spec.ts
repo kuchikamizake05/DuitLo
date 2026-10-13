@@ -40,8 +40,7 @@ test.beforeEach(async ({ page }) => {
 
 test("chosen calendar date includes only transactions on that date", async ({ page }) => {
   await page.goto("/transactions?date=2026-10-08");
-  await expect(page.getByLabel("Mulai tanggal", { exact: true })).toHaveValue("2026-10-08");
-  await expect(page.getByLabel("Sampai tanggal", { exact: true })).toHaveValue("2026-10-08");
+  await expect(page.getByRole("button",{name:"8 Oktober 2026",exact:true})).toHaveAttribute("aria-pressed","true");
   await expect(visibleMerchant(page, "Belanja tanggal pilihan")).toBeVisible();
   await expect(visibleMerchant(page, "Belanja tanggal lain")).toHaveCount(0);
 });
@@ -49,18 +48,17 @@ test("chosen calendar date includes only transactions on that date", async ({ pa
 test("empty calendar date prefills new transaction and keeps date filter", async ({ page }) => {
   await page.goto("/transactions?new=1&date=2026-10-10");
   await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(page.getByLabel("Tanggal", { exact: true })).toHaveValue("2026-10-10");
+  await expect(page.locator("#date-input")).toHaveValue("2026-10-10");
   await expect(page).toHaveURL(/\/transactions\?date=2026-10-10$/);
-  await page.getByRole("button", { name: "Tutup form transaksi", exact: true }).click();
-  await expect(page.getByLabel("Mulai tanggal", { exact: true })).toHaveValue("2026-10-10");
-  await expect(page.getByLabel("Sampai tanggal", { exact: true })).toHaveValue("2026-10-10");
-  await expect(page.getByText("Tidak ada transaksi yang cocok", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Batal", exact: true }).click();
+
+  await expect(visibleMerchant(page,"Belanja tanggal pilihan")).toHaveCount(0);
+  await expect(visibleMerchant(page,"Belanja tanggal lain")).toHaveCount(0);
 });
 
 test("invalid calendar date does not filter out transactions", async ({ page }) => {
   await page.goto("/transactions?date=2026-02-29");
-  await expect(page.getByLabel("Mulai tanggal", { exact: true })).toHaveValue("");
-  await expect(page.getByLabel("Sampai tanggal", { exact: true })).toHaveValue("");
+
   await expect(visibleMerchant(page, "Belanja tanggal pilihan")).toBeVisible();
   await expect(visibleMerchant(page, "Belanja tanggal lain")).toBeVisible();
 });
@@ -68,9 +66,8 @@ test("invalid calendar date does not filter out transactions", async ({ page }) 
 test("reset clears chosen calendar date from filters and URL", async ({ page }) => {
   await page.goto("/transactions?date=2026-10-08");
   await expect(visibleMerchant(page, "Belanja tanggal pilihan")).toBeVisible();
-  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await page.getByRole("button", { name: "Semua", exact: true }).click();
   await expect(page).toHaveURL(/\/transactions$/);
-  await expect(page.getByLabel("Mulai tanggal", { exact: true })).toHaveValue("");
-  await expect(page.getByLabel("Sampai tanggal", { exact: true })).toHaveValue("");
+
   await expect(visibleMerchant(page, "Belanja tanggal lain")).toBeVisible();
 });

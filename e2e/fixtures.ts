@@ -119,6 +119,10 @@ export async function mockSupabase(page: Page, authenticated: boolean) {
         : { status: 401, json: { message: "invalid session" } });
       return;
     }
+    if (url.pathname === "/auth/v1/passkeys") {
+      await route.fulfill({status:200,json:{passkeys:[]}});
+      return;
+    }
     if (url.pathname.startsWith("/rest/v1/")) {
       await route.fulfill({
         status: 200,

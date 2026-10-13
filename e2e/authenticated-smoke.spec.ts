@@ -1,15 +1,14 @@
 import { expect, mockSupabase, test } from "./fixtures";
 
 const routes = [
-  ["/dashboard", /^(?:Keuanganmu|Kondisi keuangan bulan ini)$/],
-  ["/transactions", "Transaksi"],
-  ["/accounts", "Akun & saldo"],
-  ["/categories", "Kategori"],
+  ["/dashboard", /^Halo, FinTrack/],
+  ["/transactions", "Aktivitas"],
+  ["/accounts", "Daftar Akun & Rekening"],
   ["/investments", "Investasi"],
   ["/trading", "Trading"],
-  ["/planning", "Rencana & kontrol"],
+  ["/planning", "Kelola Anggaran"],
   ["/settings", "Pengaturan"],
-  ["/insights", "Smart Insights"],
+  ["/insights", "Laporan & Insights"],
 ] as const;
 
 test.describe("authenticated application routes render with controlled read-only data @smoke", () => {

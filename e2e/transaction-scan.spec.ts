@@ -125,53 +125,48 @@ async function mockTransactionScanPage(page: Page, options: { parserStatus?: num
   return { getParserRequests: () => parserRequests, getTransactionPayloads: () => transactionPayloads };
 }
 
-test.describe("receipt scan review flow @critical", () => {
-  test.describe("English parse error", () => {
-    test.use({ allowedConsoleErrors: ["Failed to load resource: the server responded with a status of 422"] });
-
-    test("uses English receipt copy and exposes parse errors as alerts", async ({ page }) => {
-      const state = await mockTransactionScanPage(page, { parserStatus: 422 });
-      await page.addInitScript(() => window.localStorage.setItem("fintrack-language", "en"));
-      await page.goto("/transactions");
-      await page.getByLabel("Aksi halaman").getByRole("button", { name: "Add" }).click();
-
-      await expect(page.getByText("Scan receipt", { exact: true })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Take photo" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Choose image" })).toBeVisible();
-      await page.locator('input[type="file"]').nth(0).setInputFiles({ name: "broken.png", mimeType: "image/png", buffer: Buffer.from("fake image") });
-
-      await expect(page.getByText("AI cannot analyze the receipt yet. Please fill the form manually.", { exact: true })).toHaveAttribute("role", "alert");
-      expect(state.getParserRequests()).toBe(1);
-    });
+test.describe("receipt scan review flow @critical",()=>{
+ test.describe("English parse error",()=>{
+  test.use({allowedConsoleErrors:["Failed to load resource: the server responded with a status of 422"]});
+  test("keeps the source picker open and exposes parsing errors",async({page})=>{
+   const state=await mockTransactionScanPage(page,{parserStatus:422});
+   await page.addInitScript(()=>localStorage.setItem("fintrack-language","en"));
+   await page.goto("/transactions");
+   await page.getByRole("link",{name:"New transaction",exact:true}).click();
+   await page.getByRole("button",{name:"Receipt photo",exact:true}).click();
+   const picker=page.getByRole("dialog",{name:"Receipt photo",exact:true});
+   await expect(picker).toBeVisible();
+   await page.locator('input[type="file"]:not([capture])').first().setInputFiles({name:"broken.png",mimeType:"image/png",buffer:Buffer.from("fake image")});
+   await expect(picker.getByRole("alert")).toBeVisible();
+   await expect(picker.getByRole("button",{name:"Gallery",exact:true})).toBeEnabled();
+   expect(state.getParserRequests()).toBe(1);
   });
-
-  test("parses image, keeps proof data out of ledger payload, then requires approval", async ({ page }) => {
-    const state = await mockTransactionScanPage(page);
-    await page.goto("/transactions");
-    await page.getByLabel("Aksi halaman").getByRole("button", { name: "Catat" }).click();
-
-    const inputs = page.locator('input[type="file"]');
-    await expect(inputs).toHaveCount(2);
-    await inputs.nth(0).setInputFiles({ name: "transfer.png", mimeType: "image/png", buffer: Buffer.from("fake image") });
-
-    await expect(page.getByRole("status")).toContainText("Data struk berhasil diekstrak otomatis");
-    await expect(page.getByLabel("Merchant atau sumber")).toHaveValue("Transfer Gaji");
-    await expect(page.getByLabel("Nominal")).toHaveValue("7500000");
-    await expect(page.getByRole("button", { name: "Pemasukan" })).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByText("Hasil scan sesi ini").locator("..")).toContainText("Transfer Gaji");
-    expect(state.getParserRequests()).toBe(1);
-
-    await page.getByLabel("Akun").selectOption(account.id);
-    await page.getByRole("button", { name: "Simpan transaksi" }).click();
-
-    await expect.poll(() => state.getTransactionPayloads().length).toBe(1);
-    const [createPayload] = state.getTransactionPayloads() as Array<Record<string, unknown>>;
-    expect(createPayload).toMatchObject({ status: "needs_review", source: "manual", merchant: "Transfer Gaji", type: "income" });
-    expect(JSON.stringify(createPayload)).not.toMatch(/rawText|confidence|receipt_url|image|transfer\.png/i);
-
-    await page.getByRole("button", { name: "Setujui" }).click();
-    await page.getByRole("alertdialog").getByRole("button", { name: "Setujui transaksi" }).click();
-    await expect(page.getByRole("alertdialog")).toBeHidden();
-    expect(state.getTransactionPayloads()).toContainEqual({ status: "confirmed" });
-  });
+ });
+ test("fills receipt data and requires review before approval",async({page})=>{
+  const state=await mockTransactionScanPage(page);
+  await page.clock.setFixedTime(new Date("2026-08-22T08:00:00Z"));
+  await page.goto("/transactions");
+  await page.getByRole("link",{name:"Catat Transaksi Baru",exact:true}).click();
+  await page.getByRole("button",{name:"Foto struk",exact:true}).click();
+  await page.locator('input[type="file"]:not([capture])').first().setInputFiles({name:"transfer.png",mimeType:"image/png",buffer:Buffer.from("fake image")});
+  const editor=page.getByRole("dialog",{name:"Catat Transaksi",exact:true});
+  await expect(editor.locator("#merchant-input")).toHaveValue("Transfer Gaji");
+  await expect(editor.locator("#nominal-input")).toHaveValue("7.500.000");
+  await expect(editor.getByRole("button",{name:"Pemasukan",exact:true})).toHaveAttribute("aria-pressed","true");
+  expect(state.getParserRequests()).toBe(1);
+  expect(state.getTransactionPayloads()).toHaveLength(0);
+  await editor.locator('[data-reference-node="catat.54"]').click();
+  await page.getByRole("dialog",{name:"Pilih Rekening",exact:true}).getByRole("button",{name:/BCA Utama/}).click();
+  await page.locator('[data-reference-node="pilih-rekening.136"]').click();
+  await editor.getByRole("button",{name:"Simpan Transaksi",exact:true}).click();
+  await expect.poll(()=>state.getTransactionPayloads().length).toBe(1);
+  const payload=state.getTransactionPayloads()[0] as Record<string,unknown>;
+  expect(payload).toMatchObject({status:"needs_review",source:"manual",merchant:"Transfer Gaji",type:"income"});
+  expect(JSON.stringify(payload)).not.toMatch(/rawText|confidence|receipt_url|image|transfer\.png/i);
+  await expect(editor).toBeHidden();
+  await page.goto("/transactions?view=detail&id=scan-transaction-1");
+  await page.getByRole("button",{name:"Setujui",exact:true}).click();
+  await page.getByRole("alertdialog").getByRole("button",{name:"Setujui transaksi",exact:true}).click();
+  await expect.poll(()=>state.getTransactionPayloads()).toContainEqual({status:"confirmed"});
+ });
 });

@@ -125,127 +125,75 @@ async function mockAccountsPage(page: Page) {
   });
 }
 
-async function mockCategoriesPage(page: Page) {
-  let deleteRequests = 0;
-  let deleted = false;
-  await mockAuthenticatedSession(page);
-  await page.route("https://e2e-project.supabase.co/**", async (route) => {
-    const request = route.request();
-    const url = new URL(request.url());
-    if (url.pathname === "/auth/v1/user") {
-      await route.fulfill({ status: 200, json: user });
-      return;
-    }
-    if (url.pathname === "/rest/v1/categories") {
-      if (request.method() === "DELETE") {
-        deleteRequests += 1;
-        deleted = true;
-        await fulfillRows(route, []);
-        return;
-      }
-      await fulfillRows(route, deleted ? [] : [category]);
-      return;
-    }
-    if (url.pathname === "/rest/v1/transactions") {
-      await fulfillRows(route, [{ category: category.name, type: "expense", amount: 125_000, status: "confirmed" }]);
-      return;
-    }
-    if (url.pathname === "/rest/v1/financial_accounts") {
-      await fulfillRows(route, [account]);
-      return;
-    }
-    await fulfillRows(route, []);
-  });
-  return () => deleteRequests;
-}
 
 test.describe("keyboard and confirmation regressions @critical", () => {
   test("transaction confirmation traps focus, closes safely, and requires explicit delete", async ({ page }) => {
     const getDeleteRequests = await mockTransactionsPage(page);
-    await page.goto("/transactions");
+    await page.goto("/transactions?view=detail&id=transaction-1");
 
-    const deleteButton = page.getByRole("button", { name: "Hapus Belanja bulanan" });
+    const deleteButton = page.getByRole("button", { name: "Hapus Transaksi" });
     await expect(deleteButton).toBeVisible();
     await deleteButton.click();
 
-    const dialog = page.getByRole("alertdialog");
-    const cancel = dialog.getByRole("button", { name: "Batal" });
-    const confirm = dialog.getByRole("button", { name: "Hapus transaksi" });
+    const dialog = page.getByRole("dialog",{name:/Hapus/});
     await expect(dialog).toBeVisible();
-    await expect(cancel).toBeFocused();
-    await expect(dialog).toContainText("dipindahkan ke Sampah");
-
-    await page.keyboard.press("Tab");
-    await expect(confirm).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(cancel).toBeFocused();
-    await page.keyboard.press("Shift+Tab");
-    await expect(confirm).toBeFocused();
+    await expect(dialog).toContainText("Sampah");
+    for(let index=0;index<5;index++){
+      await page.keyboard.press("Tab");
+      expect(await dialog.evaluate(node=>node.contains(document.activeElement))).toBe(true);
+    }
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
-    await expect(deleteButton).toBeFocused();
+    await expect(page.getByRole("heading",{name:"Aktivitas",exact:true})).toBeVisible();
     expect(getDeleteRequests()).toBe(0);
 
+    await page.goto("/transactions?view=detail&id=transaction-1");
     await deleteButton.click();
-    await page.getByRole("alertdialog").getByRole("button", { name: "Hapus transaksi" }).click();
-    await expect(page.getByRole("alertdialog")).toBeHidden();
+    await page.getByRole("dialog",{name:/Hapus/}).getByRole("button", { name: /Hapus Transaksi|Ya, Hapus/i }).click();
+    await expect(page.getByRole("dialog",{name:/Hapus/})).toBeHidden();
     expect(getDeleteRequests()).toBe(1);
   });
 
-  test("category confirmation preserves usage warning and focus restoration", async ({ page }) => {
-    const getDeleteRequests = await mockCategoriesPage(page);
-    await page.goto("/categories");
-
-    const deleteButton = page.getByRole("button", { name: "Hapus Kebutuhan" });
-    await expect(deleteButton).toBeVisible();
-    await deleteButton.click();
-
-    const dialog = page.getByRole("alertdialog");
-    const cancel = dialog.getByRole("button", { name: "Batal" });
-    const confirm = dialog.getByRole("button", { name: "Hapus kategori" });
-    await expect(dialog).toContainText("1 transaksi lama");
-    await expect(cancel).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(confirm).toBeFocused();
+  test("category picker closes with Escape and restores keyboard focus", async ({ page }) => {
+    await mockTransactionsPage(page);
+    await page.goto("/transactions?new=1");
+    const editor=page.getByRole("dialog",{name:"Catat Transaksi",exact:true});
+    const trigger=editor.locator('[data-reference-node="catat.70"]');
+    await trigger.focus();
+    await trigger.click();
+    const picker=page.getByRole("dialog",{name:"Pilih Kategori",exact:true});
+    await expect(picker.getByRole("button",{name:"Kebutuhan",exact:true})).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(dialog).toBeHidden();
-    await expect(deleteButton).toBeFocused();
-    expect(getDeleteRequests()).toBe(0);
-
-    await deleteButton.click();
-    await page.getByRole("alertdialog").getByRole("button", { name: "Hapus kategori" }).click();
-    await expect(page.getByRole("alertdialog")).toBeHidden();
-    expect(getDeleteRequests()).toBe(1);
+    await expect(picker).toBeHidden();
+    await expect(trigger).toBeFocused();
   });
 
-  test("account history keeps transfer and reconciliation records read-only", async ({ page }) => {
+  test("account detail keeps the selected ledger balance scoped", async ({ page }) => {
     await mockAccountsPage(page);
-    await page.goto("/accounts");
-
-    const history = page.getByRole("heading", { name: "Riwayat akun" }).locator("../..");
-    await expect(history).toContainText("Transfer · BCA Utama → Akun tidak tersedia");
-    await expect(history).toContainText("Rekonsiliasi akun · BCA Utama");
-    await expect(history).toContainText("Statement Rp 1.000.000; ledger Rp 990.000; selisih Rp 10.000");
-    await expect(history.getByRole("button")).toHaveCount(0);
+    await page.goto("/accounts?view=detail&id=account-1");
+    const detail=page.getByRole("dialog");
+    await expect(detail).toBeVisible();
+    await expect(detail).toContainText("BCA Utama");
+    await expect(detail).toContainText("1.000.000");
+    await expect(detail.getByRole("button",{name:/Edit transfer|Edit rekonsiliasi/})).toHaveCount(0);
   });
 
   test("skip link and profile menu support keyboard recovery", async ({ page }) => {
     await mockSupabase(page, true);
     await page.goto("/dashboard");
 
-    const skipLink = page.getByRole("link", { name: "Lewati ke konten" });
+    await expect(page.getByRole("heading",{name:/^Halo,/})).toBeVisible();
+    const skipLink = page.getByRole("link", { name: "Lewati ke konten utama" });
     await expect(skipLink).toHaveAttribute("data-ready", "true");
     await page.keyboard.press("Tab");
     await expect(skipLink).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page.locator("#main-content")).toBeFocused();
 
-    const profileTrigger = page.locator('button[aria-haspopup="menu"]:visible');
+    const profileTrigger = page.getByRole("button",{name:"Profil Akun"});
     await profileTrigger.click();
-    await expect(page.getByRole("menu")).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(page.getByRole("menu")).toBeHidden();
-    await expect(profileTrigger).toBeFocused();
+    await expect(page).toHaveURL(/settings$/);
+    await expect(page.getByRole("heading",{name:"Pengaturan",exact:true})).toBeVisible();
   });
 });

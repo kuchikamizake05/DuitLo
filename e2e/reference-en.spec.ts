@@ -12,10 +12,10 @@ for(const theme of ["light","dark"] as const)test(`English routes and forms in $
  const remaining:Record<string,string[]>={};
  const leaves:Record<string,string[]>={};
  for(const path of paths){await page.goto(path);await expect(page.locator("html")).toHaveAttribute("lang","en");await expect(page.locator("main").last()).toBeVisible();await expect(page.locator("main .ft-skeleton")).toHaveCount(0);
- if(path.includes("qa=edit-transaction"))await page.getByRole("dialog",{name:"Transaction details",exact:true}).getByRole("button",{name:/Edit transaction/i}).click();
- if(path.includes("qa=delete-transaction"))await page.getByRole("dialog",{name:"Transaction details",exact:true}).getByRole("button",{name:/Delete transaction/i}).click();
+ if(path.includes("qa=edit-transaction"))await page.getByRole("dialog",{name:"Detail",exact:true}).getByRole("button",{name:/Edit transaction/i}).click();
+ if(path.includes("qa=delete-transaction"))await page.getByRole("dialog",{name:"Detail",exact:true}).getByRole("button",{name:/Delete transaction/i}).click();
  if(path.includes("qa=category-picker"))await page.locator('[data-reference-node="catat.70"]').click();
- if(path.includes("qa=account-picker")){await page.getByRole("link",{name:"New transaction",exact:true}).click();await expect(page.locator("#nominal-input")).toBeEnabled();await page.locator('[data-reference-node="catat.54"]').click();}
+ if(path.includes("qa=account-picker")){await page.getByRole("link",{name:"New transaction",exact:true}).click();await page.getByRole("button",{name:"Manual entry",exact:true}).click();await expect(page.locator("#nominal-input")).toBeEnabled();await page.locator('[data-reference-node="catat.54"]').click();}
  if(path.includes("qa=delete-asset"))await page.getByRole("dialog",{name:"BBCA",exact:true}).getByRole("button",{name:/Opsi lainnya|More options/}).click();
 
  const texts=await page.evaluate(()=>[...document.querySelectorAll("[data-reference-node],button,label,h1,h2,h3,p,input")].filter(el=>el.getClientRects().length&&el.children.length===0&&!el.classList.contains("material-symbols-outlined")).map(el=>(el instanceof HTMLInputElement?el.placeholder:el.textContent??"").trim()).filter(Boolean));

@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   quality:
@@ -63,9 +63,12 @@ jobs:
         run: npm run audit:security
 
   e2e:
-    needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop-chromium, mobile-chromium]
 
     steps:
       - name: Checkout repository
@@ -84,12 +87,12 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: End-to-end tests
-        run: npm run test:e2e -- --workers=1
+        run: npm run test:e2e -- --project=${{ matrix.project }} --workers=2
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.project }}
           path: playwright-report/
           retention-days: 14

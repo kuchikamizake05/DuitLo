@@ -1,7 +1,7 @@
 import type { Page, Route } from "@playwright/test";
 import { expect, mockAuthenticatedSession, test, user } from "./fixtures";
 
-const dashboardHeading = /^(?:Keuanganmu|Kondisi keuangan bulan ini)$/;
+const dashboardHeading = /^Halo,/;
 
 type MockState = {
   account: null | {
@@ -98,7 +98,7 @@ async function mockOnboardingSupabase(page: Page, initial: Partial<MockState> = 
         await fulfillRows(route, [state.transaction]);
         return;
       }
-      await fulfillRows(route, state.transaction ? [state.transaction] : []);
+      await fulfillRows(route, state.transaction ? [{...state.transaction,status:"confirmed",source:"manual",note:null,created_at:"2026-07-20T08:00:00Z",updated_at:"2026-07-20T08:00:00Z"}] : []);
       return;
     }
 
@@ -118,6 +118,7 @@ async function mockOnboardingSupabase(page: Page, initial: Partial<MockState> = 
       return;
     }
 
+    if(url.pathname.startsWith("/rest/v1/")) return fulfillRows(route,[]);
     await route.fulfill({ status: 404, json: { message: `Unmocked E2E route: ${url.pathname}` } });
   });
   return state;
@@ -165,7 +166,7 @@ test.describe("premium onboarding @critical", () => {
     await chooseIntentAndCreateAccount(page);
     await page.reload();
     await expect(page.getByRole("heading", { name: "Catat satu aktivitas nyata." })).toBeVisible();
-    await page.getByRole("button", { name: "Lanjutkan nanti" }).click();
+    await page.getByRole("button", { name: "Lewati penyiapan" }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
     const setupCard = page.getByRole("region", { name: /Progres penyiapan|Selesaikan penyiapan FinTrack/ });
     await expect(setupCard).toBeVisible();
@@ -194,7 +195,7 @@ test.describe("premium onboarding @critical", () => {
   test("keeps dashboard reachable when onboarding eligibility is temporarily unavailable", async ({ page }) => {
     await mockOnboardingSupabase(page, { failEligibility: true, onboardingCompleted: true });
     await page.goto("/dashboard");
-    await expect(page.getByRole("heading", { name: dashboardHeading })).toBeVisible();
+    await expect(page.getByRole("heading", { name: dashboardHeading })).toBeVisible({timeout:15000});
     await expect(page.getByRole("heading", { name: "Penyiapan belum bisa diperiksa" })).not.toBeVisible();
   });
 

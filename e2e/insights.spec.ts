@@ -151,6 +151,7 @@ test.describe("Smart Insights @critical", () => {
 
 for (const theme of ["light", "dark"] as const) {
   test(`category bars match the ${theme} theme`, async ({page}, testInfo) => {
+    await page.clock.setFixedTime(new Date("2026-07-20T08:00:00Z"));
     await mockInsights(page);
     await page.addInitScript(value => localStorage.setItem("fintrack-theme", value), theme);
     await page.goto("/insights");
@@ -159,8 +160,8 @@ for (const theme of ["light", "dark"] as const) {
     await expect(chart).toBeVisible();
     const bars = chart.locator("div[role=img]");
     await expect(bars).toHaveCount(2);
-    await expect(bars.nth(0)).toHaveCSS("background-color", theme === "dark" ? "rgb(9, 84, 207)" : "rgb(21, 128, 61)");
-    await expect(bars.nth(1)).toHaveCSS("background-color", theme === "dark" ? "rgb(47, 111, 214)" : "rgb(51, 147, 91)");
+    await expect(bars.nth(0)).toHaveCSS("background-color", theme === "dark" ? "rgb(128, 207, 191)" : "rgb(15, 118, 110)");
+    await expect(bars.nth(1)).toHaveCSS("background-color", theme === "dark" ? "rgb(212, 165, 68)" : "rgb(180, 83, 9)");
     await page.screenshot({path:testInfo.outputPath(`reports-${theme}.png`),fullPage:true});
   });
 }

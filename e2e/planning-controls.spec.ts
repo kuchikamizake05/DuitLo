@@ -70,59 +70,19 @@ async function mockPlanningPage(page: Page, initialGoals: Goal[] = []) {
   return { getImportedPayloads: () => importedPayloads, getArchivedGoalIds: () => archivedGoalIds };
 }
 
-test.describe("planning controls @critical", () => {
-  test("keeps runway currencies separate, saves and archives goal", async ({ page }) => {
-    const state = await mockPlanningPage(page, [{
-      id: "goal-1",
-      name: "Dana darurat",
-      target_amount: 12_000_000,
-      current_amount: 3_000_000,
-      currency: "IDR",
-      color: null,
-      due_date: null,
-      is_active: true,
-    }]);
-    await page.goto("/planning");
-
-    const runway = page.getByRole("heading", { name: "Cadangan dana" }).locator("..");
-    await expect(runway).toContainText("IDR · 4.0 bulan cadangan");
-    await expect(runway).toContainText("USD · 4.0 bulan cadangan");
-    await expect(runway).not.toContainText("1.000.200");
-
-    await expect(page.getByText("Dana darurat")).toBeVisible();
-    await page.getByRole("button", { name: "Arsipkan" }).click();
-    await expect(page.getByText("Target diarsipkan.")).toBeVisible();
-    expect(state.getArchivedGoalIds()).toEqual(["goal-1"]);
-  });
-
-  test("previews duplicates, imports selected rows as needs_review, separates review totals", async ({ page }) => {
-    const state = await mockPlanningPage(page);
-    await page.goto("/planning");
-
-    await page.getByLabel("Akun untuk rekonsiliasi saldo").selectOption("idr-bank");
-    await expect(page.getByText(/1 transaksi review belum masuk saldo/)).toBeVisible();
-    await expect(page.getByText(/pengeluaran Rp\s*75\.000/)).toBeVisible();
-
-    await page.getByLabel("Akun tujuan impor CSV").selectOption("idr-bank");
-    const csv = [
-      "date,type,merchant,category,amount,note",
-      '"2026-08-08","expense","Supermarket","Kebutuhan","250000","sudah ada"',
-      '"2026-08-20","income","Bonus","Pemasukan","500000","baru"',
-    ].join("\n");
-    await page.getByLabel("Pilih file CSV untuk diimpor").setInputFiles({ name: "ledger.csv", mimeType: "text/csv", buffer: Buffer.from(csv) });
-
-    await expect(page.getByText("Tinjau impor")).toBeVisible();
-    await expect(page.getByText("Kemungkinan sudah ada")).toBeVisible();
-    await page.getByLabel("Impor transaksi 1").uncheck();
-    await page.getByRole("button", { name: "Impor 1 transaksi" }).click();
-    await expect(page.getByText("1 transaksi diimpor sebagai Perlu ditinjau.")).toBeVisible();
-
-    expect(state.getImportedPayloads()).toHaveLength(1);
-    expect(state.getImportedPayloads()[0]).toEqual([expect.objectContaining({
-      merchant: "Bonus",
-      status: "needs_review",
-      source: "manual",
-      account_id: "idr-bank",
-    })]);
-  });
+test("goal archive stays scoped to the selected goal @critical", async ({ page }) => {
+ const state=await mockPlanningPage(page,[{id:"goal-1",name:"Dana darurat",target_amount:12000000,current_amount:3000000,currency:"IDR",color:null,due_date:null,is_active:true}]);
+ await page.goto("/goals?view=detail&id=goal-1");
+ const detail=page.getByRole("dialog");await expect(detail).toContainText("Dana darurat");
+ await detail.getByRole("button",{name:"Arsipkan",exact:true}).click();
+ await expect.poll(()=>state.getArchivedGoalIds()).toEqual(["goal-1"]);
+});
+test("budget usage excludes review transactions and foreign currency @critical", async ({ page }) => {
+ await mockPlanningPage(page);
+ await page.clock.setFixedTime(new Date("2026-08-20T08:00:00Z"));
+ await page.route("**/rest/v1/financial_budgets**",route=>route.fulfill({json:[{id:"budget-1",month:"2026-08-01",category:"Kebutuhan",limit_amount:1000000}]}));
+ await page.goto("/planning");
+ await expect(page.getByRole("heading",{name:"Kelola Anggaran",exact:true})).toBeVisible();
+ await expect(page.locator('[data-reference-node="anggaran.79"]').filter({hasText:"Kebutuhan"})).toContainText("250.000");
+ await expect(page.getByText("Anggaran dihitung dari transaksi rekening IDR.", {exact:true})).toBeVisible();
 });

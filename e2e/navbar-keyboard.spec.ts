@@ -11,6 +11,7 @@ test.describe("FinTrack navigation and appearance @critical", () => {
     const trigger = navigation.getByRole("link", { name: "Catat Transaksi Baru" });
     await trigger.focus();
     await trigger.press("Enter");
+    await page.getByRole("button", { name: "Catat manual", exact: true }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).not.toBeVisible();

@@ -27,14 +27,7 @@ test("Journey confirms once, persists, and unlocks milestones @smoke", async ({ 
     state.streak = { ...streak(4, true), days: state.streak.days.map((day, index) => ({ ...day, completed: index >= 3 })) };
     return route.fulfill({ json: state });
   });
-  await page.goto("/dashboard");
-  const summary = page.getByRole("link", { name: "Lihat perjalanan Financial Journey" }).filter({ visible: true });
-  await expect(summary.getByText("270 / 300 XP")).toBeVisible();
-  expect(await summary.evaluate((element) => element.getBoundingClientRect().height)).toBeLessThanOrEqual(150);
-  await expect(page.getByRole("button", { name: /Selesaikan misi/ })).toHaveCount(0);
-  await summary.screenshot({ path: testInfo.outputPath("journey-summary.png") });
-  await summary.click();
-  await expect(page).toHaveURL(/\/journey$/);
+  await page.goto("/journey");
   const card = page.getByRole("region", { name: "Financial Journey" }).filter({ visible: true });
   await expect(card.getByText("270 / 300 XP")).toBeVisible();
   await expect(card.getByText("3 hari berturut-turut")).toBeVisible();
@@ -51,10 +44,7 @@ test("Journey confirms once, persists, and unlocks milestones @smoke", async ({ 
   await expect(card.getByRole("button", { name: "Selesaikan misi : Review transaksi", exact: true })).toHaveCount(0);
   expect(writes).toBe(1);
   await page.getByRole("link", { name: "Kembali ke dashboard" }).click();
-  await expect(summary.getByText("Level 2")).toBeVisible();
-  await expect(summary.getByText("1/3 misi minggu ini selesai")).toBeVisible();
-  await summary.click();
-  await expect(page).toHaveURL(/\/journey$/);
+  await page.goto("/journey");
   await expect(card.getByText("Minggu ini · 1/3 selesai")).toBeVisible();
   await page.reload();
   await expect(card.getByText("Minggu ini · 1/3 selesai")).toBeVisible();

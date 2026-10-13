@@ -39,6 +39,6 @@ for (const language of ["id", "en"] as const) {
 test("source home recent transaction opens actual detail",async({page})=>{
  await prepareDashboard(page,"id");
  await page.getByText("Lunch",{exact:true}).click();
- await expect(page).toHaveURL(/transactions\?view=detail&id=expense$/);
- await expect(page.getByRole("dialog",{name:"Detail Transaksi",exact:true})).toBeVisible();
+ await expect(page).toHaveURL(/dashboard$/);
+ await expect(page.getByRole("dialog",{name:"Detail",exact:true})).toBeVisible();
 });
