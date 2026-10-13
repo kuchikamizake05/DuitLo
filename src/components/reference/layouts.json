@@ -1,0 +1,254 @@
+{
+  "aktivitas": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full gap-space-lg",
+    "sectionCount": 6
+  },
+  "anggaran": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full gap-space-lg pb-10",
+    "sectionCount": 5
+  },
+  "beranda": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full gap-space-lg",
+    "sectionCount": 7
+  },
+  "catat": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-24",
+    "sectionCount": 3
+  },
+  "detail-aset": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-10 space-y-space-lg",
+    "sectionCount": 7
+  },
+  "detail": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-24",
+    "sectionCount": 6
+  },
+  "detail-rekening": {
+    "bodyClass": {
+      "light": "bg-surface text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container",
+      "dark": "bg-surface text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface",
+    "containerClass": "flex flex-col w-full pb-28 space-y-space-xl",
+    "sectionCount": 8
+  },
+  "detail-target": {
+    "bodyClass": {
+      "light": "bg-surface text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container",
+      "dark": "bg-surface text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface",
+    "containerClass": "flex flex-col w-full pb-24",
+    "sectionCount": 5
+  },
+  "dompet": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full",
+    "sectionCount": 6
+  },
+  "edit-anggaran": {
+    "bodyClass": {
+      "light": "bg-surface text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container",
+      "dark": "bg-surface text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface",
+    "containerClass": "flex flex-col w-full pb-28 space-y-space-xl",
+    "sectionCount": 5
+  },
+  "edit-aset": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full relative",
+    "sectionCount": 2
+  },
+  "edit-transaksi": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full pb-32",
+    "sectionCount": 3
+  },
+  "hapus-aset": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full relative pb-12 select-none",
+    "sectionCount": 2
+  },
+  "hapus-transaksi": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full relative",
+    "sectionCount": 2
+  },
+  "hasil-investasi": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-12",
+    "sectionCount": 6
+  },
+  "hasil-transaksi": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full pb-12",
+    "sectionCount": 2
+  },
+  "laporan-klasik": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-20 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-8",
+    "sectionCount": 7
+  },
+  "laporan": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-10",
+    "sectionCount": 7
+  },
+  "pengaturan": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-8",
+    "sectionCount": 6
+  },
+  "pilih-kategori": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full relative min-h-full",
+    "sectionCount": 3
+  },
+  "pilih-rekening": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen",
+    "containerClass": "flex flex-col w-full relative pb-8",
+    "sectionCount": 3
+  },
+  "portofolio": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "portfolio-refined flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full gap-y-space-lg pb-28",
+    "sectionCount": 7
+  },
+  "tambah-akun": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-28",
+    "sectionCount": 3
+  },
+  "tambah-investasi": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-8",
+    "sectionCount": 7
+  },
+  "tambah-target": {
+    "bodyClass": {
+      "light": "bg-surface text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container",
+      "dark": "bg-surface text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container"
+    },
+    "mainClass": "target-create-page flex-1 flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface",
+    "containerClass": "flex flex-col w-full pb-10",
+    "sectionCount": 4
+  },
+  "target": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-28 px-margin bg-surface",
+    "containerClass": "flex flex-col w-full space-y-space-lg",
+    "sectionCount": 5
+  },
+  "transaksi-investasi": {
+    "bodyClass": {
+      "light": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen",
+      "dark": "bg-surface font-body-md text-on-surface flex flex-col min-h-screen"
+    },
+    "mainClass": "flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-28",
+    "sectionCount": 7
+  },
+  "transfer": {
+    "bodyClass": {
+      "light": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased",
+      "dark": "bg-surface min-h-screen flex flex-col font-body-md text-on-surface antialiased"
+    },
+    "mainClass": "flex-1 flex flex-col relative w-full pt-16 pb-safe px-margin bg-surface",
+    "containerClass": "flex flex-col w-full pb-28 space-y-space-lg",
+    "sectionCount": 5
+  }
+}
