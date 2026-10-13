@@ -11,6 +11,14 @@ const ThemeContext = createContext<ThemeContextValue>({ theme: "light", system:f
 function applyTheme(theme: Theme) {
     document.documentElement.classList.toggle("dark", theme === "dark");
     document.documentElement.style.colorScheme = theme;
+    try {
+        const current = document.cookie.split("; ").find(value => value.startsWith("fintrack-theme="));
+        if (current !== `fintrack-theme=${theme}`) {
+            document.cookie = `fintrack-theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+        }
+    } catch {
+        // Theme colors still update when cookies are unavailable.
+    }
     const color = getComputedStyle(document.documentElement).getPropertyValue("--canvas").trim()
         || (theme === "dark" ? "#111214" : "#f4fbf6");
     let themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');

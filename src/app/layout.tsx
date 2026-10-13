@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Archivo_Black, JetBrains_Mono, Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import AppBoundary from "@/components/AppBoundary";
@@ -31,14 +32,14 @@ const archivoBlack = Archivo_Black({
   display: "swap",
 });
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#111214" },
-    { media: "(prefers-color-scheme: light)", color: "#f4fbf6" },
-  ],
-  colorScheme: "light",
-  viewportFit: "cover",
-};
+export async function generateViewport(): Promise<Viewport> {
+  const dark = (await cookies()).get("fintrack-theme")?.value === "dark";
+  return {
+    themeColor: dark ? "#111214" : "#f4fbf6",
+    colorScheme: dark ? "dark" : "light",
+    viewportFit: "cover",
+  };
+}
 
 export const metadata: Metadata = {
   title: "FinTrack - Personal Finance Dashboard",
