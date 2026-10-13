@@ -120,7 +120,7 @@ export async function mockSupabase(page: Page, authenticated: boolean) {
       return;
     }
     if (url.pathname === "/auth/v1/passkeys") {
-      await route.fulfill({status:200,json:{passkeys:[]}});
+      await route.fulfill({status:200,json:[]});
       return;
     }
     if (url.pathname.startsWith("/rest/v1/")) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPasskeyDeviceStorageKey, maskPasskeyEmail, parsePasskeyDeviceState } from "./passkeys";
+import { buildPasskeyDeviceStorageKey, maskPasskeyEmail, parsePasskeyDeviceState, getPasskeyErrorMessage } from "./passkeys";
 
 const userId = "user-1";
 
@@ -32,4 +32,11 @@ describe("passkey device state", () => {
     expect(maskPasskeyEmail("qa@fintrack.local")).toBe("qa••@fintrack.local");
     expect(maskPasskeyEmail(null)).toBe("Akun FinTrack");
   });
+});
+
+it("handles cancellation wrapped by the WebAuthn SDK",()=>{
+ const cancelled=new Error("cancelled");cancelled.name="NotAllowedError";
+ expect(getPasskeyErrorMessage(cancelled)).toContain("dibatalkan");
+ const unsupported=new Error("unsupported");unsupported.name="NotSupportedError";
+ expect(getPasskeyErrorMessage(unsupported)).toContain("belum mendukung");
 });

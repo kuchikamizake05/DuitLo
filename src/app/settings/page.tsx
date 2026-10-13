@@ -1,4 +1,9 @@
 "use client";
+import {PinSetupForm} from "@/components/PinSetupForm";
+import {DialogFrame} from "@/components/ui/DialogFrame";
+import {configureDevicePin,hasDevicePin,clearDevicePin} from "@/lib/device-pin";
+import {Fingerprint} from "lucide-react";
+import authStyles from "@/app/login/login.module.css";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
 import { useLanguage } from "@/components/LanguageProvider";
@@ -32,6 +37,9 @@ export default function SettingsPage() {
   const [passkeyError, setPasskeyError] = useState<string | null>(null);
   const [passkeyDeleteId, setPasskeyDeleteId] = useState<string | null>(null);
   const [deviceLockEnabled, setDeviceLockEnabled] = useState(false);
+  const [pinSetupOpen,setPinSetupOpen]=useState(false);
+  const [pinSetupReady,setPinSetupReady]=useState(false);
+  const [pinSetupBusy,setPinSetupBusy]=useState(false);
   const online = useSyncExternalStore(subscribeToNetworkStatus, getNetworkSnapshot, getServerNetworkSnapshot);
   const [standalone, setStandalone] = useState(false);
   const copyTimer = useRef<number | null>(null);
@@ -47,10 +55,10 @@ export default function SettingsPage() {
       setUserEmail(session.user.email ?? null);
       setUserName(session.user.user_metadata?.full_name??session.user.email?.split("@")[0]??"FinTrack");
       setUserId(session.user.id);
+      setDeviceLockEnabled(Boolean(readPasskeyDeviceState(session.user.id)?.enabled));
       const { data, error } = await supabase.auth.passkey.list();
       if (!error) {
-        setPasskeys(data ?? []);
-        setDeviceLockEnabled(Boolean((data?.length ?? 0) && readPasskeyDeviceState(session.user.id)?.enabled));
+        setPasskeys(Array.isArray(data)?data:[]);
       }
       setLoading(false);
     };
@@ -100,12 +108,13 @@ export default function SettingsPage() {
   async function refreshPasskeys() {
     const { data, error } = await supabase.auth.passkey.list();
     if (error) throw error;
-    setPasskeys(data ?? []);
-    return data ?? [];
+    setPasskeys(Array.isArray(data)?data:[]);
+    return Array.isArray(data)?data:[];
   }
 
   async function enrollPasskey() {
     if (!userId || passkeyBusy || !isWebAuthnSupported()) return;
+    if(!hasDevicePin(userId)){setPinSetupReady(false);setPinSetupOpen(true);return;}
     setPasskeyBusy("enroll");
     setPasskeyError(null);
     try {
@@ -115,6 +124,7 @@ export default function SettingsPage() {
       if (nextPasskeys.length) {
         writePasskeyDeviceState({ userId, emailHint: maskPasskeyEmail(userEmail), enabled: true, locked: false });
         setDeviceLockEnabled(true);
+        setPinSetupOpen(false);
       }
     } catch (error) {
       setPasskeyError(getPasskeyErrorMessage(error));
@@ -144,13 +154,23 @@ export default function SettingsPage() {
   }
 
   function toggleDeviceLock(enabled: boolean) {
-    if (!userId || !passkeys.length) return;
-    setDeviceLockEnabled(enabled);
-    if (!enabled) {
-      clearPasskeyDeviceState(userId);
-      return;
-    }
-    writePasskeyDeviceState({ userId, emailHint: maskPasskeyEmail(userEmail), enabled: true, locked: false });
+    if (!userId) return;
+    if (!enabled) {setDeviceLockEnabled(false);clearPasskeyDeviceState(userId);return;}
+    if (!isWebAuthnSupported()) return;
+    if (!hasDevicePin(userId)) {setPinSetupReady(false);setPinSetupOpen(true);return;}
+    if (!passkeys.length) {void enrollPasskey();return;}
+    writePasskeyDeviceState({userId,emailHint:maskPasskeyEmail(userEmail),enabled:true,locked:false});
+    setDeviceLockEnabled(true);
+  }
+  function closePinSetup(){
+    if(pinSetupBusy||passkeyBusy)return;
+    if(userId&&!deviceLockEnabled)clearDevicePin(userId);
+    setPinSetupOpen(false);setPinSetupReady(false);setPasskeyError(null);
+  }
+  async function saveDevicePin(pin:string){
+    if(!userId)return;
+    setPinSetupBusy(true);
+    try{await configureDevicePin(userId,pin);setPinSetupReady(true);if(passkeys.length){toggleDeviceLock(true);setPinSetupOpen(false);}}finally{setPinSetupBusy(false);}
   }
 
   function lockNow() {
@@ -161,9 +181,11 @@ export default function SettingsPage() {
   return (
     <ReferenceRoot page="pengaturan">
       <Navbar />
-      {loading?<main className="pt-20 px-margin" aria-busy="true"><SettingsSkeleton/></main>:<SettingsView email={userEmail} name={userName} online={online} biometric={deviceLockEnabled} biometricAvailable={passkeys.length>0&&isWebAuthnSupported()} onBiometric={toggleDeviceLock} onEnroll={()=>void enrollPasskey()} onLock={lockNow} onLogout={()=>void handleLogout()} loggingOut={loggingOut} passkeys={passkeys} onDeletePasskey={setPasskeyDeleteId} error={passkeyError??logoutError}/>}
+      {loading?<main className="pt-20 px-margin" aria-busy="true"><SettingsSkeleton/></main>:<SettingsView email={userEmail} name={userName} online={online} biometric={deviceLockEnabled} biometricAvailable={isWebAuthnSupported()} onBiometric={toggleDeviceLock} onEnroll={()=>void enrollPasskey()} onLock={lockNow} onLogout={()=>void handleLogout()} loggingOut={loggingOut} passkeys={passkeys} onDeletePasskey={setPasskeyDeleteId} error={passkeyError??logoutError}/>}
 
-      {passkeyDeleteId && <ConfirmDialog titleId="passkey-delete-title" descriptionId="passkey-delete-description" title={t("Hapus Passkey?")} description={t("Perangkat ini tidak lagi dapat membuka FinTrack dengan Passkey tersebut.")} confirmLabel={t("Hapus")} onClose={() => { if (!passkeyBusy) setPasskeyDeleteId(null); }} onConfirm={() => void deletePasskey()} loading={passkeyBusy === "delete"} error={passkeyError} />}
+      {pinSetupOpen&&<DialogFrame titleId="settings-pin-title" onClose={closePinSetup} closeDisabled={pinSetupBusy||Boolean(passkeyBusy)}><div className="p-5"><h2 id="settings-pin-title" className="text-headline-sm font-semibold">{t(pinSetupReady?"Aktifkan biometrik":"Buat PIN perangkat")}</h2><p className="mt-2 mb-5 text-body-sm text-on-surface-variant">{t(pinSetupReady?"Tekan tombol di bawah untuk mendaftarkan biometrik perangkat.":"Gunakan PIN 6 digit untuk membuka aplikasi di perangkat ini.")}</p>{pinSetupReady?<div className={authStyles.pinForm}><button type="button" disabled={Boolean(passkeyBusy)} className={authStyles.primary} onClick={()=>void enrollPasskey()}><Fingerprint aria-hidden="true" className="size-5"/>{t(passkeyBusy?"Memproses...":"Aktifkan biometrik")}</button>{passkeyError&&<p role="alert" className={authStyles.error}>{t(passkeyError)}</p>}</div>:<PinSetupForm onSave={saveDevicePin} onCancel={closePinSetup}/>}</div></DialogFrame>}
+
+      {passkeyDeleteId && <ConfirmDialog titleId="passkey-delete-title" descriptionId="passkey-delete-description" title={t("Hapus biometrik?")} description={t("Perangkat ini tidak lagi dapat membuka FinTrack dengan biometrik tersebut.")} confirmLabel={t("Hapus")} onClose={() => { if (!passkeyBusy) setPasskeyDeleteId(null); }} onConfirm={() => void deletePasskey()} loading={passkeyBusy === "delete"} error={passkeyError} />}
     </ReferenceRoot>
   );
 }

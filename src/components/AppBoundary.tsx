@@ -36,6 +36,7 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
 
     void supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
+      sessionRef.current=data.session;
       setSession(data.session);
       setHasSession(Boolean(data.session));
       const deviceState = data.session ? readPasskeyDeviceState(data.session.user.id) : null;
@@ -102,8 +103,9 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
           locked: false,
         })}
         onUseNormalLogin={async () => {
+          const {error}=await supabase.auth.signOut({scope:"local"});
+          if(error)throw error;
           clearPasskeyDeviceState(session.user.id);
-          await supabase.auth.signOut();
           router.replace("/login");
         }}
       />

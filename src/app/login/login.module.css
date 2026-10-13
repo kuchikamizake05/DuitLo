@@ -1,46 +1,39 @@
-.page {
-  font-family: var(--font-manrope), sans-serif;
-}
+.page{--auth-link:#00652c;--auth-input:#eef5f0;--auth-primary:#c5ecd2;--auth-on-primary:#123524;min-height:100svh;background:var(--canvas);color:var(--ink);font-family:var(--font-manrope),sans-serif;display:flex;flex-direction:column}
+:global(html.dark) .page{--auth-link:#a8c4fc;--auth-input:#1c1d20;--auth-primary:#a8c4fc;--auth-on-primary:#173456}
+.header{width:100%;max-width:960px;margin:auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;min-height:72px;flex-shrink:0}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 20px 48px;outline:none}
+.card{width:100%;max-width:440px;background:var(--surface);border-radius:28px;padding:28px;box-shadow:var(--shadow-surface)}
+.cardHeader{margin-bottom:24px}
+.cardTitle{font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-.035em;color:var(--ink)}
+.primary,.secondary{width:100%;min-height:48px;border:0;border-radius:999px;padding:12px 18px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.primary{background:var(--auth-primary);color:var(--auth-on-primary)}
+.secondary{background:var(--auth-input);color:var(--ink)}
+.primary:disabled,.secondary:disabled{opacity:.5;cursor:not-allowed}
+.page input,.pinForm input{background:var(--auth-input);color:var(--ink);border:0;box-shadow:none;border-radius:16px;min-height:48px;font-size:14px}
+.page input::placeholder,.pinForm input::placeholder{color:var(--ink-soft)}
+.page input:focus-visible,.page button:focus-visible{outline:2px solid var(--auth-link);outline-offset:3px;box-shadow:none}
+.page :global(.text-slate-700),.page :global(.text-slate-900){color:var(--ink)}
+.page :global(.text-slate-400),.page :global(.text-slate-500),.page :global(.text-slate-600){color:var(--ink-soft)}
+.page :global(.text-emerald-700),.page :global(.text-emerald-600){color:var(--auth-link)}
+.page :global(.border-slate-100){border-color:var(--surface-muted)}
+.page :global(.bg-slate-100){background:var(--surface-muted)}
+.page :global(svg.lucide){stroke-width:1.75}
+.divider{margin:20px 0}
+.privacyNote{margin-top:20px;border:0}
+.pinInput{text-align:center;font-size:26px!important;letter-spacing:.55em;padding:12px 12px 12px 26px;width:100%}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0 12px}
+.key{border:0;background:var(--auth-input);color:var(--ink);border-radius:18px;min-height:56px;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.key:active{background:var(--surface-muted)}
+.key:disabled{opacity:.45;cursor:not-allowed}
+.error{background:var(--surface-muted);color:#b3261e;border-radius:16px;padding:12px;font-size:13px;line-height:1.5;margin-top:16px}
+:global(html.dark) .error{color:#ffb4ab;background:#3b2529}
+@media(max-width:480px){.header{padding:14px 20px}.main{align-items:flex-start;padding:20px 16px 32px}.card{padding:24px}.cardTitle{font-size:26px}}
+@media(prefers-reduced-motion:reduce){.page *{animation:none!important;transition:none!important}}
 
-@media (min-width: 64rem) {
-  .desktopShell {
-    animation: login-shell-in 420ms ease-out both;
-  }
-}
+.pinForm{--auth-link:#00652c;--auth-input:#eef5f0;--auth-primary:#c5ecd2;--auth-on-primary:#123524;color:var(--ink)}
+:global(html.dark) .pinForm{--auth-link:#a8c4fc;--auth-input:#1c1d20;--auth-primary:#a8c4fc;--auth-on-primary:#173456}
 
-@keyframes login-shell-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.success{margin-top:20px;border-radius:16px;padding:12px;background:#e2f2e8;color:#00652c;font-size:13px;line-height:1.5}
+:global(html.dark) .success{background:#203b2d;color:#8aceaa}
 
-@media (min-width: 64rem) and (max-height: 44rem) {
-  .main {
-    padding-block: 0.5rem !important;
-  }
-
-  .card {
-    padding: 1rem !important;
-  }
-
-  .cardHeader {
-    margin-bottom: 0.75rem !important;
-  }
-
-  .cardTitle {
-    margin-top: 0.5rem !important;
-    font-size: 1.5rem !important;
-  }
-
-  .modeTabs {
-    margin-bottom: 0.5rem !important;
-  }
-
-  .divider {
-    margin-block: 0.5rem !important;
-  }
-
-  .privacyNote {
-    margin-top: 0.5rem !important;
-    padding-top: 0.5rem !important;
-  }
-}
+.header :global(button[aria-pressed="true"]){background:var(--auth-primary);color:var(--auth-on-primary)}

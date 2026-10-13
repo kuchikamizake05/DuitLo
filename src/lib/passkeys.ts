@@ -1,3 +1,4 @@
+import {clearDevicePin} from "./device-pin";
 export const PASSKEY_STATE_CHANGE_EVENT = "fintrack-passkey-state-change";
 
 type PasskeyDeviceState = {
@@ -69,6 +70,7 @@ export function writePasskeyDeviceState(input: PasskeyDeviceStateInput) {
 export function clearPasskeyDeviceState(userId: string) {
   try {
     window.localStorage.removeItem(buildPasskeyDeviceStorageKey(userId));
+    clearDevicePin(userId);
     window.dispatchEvent(new Event(PASSKEY_STATE_CHANGE_EVENT));
   } catch {
     // Storage is unavailable.
@@ -80,11 +82,11 @@ export function isWebAuthnSupported() {
 }
 
 export function getPasskeyErrorMessage(error: unknown) {
-  if (error instanceof DOMException && (error.name === "NotAllowedError" || error.name === "AbortError")) {
-    return "Verifikasi Passkey dibatalkan. Coba lagi saat siap.";
+  if ((error instanceof Error || error instanceof DOMException) && (error.name === "NotAllowedError" || error.name === "AbortError")) {
+    return "Verifikasi biometrik dibatalkan. Coba lagi saat siap.";
   }
-  if (error instanceof DOMException && error.name === "NotSupportedError") {
-    return "Perangkat atau browser ini belum mendukung Passkey.";
+  if ((error instanceof Error || error instanceof DOMException) && error.name === "NotSupportedError") {
+    return "Perangkat atau browser ini belum mendukung biometrik.";
   }
-  return "Passkey belum dapat diproses. Coba lagi.";
+  return "Biometrik belum dapat diproses. Coba lagi.";
 }

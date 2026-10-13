@@ -1,65 +1,32 @@
 "use client";
-
-import { useState } from "react";
-import { Fingerprint, LogOut, ShieldCheck } from "lucide-react";
-import BrandLockup from "@/components/BrandLockup";
-import { Button } from "@/components/ui/Button";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { getPasskeyErrorMessage } from "@/lib/passkeys";
-import { useLanguage } from "@/components/LanguageProvider";
-import { supabase } from "@/infrastructure/supabase/browser-client";
+import {useEffect,useRef,useState} from "react";
+import {Delete,Fingerprint,LoaderCircle,LockKeyhole} from "lucide-react";
+import {AuthShell} from "@/components/AuthShell";
+import {PinSetupForm} from "@/components/PinSetupForm";
+import {getPasskeyErrorMessage,isWebAuthnSupported} from "@/lib/passkeys";
+import {configureDevicePin,hasDevicePin,verifyDevicePin} from "@/lib/device-pin";
+import {useLanguage} from "@/components/LanguageProvider";
+import {supabase} from "@/infrastructure/supabase/browser-client";
 import styles from "@/app/login/login.module.css";
-
-type PasskeyUnlockScreenProps = {
-  emailHint: string;
-  userId: string;
-  onUnlock: () => void;
-  onUseNormalLogin: () => Promise<void>;
-};
-
-export default function PasskeyUnlockScreen({ emailHint, userId, onUnlock, onUseNormalLogin }: PasskeyUnlockScreenProps) {
-  const { t } = useLanguage();
-  const [checking, setChecking] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function unlock() {
-    if (checking) return;
-    setChecking(true);
-    setError(null);
-    try {
-      const { data, error } = await supabase.auth.signInWithPasskey();
-      if (error) throw error;
-      if (!data.session || data.session.user.id !== userId) {
-        await onUseNormalLogin();
-        return;
-      }
-      onUnlock();
-    } catch (error) {
-      setError(getPasskeyErrorMessage(error));
-    } finally {
-      setChecking(false);
-    }
-  }
-
-  return (
-    <div className={`${styles.page} fixed -inset-2 overflow-x-hidden overflow-y-auto bg-[url('/auth/fintrack-login-hero.png')] bg-[position:center_top] bg-cover bg-no-repeat text-[var(--brand-ink)] sm:overflow-y-hidden sm:bg-[radial-gradient(circle_at_9%_36%,rgba(255,255,255,0.42)_0_2px,transparent_2.5px),linear-gradient(145deg,#eefaf2_0%,#ddf5e6_55%,#c6edd3_100%)] sm:bg-[length:24px_24px,auto]`}>
-      <header className="relative z-20 mx-auto flex h-[76px] w-[calc(100%-2rem)] max-w-[1440px] items-center justify-between sm:h-[72px] sm:w-[calc(100%-3rem)] sm:border-b sm:border-[color:rgba(18,53,36,0.14)] lg:absolute lg:inset-x-0 lg:top-0 lg:h-20 lg:w-full lg:max-w-none lg:border-b-0 lg:px-9 xl:px-12"><BrandLockup href="/" priority ariaLabel="FinTrack" /><LanguageSwitcher compact className="sm:[&>svg]:block" /></header>
-      <main id="main-content" tabIndex={-1} className="mx-auto flex h-[calc(100dvh-76px)] w-full items-start justify-center px-0 pb-0 pt-[148px] outline-none sm:min-h-[calc(100dvh-72px)] sm:px-6 sm:pb-8 sm:pt-14 lg:h-full lg:min-h-full lg:items-stretch lg:px-0 lg:py-0">
-        <div className={`${styles.desktopShell} w-full lg:grid lg:min-h-full lg:max-w-none lg:grid-cols-2 lg:overflow-hidden lg:rounded-none lg:bg-white lg:shadow-none lg:ring-0`}>
-          <aside className="relative hidden overflow-hidden bg-[url('/auth/fintrack-login-hero.png')] bg-cover bg-[position:center_top] lg:flex lg:min-h-full lg:flex-col lg:justify-end lg:p-14 xl:p-20"><div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,39,25,0.02)_24%,rgba(8,39,25,0.88)_100%)]" /><div className="relative text-white"><span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] backdrop-blur-sm">{t("Keuangan pribadi")}</span><h1 className="mt-4 max-w-xs text-4xl font-black leading-[0.98] tracking-[-0.06em] !text-white">{t("Uangmu, lebih jelas.")}</h1><p className="mt-4 max-w-[17rem] text-sm leading-6 text-white/80">{t("Catat, pahami, dan rencanakan keuanganmu dalam satu tempat yang privat.")}</p><div className="mt-7 flex items-center gap-2 text-xs font-bold text-white/75"><span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_0_5px_rgba(110,231,183,0.15)]" />{t("Data tetap milikmu")}</div></div></aside>
-          <section aria-labelledby="passkey-unlock-title" className="min-h-[calc(100svh-224px)] w-dvw max-w-none rounded-t-[32px] bg-white px-6 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-7 text-center shadow-[0_-16px_42px_rgba(18,53,36,0.18)] sm:mx-auto sm:min-h-0 sm:w-full sm:max-w-[420px] sm:rounded-[28px] sm:border sm:border-white/85 sm:bg-white/[0.97] sm:p-8 sm:shadow-[0_24px_65px_rgba(18,53,36,0.14)] sm:ring-1 sm:ring-emerald-950/[0.06] lg:flex lg:min-h-full lg:max-w-none lg:flex-col lg:items-center lg:justify-center lg:rounded-none lg:border-0 lg:px-[clamp(3rem,8vw,9rem)] lg:py-12 lg:text-left lg:shadow-none lg:ring-0 lg:[&>*]:w-full lg:[&>*]:max-w-[560px]">
-            <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 shadow-inner lg:mx-0"><Fingerprint className="h-8 w-8" aria-hidden="true" /></span>
-            <span className="mx-auto mt-5 flex w-fit items-center gap-1.5 rounded-full bg-[var(--brand-mint)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[var(--brand-primary)] lg:mx-0"><ShieldCheck className="h-3.5 w-3.5" /> {t("Perangkat dikenal")}</span>
-            <h2 id="passkey-unlock-title" className="mt-4 text-[30px] font-black leading-[1.06] tracking-[-0.055em] text-[var(--brand-ink)]">{t("Buka FinTrack")}</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">{t("Gunakan sidik jari, wajah, atau kunci layar perangkatmu.")}</p>
-            <p className="mt-5 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600">{emailHint}</p>
-            {error && <p role="alert" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-3 text-sm leading-5 text-rose-700">{error}</p>}
-            <Button className="mt-6 w-full" loading={checking} onClick={() => void unlock()}><Fingerprint className="h-4 w-4" /> {t("Buka dengan Passkey")}</Button>
-            <button type="button" disabled={checking} onClick={() => void onUseNormalLogin()} className="mt-3 min-h-11 w-full text-sm font-bold text-slate-600 hover:text-emerald-700 disabled:opacity-60">{t("Gunakan login biasa")}</button>
-            <div className="mt-5 border-t border-slate-100 pt-4"><button type="button" disabled={checking} onClick={() => void onUseNormalLogin()} className="inline-flex min-h-10 items-center gap-2 text-xs font-bold text-slate-500 hover:text-rose-700 disabled:opacity-60"><LogOut className="h-3.5 w-3.5" /> {t("Ganti akun")}</button></div>
-          </section>
-        </div>
-      </main>
-    </div>
-  );
+type Props={emailHint:string;userId:string;onUnlock:()=>void;onUseNormalLogin:()=>Promise<void>};
+export default function PasskeyUnlockScreen({emailHint,userId,onUnlock,onUseNormalLogin}:Props){
+ const {t}=useLanguage();const [pin,setPin]=useState("");const [checking,setChecking]=useState(false);const [error,setError]=useState("");const [retryAt,setRetryAt]=useState(0);const [now,setNow]=useState(0);const [setup,setSetup]=useState(false);const checkingRef=useRef(false);const pinReady=hasDevicePin(userId);
+ useEffect(()=>{if(!retryAt)return;const timer=window.setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(timer);},[retryAt]);
+ const blocked=retryAt>now;
+ async function verify(pinValue:string){
+  if(checkingRef.current||!pinReady||blocked)return;checkingRef.current=true;setChecking(true);setError("");
+  try{const result=await verifyDevicePin(userId,pinValue);if(result.ok){onUnlock();return;}setPin("");setRetryAt(result.retryAt);setNow(result.checkedAt);setError(t(result.retryAt?"Terlalu banyak percobaan. Tunggu sebentar.":"PIN tidak sesuai. Coba lagi."));}catch{setError(t("PIN belum dapat diverifikasi. Gunakan biometrik atau login biasa."));}finally{checkingRef.current=false;setChecking(false);}
+ }
+ async function biometric(){
+  if(checkingRef.current)return;checkingRef.current=true;setChecking(true);setError("");
+  try{const {data,error}=await supabase.auth.signInWithPasskey();if(error)throw error;if(!data.session||data.session.user.id!==userId){await onUseNormalLogin();return;}if(pinReady)onUnlock();else setSetup(true);}catch(caught){setError(t(getPasskeyErrorMessage(caught)));}finally{checkingRef.current=false;setChecking(false);}
+ }
+ async function normalLogin(){if(checkingRef.current)return;checkingRef.current=true;setChecking(true);try{await onUseNormalLogin();}catch{setError(t("Sesi belum dapat ditutup. Coba lagi."));}finally{checkingRef.current=false;setChecking(false);}}
+ function enter(value:string){if(checking||blocked||!pinReady||pin.length>=6)return;const next=pin+value;setPin(next);if(next.length===6)void verify(next);}
+ return <AuthShell titleId="passkey-unlock-title"><div className="mb-6"><span className="mb-4 flex size-11 items-center justify-center rounded-full bg-[var(--auth-input)] text-[var(--ink-soft)]"><LockKeyhole className="size-5" aria-hidden="true"/></span><h1 id="passkey-unlock-title" className={styles.cardTitle}>{t(setup?"Buat PIN perangkat":"Buka FinTrack")}</h1><p className="mt-2 text-sm text-[var(--ink-soft)]">{t(setup?"Gunakan PIN 6 digit untuk membuka aplikasi di perangkat ini.":pinReady?"Masukkan PIN 6 digitmu.":"Verifikasi biometrik untuk membuat PIN perangkat.")}</p><p className="mt-3 text-xs text-[var(--ink-soft)]">{emailHint}</p></div>
+ {setup?<PinSetupForm onSave={async value=>{await configureDevicePin(userId,value);onUnlock();}}/>:<><label className="sr-only" htmlFor="unlock-pin">{t("PIN perangkat")}</label><input id="unlock-pin" className={styles.pinInput} type="password" inputMode="none" autoComplete="off" maxLength={6} placeholder="••••••" disabled={checking||blocked||!pinReady} value={pin} onChange={event=>{const next=event.target.value.replace(/[^0-9]/g,"").slice(0,6);setPin(next);if(next.length===6)void verify(next);}} aria-describedby={error?"pin-unlock-error":undefined}/>
+ {error&&<p id="pin-unlock-error" role="alert" className={styles.error}>{error}{blocked&&<span className="block mt-1">{Math.ceil((retryAt-now)/1000)} {t("detik")}</span>}</p>}
+ <div className={styles.keypad}>{["1","2","3","4","5","6","7","8","9"].map(value=><button type="button" key={value} className={styles.key} disabled={checking||blocked||!pinReady} onClick={()=>enter(value)}>{value}</button>)}<button type="button" aria-label={t("Buka dengan biometrik")} title={t("Buka dengan biometrik")} className={styles.key} disabled={checking||!isWebAuthnSupported()} onClick={()=>void biometric()}>{checking?<LoaderCircle aria-hidden="true" className="size-6 motion-safe:animate-spin"/>:<Fingerprint aria-hidden="true" className="size-6"/>}</button><button type="button" className={styles.key} disabled={checking||blocked||!pinReady} onClick={()=>enter("0")}>0</button><button type="button" aria-label={t("Hapus digit PIN")} className={styles.key} disabled={checking||!pin.length} onClick={()=>setPin(value=>value.slice(0,-1))}><Delete className="size-5" aria-hidden="true"/></button></div>
+ <button type="button" disabled={checking} onClick={()=>void normalLogin()} className="mt-4 w-full min-h-11 text-sm font-medium text-[var(--ink-soft)]">{t("Lupa PIN? Login kembali")}</button></>}
+ </AuthShell>;
 }
