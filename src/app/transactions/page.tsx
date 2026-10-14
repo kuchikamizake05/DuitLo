@@ -202,7 +202,7 @@ export default function TransactionsPage() {
           .order("created_at", { ascending: false }),
         supabase
           .from("financial_accounts")
-          .select("id, name, currency")
+          .select("id, name, currency, current_balance, institution, kind")
           .eq("user_id", user.id)
           .order("created_at", { ascending: true }),
         supabase
