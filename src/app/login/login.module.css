@@ -117,3 +117,5 @@
 .unlock .main{justify-content:center;gap:20px}
 .unlock .card{flex:0 0 auto}
 .unlock .footer{margin-top:0;padding-top:0}
+
+:global(html:not(.dark)) .unlock .key,:global(html:not(.dark)) .unlock .accountHint{box-shadow:var(--shadow-control)}
