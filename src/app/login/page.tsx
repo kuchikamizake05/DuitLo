@@ -267,21 +267,15 @@ type PasswordFieldProps = {
   onChange: (value: string) => void;
   disabled: boolean;
   autoComplete: "current-password" | "new-password";
-  onForgotPassword?: () => void;
 };
 
-function PasswordField({ id, label, value, onChange, disabled, autoComplete, onForgotPassword }: PasswordFieldProps) {
+function PasswordField({ id, label, value, onChange, disabled, autoComplete }: PasswordFieldProps) {
   const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   return (
     <div>
       <div className="mb-1.5 flex min-h-5 items-center justify-between gap-3">
         <label htmlFor={id} className="text-xs font-bold text-slate-700">{t(label)}</label>
-        {onForgotPassword && (
-          <button type="button" onClick={onForgotPassword} disabled={disabled} className="text-xs font-bold text-emerald-700 hover:text-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-50">
-            {t("Lupa kata sandi?")}
-          </button>
-        )}
       </div>
       <div className="relative">
         <KeyRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
