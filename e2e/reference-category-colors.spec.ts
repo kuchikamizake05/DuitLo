@@ -6,7 +6,7 @@ for(const theme of ["light","dark"] as const){test(`category colors differ and r
  await page.route("https://e2e-project.supabase.co/rest/v1/transactions**",route=>route.fulfill({json:categories.map((category,index)=>({...transaction,id:`tx-${index}`,category,merchant:category,amount:(index+1)*100000}))}));
  await page.route("https://e2e-project.supabase.co/rest/v1/categories**",route=>route.fulfill({json:categories.map(name=>({name,type:"expense"}))}));
  const baseline:Record<string,{background:string;color:string}>={};
- for(const path of ["/dashboard","/transactions","/insights"]){await page.goto(path);await expect(page.locator("main")).toBeVisible();const colors=[];
+ for(const path of ["/dashboard","/transactions","/insights"]){await page.goto(path);await expect(page.getByRole("main").filter({hasNot:page.locator(".ft-skeleton")})).toBeVisible();const colors=[];
   for(const category of categories){const icon=page.locator(`[data-category-icon="${category}"]`).filter({visible:true}).first();await expect(icon).toBeVisible();const color=await icon.evaluate(el=>({background:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color}));colors.push(color.background);if(path==="/dashboard")baseline[category]=color;else expect(color).toEqual(baseline[category]);}
   expect(new Set(colors).size).toBe(3);
 

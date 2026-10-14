@@ -9,3 +9,5 @@ Run the same browser checks locally with `pnpm test:e2e --project=desktop-chromi
 The browser suite checks the current navigation, transaction dialogs, receipt extraction and review, account and goal controls, budgets, onboarding recovery, themes, and report downloads. Category selection is tested in the transaction picker; the retired `/categories` page is no longer a route. CSV parsing and deduplication remain covered by unit tests; the former planning-page import UI is not part of the current budget page.
 
 Palette and hover checks use the running application. They do not require a separate HTML reference server on port 8743. Logo editing starts from controlled approval data so checked-in logo approvals cannot change the test outcome.
+
+Authentication tests select the exact sign-in action so Google sign-in cannot match it. Palette audits wait for the accessible page content after skeleton loading, excluding temporary streamed copies.
