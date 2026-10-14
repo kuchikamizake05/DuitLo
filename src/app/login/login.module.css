@@ -105,3 +105,11 @@
 .languageSwitch button[aria-pressed="true"]{background:#123524;color:#79db8d}
 :global(html.dark) .languageSwitch button{color:#96969f;background:transparent}
 :global(html.dark) .languageSwitch button[aria-pressed="true"]{background:#a8c4fc;color:#16417d}
+
+.unlock .key{background:var(--field-surface);color:var(--ink)}
+.unlock .key[title]{background:var(--create-bg);color:var(--create-fg)}
+.unlock .key:active{background:var(--create-bg);color:var(--create-fg)}
+.unlock .pinDots span{background:var(--field-surface);outline-color:var(--border-subtle)}
+.unlock .pinDots span[data-filled="true"]{background:var(--create-bg)}
+.unlock .footer button{color:var(--auth-link)}
+.unlock .error{color:var(--status-danger);background:color-mix(in srgb,var(--status-danger) 12%,var(--surface))}
