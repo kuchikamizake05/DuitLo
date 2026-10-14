@@ -10,6 +10,8 @@ export type AccountOverviewRecord = {
   reporting_balance_idr: number | null;
   is_active: boolean;
   updated_at: string;
+  cardColor?:string;
+  includeInNetWorth?:boolean;
 };
 
 export type AccountFilter = "all" | "liquid" | "investment" | "trading" | "liability";
@@ -53,6 +55,7 @@ export function summarizeAccounts(accounts: readonly AccountOverviewRecord[]) {
     (totals, account) => {
       if (!account.is_active) return totals;
       totals.activeCount += 1;
+      if(account.includeInNetWorth===false)return totals;
       const value = getReportingValue(account);
       if (account.kind === "liability") totals.liabilities += value;
       else totals.assets += value;
