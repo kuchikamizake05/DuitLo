@@ -6,6 +6,7 @@ export type InvestmentExecution = StockExecution & {
   executed_at: string;
   account_id: string;
   currency: string;
+  note?: string | null;
 };
 
 export function buildInvestmentPositions(
@@ -49,7 +50,7 @@ export function validateExecutionForm(form: { accountId: string; ticker: string;
   const quantity = Number(form.quantity);
   const price = Number(form.price);
   const fee = Number(form.fee);
-  if (!form.accountId || !form.ticker.trim() || !form.executedAt || !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(price) || price < 0 || !Number.isFinite(fee) || fee < 0) {
+  if (!form.accountId || !form.ticker.trim() || !form.executedAt || !Number.isFinite(new Date(form.executedAt).getTime()) || !/^[A-Za-z0-9][A-Za-z0-9.\-]{0,15}$/.test(form.ticker.trim()) || !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(price) || price <= 0 || !Number.isFinite(fee) || fee < 0) {
     return "Lengkapi broker, ticker, waktu, jumlah, harga, dan biaya dengan nilai valid.";
   }
   return null;
@@ -61,4 +62,15 @@ export function validateSnapshotForm(form: { accountId: string; equity: string; 
     return "Pilih akun, waktu pencatatan, dan masukkan nilai portfolio yang valid.";
   }
   return null;
+}
+
+export type AssetCategory = "stock" | "fund" | "gold" | "crypto" | "other";
+export function encodeInvestmentNote(category:AssetCategory,name:string,note:string) {
+ if(category==="stock"&&!name.trim())return note.trim()||null;
+ return JSON.stringify({fintrackAsset:1,category,name:name.trim(),note:note.trim()});
+}
+export function decodeInvestmentNote(raw:string|null|undefined) {
+ const fallback={category:"stock" as AssetCategory,name:"",note:raw??""};
+ try{const value=JSON.parse(raw??"");if(value?.fintrackAsset===1&&["stock","fund","gold","crypto","other"].includes(value.category)&&typeof value.name==="string"&&typeof value.note==="string")return {category:value.category as AssetCategory,name:value.name,note:value.note};}catch{}
+ return fallback;
 }

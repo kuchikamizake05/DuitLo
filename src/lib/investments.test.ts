@@ -50,3 +50,22 @@ describe("investment forms", () => {
     expect(validateSnapshotForm({ accountId: "broker", equity: "0", recordedAt: "2026-03-01T10:00" })).toBeNull();
   });
 });
+
+describe("investment execution input boundaries",()=>{
+ const valid={accountId:"broker",ticker:"BBCA",quantity:"100",price:"8500",fee:"0",executedAt:"2026-10-13T10:00"};
+ it("rejects invalid timestamps, malformed tickers, and zero prices",()=>{
+  expect(validateExecutionForm({...valid,executedAt:"invalid"})).toBeTruthy();
+  expect(validateExecutionForm({...valid,ticker:"Bank Central Asia"})).toBeTruthy();
+  expect(validateExecutionForm({...valid,price:"0"})).toBeTruthy();
+  expect(validateExecutionForm(valid)).toBeNull();
+ });
+});
+
+describe("investment category metadata",()=>{
+ it("preserves categories and notes while reading legacy stock notes",async()=>{
+ const {encodeInvestmentNote,decodeInvestmentNote}=await import("./investments");
+ for(const category of ["fund","gold","crypto","other"] as const)expect(decodeInvestmentNote(encodeInvestmentNote(category,"Aset uji","Catatan uji"))).toEqual({category,name:"Aset uji",note:"Catatan uji"});
+ expect(decodeInvestmentNote("Catatan saham lama")).toEqual({category:"stock",name:"",note:"Catatan saham lama"});
+ expect(encodeInvestmentNote("stock","","Catatan saham")).toBe("Catatan saham");
+ });
+});
