@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "motion/react";
 import type { PreviewTab } from "./AppPreview";
 import styles from "./landing.module.css";
 
@@ -13,17 +13,19 @@ export default function ScreenSequence({ screens, active, onChange, reduced, eng
   reduced: boolean | null;
   english: boolean;
 }) {
+  const deck = useRef<HTMLDivElement>(null);
+  const visible = useInView(deck, { amount: .15 });
   const selected = screens.findIndex(screen => screen.id === active);
   const [paused, setPaused] = useState(false);
   useEffect(() => {
-    if (paused || reduced) return;
+    if (paused || reduced || !visible) return;
     const timer = window.setInterval(() => {
       if (document.hidden) return;
       onChange(screens[(selected + 1) % screens.length].id);
     }, 2000);
     return () => window.clearInterval(timer);
-  }, [paused, reduced, selected, screens, onChange]);
-  return <div className={styles.screenDeck} onPointerDown={() => setPaused(true)} onPointerUp={() => setPaused(false)} onPointerCancel={() => setPaused(false)} onPointerLeave={() => setPaused(false)}>
+  }, [paused, reduced, visible, selected, screens, onChange]);
+  return <div ref={deck} className={styles.screenDeck} onPointerDown={() => setPaused(true)} onPointerUp={() => setPaused(false)} onPointerCancel={() => setPaused(false)} onPointerLeave={() => setPaused(false)}>
     {screens.map((screen, index) => {
       const offset = ((index - selected + screens.length + 2) % screens.length) - 2;
       const front = offset === 0;
