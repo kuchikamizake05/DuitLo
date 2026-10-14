@@ -254,7 +254,7 @@ function EmailField({ value, onChange, disabled }: { value: string; onChange: (v
       <label htmlFor="email" className="mb-1.5 block text-xs font-bold text-slate-700">{t("Alamat email")}</label>
       <div className="relative">
         <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <input id="email" name="email" type="email" inputMode="email" autoComplete="email" placeholder="nama@email.com" value={value} onChange={(event) => onChange(event.target.value)} required disabled={disabled} className={`${inputStyles} pr-3.5`} />
+        <input id="email" name="email" type="email" inputMode="email" autoComplete="email" placeholder={t("Masukkan email")} value={value} onChange={(event) => onChange(event.target.value)} required disabled={disabled} className={`${inputStyles} pr-3.5`} />
       </div>
     </div>
   );
@@ -285,7 +285,7 @@ function PasswordField({ id, label, value, onChange, disabled, autoComplete, onF
       </div>
       <div className="relative">
         <KeyRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <input id={id} name={id} type={visible ? "text" : "password"} autoComplete={autoComplete} minLength={8} value={value} onChange={(event) => onChange(event.target.value)} required disabled={disabled} className={`${inputStyles} pr-11`} />
+        <input id={id} name={id} type={visible ? "text" : "password"} autoComplete={autoComplete} placeholder={t(id === "password-confirmation" ? "Ulangi kata sandi" : "Masukkan kata sandi")} minLength={8} value={value} onChange={(event) => onChange(event.target.value)} required disabled={disabled} className={`${inputStyles} pr-11`} />
         <button type="button" onClick={() => setVisible((current) => !current)} disabled={disabled} aria-label={t(visible ? "Sembunyikan kata sandi" : "Tampilkan kata sandi")} aria-pressed={visible} className="absolute right-1.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-slate-400 transition hover:bg-[var(--surface-muted)] hover:text-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-50">
           {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
