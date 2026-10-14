@@ -763,3 +763,7 @@
 @media(prefers-reduced-motion:no-preference) {
   .receiptPhone,.goalPhone .primaryPhone,.insightPhone .primaryPhone { animation: none; }
 }
+.showcase { padding-top: 80px; }
+@media (max-width: 600px) { .showcase { padding-top: 60px; } }
+.showcase { padding-top: 120px; }
+@media (max-width: 600px) { .showcase { padding-top: 85px; } }
