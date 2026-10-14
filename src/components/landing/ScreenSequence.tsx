@@ -32,23 +32,18 @@ export default function ScreenSequence({ screens, active, onChange, reduced, eng
         initial={false}
         animate={{ x: offset * 125, y: Math.abs(offset) * 22, rotate: offset * 10,
           scale: front ? 1 : .88 - Math.abs(offset) * .06,
-          opacity: 1,
-          filter: front ? "blur(0px)" : "blur(4px)" }}
-        transition={{ duration: reduced ? 0 : .5, ease: [.22, 1, .36, 1] }}
-        style={{ zIndex: 3 - Math.abs(offset), pointerEvents: front ? "auto" : "none" }}>
+          opacity: 1 }}
+        transition={{ duration: reduced ? 0 : .8, ease: [.22, 1, .36, 1] }}
+        style={{ zIndex: 3 - Math.abs(offset), pointerEvents: front ? "auto" : "none", filter: front ? "none" : "blur(3px)", willChange: "transform" }}>
         <motion.div drag={reduced ? false : "x"} dragConstraints={{ left: 0, right: 0 }} dragElastic={.18}
           onDragEnd={(_, info) => {
             if (Math.abs(info.offset.x) > 35) onChange(screens[(selected + (info.offset.x < 0 ? 1 : -1) + screens.length) % screens.length].id);
           }}>
           <Image src={`/images/landing/${screen.id}.webp`} width={708} height={1442}
-            sizes="(max-width: 600px) 175px, 210px" draggable={false}
+            sizes="(max-width: 600px) 175px, 210px" loading="eager" draggable={false}
             alt={front ? `${screen.label} — FinTrack ${english ? "in light mode" : "dalam mode light"}` : ""} />
         </motion.div>
       </motion.div>;
     })}
   </div>;
 }
-
-
-
-
