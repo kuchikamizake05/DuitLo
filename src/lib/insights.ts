@@ -57,6 +57,8 @@ export type InsightSnapshot = {
   activeAccountCount: number;
   uncoveredForeignAccountCount: number;
   topCategories: Array<{ name: string; amount: number; share: number }>;
+  previousCategoryAmounts?: Record<string, number>;
+  previousIncomeCategoryAmounts?: Record<string, number>;
   categoryConcentration: { category: string; share: number; level: "normal" | "high" } | null;
   largestCategoryMovement: { category: string; currentAmount: number; previousAmount: number; changeAmount: number } | null;
 };
@@ -91,9 +93,9 @@ function summarize(transactions: readonly InsightTransaction[]): PeriodMetrics {
   };
 }
 
-function categoryTotals(transactions: readonly InsightTransaction[]) {
+function categoryTotals(transactions: readonly InsightTransaction[], type: "expense" | "income" = "expense") {
   return transactions.reduce<Record<string, number>>((totals, transaction) => {
-    if (transaction.status !== "confirmed" || transaction.type !== "expense") return totals;
+    if (transaction.status !== "confirmed" || transaction.type !== type) return totals;
     const category = transaction.category.trim() || "Tanpa kategori";
     totals[category] = (totals[category] ?? 0) + Number(transaction.amount);
     return totals;
@@ -207,6 +209,8 @@ export function buildInsightSnapshot({
     activeAccountCount,
     uncoveredForeignAccountCount,
     topCategories,
+    previousCategoryAmounts: previousCategories,
+    previousIncomeCategoryAmounts: categoryTotals(previousForMetrics, "income"),
     categoryConcentration: primaryCategory ? {
       category: primaryCategory.name,
       share: primaryCategory.share,

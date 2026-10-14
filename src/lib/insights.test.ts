@@ -29,6 +29,8 @@ describe("smart insight analytics", () => {
     expect(snapshot.previous).toMatchObject({ income: 9_000_000, expense: 3_500_000, netCashFlow: 5_500_000 });
     expect(snapshot.savingsRate).toBe(60);
     expect(snapshot.expenseChange).toBe(14.3);
+    expect(snapshot.previousCategoryAmounts).toEqual({Makanan:1_000_000,Hunian:2_500_000});
+    expect(snapshot.previousIncomeCategoryAmounts).toEqual({Gaji:9_000_000});
     expect(snapshot.incomeChange).toBe(11.1);
     expect(snapshot.pendingCount).toBe(1);
   });
