@@ -27,14 +27,11 @@ for (const theme of ["light", "dark"] as const) {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     await expect(page.locator("#overview h1")).toContainText("Ruang untuk uangmu");
-    await page.getByRole("tab", { name: "Target", exact: true }).click();
-    await expect(page.getByRole("tabpanel")).toContainText("Satu langkah lebih dekat");
-    await page.getByRole("tab", { name: "Target", exact: true }).press("Home");
+    await page.getByRole("tab", { name: "Laporan", exact: true }).click();
+    await expect(page.getByRole("tabpanel").getByRole("img")).toHaveAttribute("src", /reports/);
+    await page.getByRole("tab", { name: "Laporan", exact: true }).press("Home");
     await expect(page.getByRole("tab", { name: "Ringkasan", exact: true })).toBeFocused();
-    await page.getByRole("button", { name: "Coba demonstrasi", exact: true }).click();
-    await expect(page.getByText("Detail siap diperiksa", { exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "Ulangi demo", exact: true }).click();
-    await expect(page.getByText("Foto → Baca → Periksa", { exact: true })).toBeVisible();
+    await expect(page.locator("#receipt").getByText("Transaksi berhasil disimpan", { exact: true })).toBeVisible({ timeout: 20000 });
     const faq = page.locator("#faq details").filter({ hasText: "Bisa dipakai di HP?" });
     await faq.locator("summary").click();
     await expect(faq.locator("p")).toBeVisible();
