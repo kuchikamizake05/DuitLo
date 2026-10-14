@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import type {ReactNode} from "react";
 import {ArrowLeft} from "lucide-react";
 import BrandLockup from "@/components/BrandLockup";
@@ -7,5 +8,6 @@ import {useLanguage} from "@/components/LanguageProvider";
 import styles from "@/app/login/login.module.css";
 export function AuthShell({children,titleId,variant="account",onBack,footer}:{children:ReactNode;titleId:string;variant?:"account"|"unlock"|"welcome";onBack?:()=>void;footer?:ReactNode}){
  const {t}=useLanguage();
- return <div className={`${styles.page} ${styles[variant]}`}><header className={styles.header}><div className={styles.headerSide}>{onBack&&<button type="button" className={styles.back} onClick={onBack} aria-label={t("Kembali")}><ArrowLeft size={20}/></button>}</div><BrandLockup href="/" priority ariaLabel="FinTrack beranda"/><div className={styles.headerSide}><LanguageSwitcher compact/></div></header><main id="main-content" tabIndex={-1} className={styles.main}><section className={styles.card} aria-labelledby={titleId}>{children}</section>{footer&&<footer className={styles.footer}>{footer}</footer>}</main></div>;
+ const header=<header className={styles.header}><div className={styles.headerSide}>{onBack&&<button type="button" className={styles.back} onClick={onBack} aria-label={t("Kembali")}><ArrowLeft size={20}/></button>}</div><BrandLockup href="/" priority ariaLabel="FinTrack beranda"/><div className={styles.headerSide}><LanguageSwitcher compact/></div></header>;
+ return <div className={`${styles.page} ${styles[variant]}`}>{variant==="account"?<div className={styles.accountBackdrop}><div className={styles.accountIllustration} aria-hidden="true"><Image src="/auth/login-illustration-light-female-v4.png" alt="" width={1448} height={1086} sizes="(max-width:480px) 100vw, 480px" loading="eager" className={styles.welcomeLight} data-login-theme="light"/><Image src="/auth/login-illustration-dark-male-v4.png" alt="" width={1448} height={1086} sizes="(max-width:480px) 100vw, 480px" loading="eager" className={styles.welcomeDark} data-login-theme="dark"/></div>{header}</div>:header}<main id="main-content" tabIndex={-1} className={styles.main}><section className={styles.card} aria-labelledby={titleId}>{children}</section>{footer&&<footer className={styles.footer}>{footer}</footer>}</main></div>;
 }

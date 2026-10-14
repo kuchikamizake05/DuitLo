@@ -20,6 +20,7 @@ for(const theme of ["light","dark"]){
   await page.getByRole("button",{name:"Masuk",exact:true}).click();
   const email=page.getByLabel("Alamat email");const password=page.getByLabel("Kata sandi",{exact:true});
   await expect(email).toBeVisible();
+  await expect(page.getByRole("main")).toHaveCSS("transform","matrix(1, 0, 0, 1, 0, 0)");
   const passwordBox=await password.boundingBox();const recoveryBox=await page.getByRole("button",{name:"Lupa kata sandi?"}).boundingBox();
   expect(recoveryBox!.y).toBeGreaterThan(passwordBox!.y+passwordBox!.height);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

@@ -3,7 +3,7 @@ import { expect, mockSupabase, test } from "./fixtures";
 test("auth typography uses the shared readable body font", async ({ page }) => {
   await mockSupabase(page, false);
   await page.goto("/login");
-  const body = page.getByText("Masuk menggunakan email dan kata sandi atau akun Google.", {exact:true});
+  const body = page.getByText("Lanjutkan perjalanan keuanganmu.", {exact:true});
   await expect(body).toBeVisible();
   expect(await body.evaluate(element=>getComputedStyle(element).fontFamily)).toContain("Manrope");
 });
@@ -14,7 +14,7 @@ test("login controls remain reachable in a short desktop viewport", async ({ pag
   await page.goto("/login");
 
   const brand = page.getByRole("link", { name: "FinTrack beranda", exact: true });
-  const card = page.getByRole("region", { name: "Selamat datang kembali", exact: true });
+  const card = page.getByRole("region", { name: "Masuk ke FinTrack", exact: true });
   const submit = page.getByRole("button", { name: "Masuk ke FinTrack", exact: true });
   const privacyNote = page.getByText("Hanya kamu yang dapat mengakses catatan keuanganmu.", { exact: true });
 

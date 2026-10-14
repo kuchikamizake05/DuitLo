@@ -16,7 +16,7 @@ test.describe("authentication boundary @critical", () => {
       await mockSupabase(page, false);
       await page.goto(route);
       await expect(page).toHaveURL(new RegExp(`/login\\?next=${encodeURIComponent(route)}`));
-      await expect(page.getByRole("heading", { name: "Selamat datang kembali" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Masuk ke FinTrack" })).toBeVisible();
     });
   }
 

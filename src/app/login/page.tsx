@@ -187,14 +187,14 @@ export default function LoginPage() {
 
   const busy = loading !== null;
   const isUpdate = mode === "update-password";
-  const title = t(isUpdate ? "Buat kata sandi baru" : mode === "reset" ? "Pulihkan kata sandi" : mode === "signup" ? "Buat akun FinTrack" : "Selamat datang kembali");
+  const title = t(isUpdate ? "Buat kata sandi baru" : mode === "reset" ? "Pulihkan kata sandi" : mode === "signup" ? "Buat akun FinTrack" : "Masuk ke FinTrack");
   const description = isUpdate
     ? "Gunakan minimal 8 karakter untuk melindungi akunmu."
     : mode === "reset"
       ? "Kami akan mengirim tautan pemulihan ke emailmu."
       : mode === "signup"
         ? "Daftar dengan email atau gunakan akun Google."
-        : "Masuk menggunakan email dan kata sandi atau akun Google.";
+        : "Lanjutkan perjalanan keuanganmu.";
 
   if(welcome)return <AuthWelcome onLogin={()=>{setWelcome(false);changeMode("login");}} onSignup={()=>{setWelcome(false);changeMode("signup");}}/>;
   return <AuthShell titleId="login-title" onBack={()=>{if(busy)return;if(mode!=="login")changeMode("login");else setWelcome(true);}} footer={!isUpdate && mode !== "reset" ? (

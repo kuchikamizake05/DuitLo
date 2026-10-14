@@ -10,7 +10,7 @@ async function lockedDevice(page: import("@playwright/test").Page,theme:"light"|
 for(const theme of ["light","dark"] as const){
  test(`normal login follows the ${theme} application palette`,async({page},info)=>{
   await mockSupabase(page,false);await page.addInitScript(value=>localStorage.setItem("fintrack-theme",value),theme);await page.goto("/login");
-  const card=page.getByRole("region",{name:"Selamat datang kembali",exact:true});await expect(card).toBeVisible();
+  const card=page.getByRole("region",{name:"Masuk ke FinTrack",exact:true});await expect(card).toBeVisible();
   await expect(card).toHaveCSS("background-color","rgba(0, 0, 0, 0)");
   await expect(page.getByLabel("Alamat email")).toHaveCSS("background-color",theme==="dark"?"rgb(28, 29, 32)":"rgb(238, 245, 240)");
   await expect(page.getByLabel("Alamat email")).toHaveCSS("border-top-width","0px");
