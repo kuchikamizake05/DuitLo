@@ -13,7 +13,7 @@ test("serves security and service-worker headers @critical", async ({ request })
 
 test("ships valid PNG install icons", async ({ request }) => {
   for (const size of [192, 512]) {
-    const response = await request.get(`/icons/icon-${size}.png`);
+    const response = await request.get(`/icons/fintrack-v2/icon-${size}.png`);
     expect(response.ok()).toBe(true);
     expect(response.headers()["content-type"]).toContain("image/png");
     const bytes = new Uint8Array(await response.body());
@@ -28,8 +28,8 @@ test("serves a complete install manifest", async ({ request }) => {
   expect(manifest.display).toBe("standalone");
   expect(manifest.theme_color).toBe("#f4fbf6");
   expect(manifest.icons).toEqual(expect.arrayContaining([
-    expect.objectContaining({ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }),
-    expect.objectContaining({ src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" }),
+    expect.objectContaining({ src: "/icons/fintrack-v2/icon-192.png", sizes: "192x192", type: "image/png" }),
+    expect.objectContaining({ src: "/icons/fintrack-v2/icon-512.png", sizes: "512x512", type: "image/png" }),
   ]));
 });
 

@@ -14,14 +14,14 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "any",
     categories: ["finance", "productivity"],
     icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icons/fintrack-v2/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/fintrack-v2/icon-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+      { src: "/icons/fintrack-v2/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/fintrack-v2/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: "Buka transaksi", short_name: "Transaksi", url: "/transactions", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
-      { name: "Lihat dashboard", short_name: "Dashboard", url: "/dashboard", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
+      { name: "Buka transaksi", short_name: "Transaksi", url: "/transactions", icons: [{ src: "/icons/fintrack-v2/icon-192.png", sizes: "192x192" }] },
+      { name: "Lihat dashboard", short_name: "Dashboard", url: "/dashboard", icons: [{ src: "/icons/fintrack-v2/icon-192.png", sizes: "192x192" }] },
     ],
     share_target: {
       action: "/shared-receipt-intake",

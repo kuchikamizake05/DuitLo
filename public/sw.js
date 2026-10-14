@@ -1,10 +1,10 @@
-const STATIC_CACHE = "fintrack-static-v8";
+const STATIC_CACHE = "fintrack-static-v9";
 const SHARE_CACHE = "fintrack-shared-receipts-v1";
 const PRECACHE_URLS = [
   "/offline",
   "/manifest.webmanifest",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
+  "/icons/fintrack-v2/icon-192.png",
+  "/icons/fintrack-v2/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
