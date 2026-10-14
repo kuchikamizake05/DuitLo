@@ -1,16 +1,21 @@
-"use client";
-import { ArrowDownLeft, ArrowUpRight, ChartNoAxesCombined, Coffee, LayoutDashboard, PiggyBank, ShoppingBag, Target, Wallet } from "lucide-react";
+import Image from "next/image";
 import styles from "./landing.module.css";
-export type PreviewTab = "overview" | "activity" | "goals";
-export default function AppPreview({ tab = "overview", english = false }: { tab?: PreviewTab; english?: boolean }) {
-  const c = (id: string, en: string) => english ? en : id;
-  const rows = [{ icon: Coffee, name: c("Kopi sore", "Afternoon coffee"), category: c("Makanan", "Food"), amount: "−Rp28.000", color: "amber" }, { icon: Wallet, name: c("Gaji bulanan", "Monthly salary"), category: c("Pemasukan", "Income"), amount: "+Rp8.500.000", color: "green" }, { icon: ShoppingBag, name: c("Belanja mingguan", "Weekly groceries"), category: c("Belanja", "Shopping"), amount: "−Rp245.000", color: "purple" }];
-  return <div className={styles.appWindow} aria-label={c("Preview FinTrack dengan data ilustrasi", "FinTrack preview with illustrative data")}>
-    <div className={styles.windowBar} aria-hidden="true"><span><i /><i /><i /></span><span>FinTrack</span><span>↗</span></div>
-    <div className={styles.appBody}><aside className={styles.appSidebar} aria-hidden="true"><b>FinTrack<span>personal space</span></b>{[[LayoutDashboard, c("Beranda", "Home")], [Wallet, c("Dompet", "Wallets")], [ChartNoAxesCombined, c("Aktivitas", "Activity")], [Target, c("Target", "Goals")]].map(([Icon, label], i) => { const Component = Icon as typeof Wallet; return <div key={String(label)} data-active={i === (tab === "activity" ? 2 : tab === "goals" ? 3 : 0)}><Component size={16} />{String(label)}</div>; })}<small>{c("Sedikit lebih teratur, setiap hari.", "A little more organized, every day.")}</small></aside>
-      <div className={styles.appContent}><div className={styles.appHeading}><div><span>{c("Halo, teman!", "Hello, friend!")}</span><h3>{c(tab === "goals" ? "Satu langkah lebih dekat." : tab === "activity" ? "Setiap transaksi, tercatat." : "Hari ini terasa lebih jelas.", tab === "goals" ? "One step closer." : tab === "activity" ? "Every transaction, together." : "A little more clarity today.")}</h3></div><span className={styles.avatar}>F</span></div>
-        <div className={styles.balanceCards}><div className={styles.netBalance}><span>{c("Saldo bersih", "Net balance")}</span><strong>Rp24.860.000</strong><small>{c("Semua dompet, satu pandangan", "All wallets, one clear picture")}</small></div><div><span><ArrowDownLeft size={16} />{c("Pemasukan", "Income")}</span><strong>Rp8.500.000</strong><small>{c("Bulan ini", "This month")}</small></div><div><span><ArrowUpRight size={16} />{c("Pengeluaran", "Expenses")}</span><strong>Rp3.740.500</strong><small>{c("Masih dalam anggaran", "Within your budget")}</small></div></div>
-        {tab === "goals" ? <div className={styles.goalCards}>{[[c("Dana darurat", "Emergency fund"), "78%", "Rp15.600.000 / Rp20.000.000", PiggyBank], [c("Laptop baru", "New laptop"), "62%", "Rp6.200.000 / Rp10.000.000", Target]].map(([title, progress, amount, Icon]) => { const Component = Icon as typeof Wallet; return <div key={String(title)}><Component size={28} /><h4>{String(title)}</h4><strong>{String(progress)}</strong><div className={styles.progress}><i style={{ width: String(progress) }} /></div><small>{String(amount)}</small></div>; })}</div> : <div className={styles.appPanels}><div className={styles.chartPanel}><div className={styles.panelHeading}><h4>{c("Arus kas", "Cash flow")}</h4><span>{c("Oktober", "October")}</span></div><div className={styles.bars} aria-hidden="true">{[28, 47, 34, 62, 51, 78, 66, 90, 75, 98].map((height, i) => <div key={i}><i style={{ height: `${height}%` }} /><i style={{ height: `${height * .55}%` }} /></div>)}</div><div className={styles.chartLegend}><span><i />{c("Pemasukan", "Income")}</span><span><i />{c("Pengeluaran", "Expenses")}</span></div></div><div className={styles.transactionPanel}><div className={styles.panelHeading}><h4>{c("Aktivitas terbaru", "Recent activity")}</h4></div>{rows.map(row => <div className={styles.transaction} key={row.name}><span data-color={row.color}><row.icon size={18} /></span><div><b>{row.name}</b><small>{row.category}</small></div><strong data-income={row.color === "green"}>{row.amount}</strong></div>)}</div></div>}
-        <div className={styles.previewFoot}>{c("Data ilustrasi · Bukan saldo rekening nyata", "Illustrative data · Not real account balances")}</div>
-      </div></div></div>;
+export type PreviewTab = "overview" | "wallets" | "activity" | "transactions" | "reports" | "goals";
+const labels: Record<PreviewTab, [string, string]> = {
+  goals: ["Target tabungan", "Savings goal"],
+  overview: ["Beranda", "Home"], wallets: ["Dompet", "Wallets"],
+  activity: ["Kalender aktivitas", "Activity calendar"],
+  transactions: ["Daftar transaksi", "Transaction list"], reports: ["Laporan", "Reports"],
+};
+export default function AppPreview({ tab = "overview", english = false, hero = false }: { tab?: PreviewTab; english?: boolean; hero?: boolean }) {
+  const phone = (screen: PreviewTab, secondary = false) => <Image key={screen}
+    src={`/images/landing/${screen}.webp`}
+    alt={`${labels[screen][english ? 1 : 0]} — FinTrack ${english ? "in light mode" : "dalam mode light"}`}
+    width={708} height={1442}
+    sizes={hero ? "(max-width: 600px) 270px, 330px" : "(max-width: 600px) 280px, 320px"}
+    preload={hero && !secondary}
+    className={secondary ? styles.secondaryPhone : styles.primaryPhone} />;
+  return <div className={hero ? styles.phonePair : styles.phoneShowcase}>
+    {hero && phone("wallets", true)}{phone(tab)}
+  </div>;
 }
