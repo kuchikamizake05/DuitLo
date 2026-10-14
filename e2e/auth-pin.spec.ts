@@ -14,7 +14,11 @@ for(const theme of ["light","dark"] as const){
   await expect(card).toHaveCSS("background-color","rgba(0, 0, 0, 0)");
   await expect(page.getByLabel("Alamat email")).toHaveCSS("background-color",theme==="dark"?"rgb(28, 29, 32)":"rgb(238, 245, 240)");
   await expect(page.getByLabel("Alamat email")).toHaveCSS("border-top-width","0px");
-  await expect(page.getByRole("button",{name:"Masuk ke FinTrack",exact:true})).toHaveCSS("background-color",theme==="dark"?"rgb(168, 196, 252)":"rgb(197, 236, 210)");
+  await expect(page.getByRole("button",{name:"Masuk dengan Google",exact:true})).toHaveCSS("background-color",theme==="dark"?"rgb(39, 40, 45)":"rgb(238, 245, 240)");
+  await expect(page.getByRole("button",{name:"Masuk ke FinTrack",exact:true})).toHaveCSS("background-color",theme==="dark"?"rgb(168, 196, 252)":"rgb(21, 128, 61)");
+  const primary=page.getByRole("button",{name:"Masuk ke FinTrack",exact:true});
+  const tokens=await page.evaluate(()=>{const root=getComputedStyle(document.documentElement);return {background:root.getPropertyValue("--create-bg").trim(),foreground:root.getPropertyValue("--create-fg").trim()};});
+  expect(await primary.evaluate((button,tokens)=>{const reference=document.createElement("button");reference.style.backgroundColor=tokens.background;reference.style.color=tokens.foreground;document.body.append(reference);const actual=getComputedStyle(button),expected=getComputedStyle(reference);const matches=actual.backgroundColor===expected.backgroundColor&&actual.color===expected.color;reference.remove();return matches;},tokens)).toBe(true);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:`.frontend/auth-login-${theme}-${info.project.name}.png`,fullPage:true});
  });

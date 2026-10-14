@@ -311,6 +311,7 @@ main :is(input, textarea, select) { caret-color: var(--brand-primary); }
 :root {
   --canvas:#f4fbf6;
   --canvas-soft:#eef5f0;
+  --field-surface:#eef5f0;
   --surface:#fff;
   --surface-muted:#eef5f0;
   --surface-raised:#fff;
@@ -336,6 +337,7 @@ html.dark {
   color-scheme:dark;
   --canvas:#111214;
   --canvas-soft:#17191e;
+  --field-surface:#1c1d20;
   --surface:#202024;
   --surface-muted:#27282d;
   --surface-raised:#202024;
