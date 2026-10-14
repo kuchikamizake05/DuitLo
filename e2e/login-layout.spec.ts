@@ -15,7 +15,7 @@ test("login controls remain reachable in a short desktop viewport", async ({ pag
 
   const brand = page.getByRole("link", { name: "FinTrack beranda", exact: true });
   const card = page.getByRole("region", { name: "Masuk ke FinTrack", exact: true });
-  const submit = page.getByRole("button", { name: "Masuk ke FinTrack", exact: true });
+  const submit = page.getByRole("button", { name: "Masuk", exact: true });
   const privacyNote = page.getByText("Hanya kamu yang dapat mengakses catatan keuanganmu.", { exact: true });
 
   await expect(brand).toBeVisible();

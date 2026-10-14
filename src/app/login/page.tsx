@@ -221,7 +221,7 @@ export default function LoginPage() {
             {mode === "login"&&<button type="button" disabled={busy} onClick={()=>changeMode("reset")} className={styles.forgot}>{t("Lupa kata sandi?")}</button>}
             <button type="submit" disabled={busy || !isSupabaseConfigured || (!isUpdate && !email)} className={styles.primary}>
               {busy && loading !== "oauth" ? <Loader2 className="h-4.5 w-4.5 animate-spin" /> : isUpdate ? <KeyRound className="h-4.5 w-4.5" /> : null}
-              {loading && loading !== "oauth" ? t("Memproses...") : isUpdate ? t("Simpan kata sandi baru") : mode === "reset" ? t("Kirim tautan pemulihan") : mode === "signup" ? t("Buat akun") : <span>{t("Masuk ke FinTrack")}</span>}
+              {loading && loading !== "oauth" ? t("Memproses...") : isUpdate ? t("Simpan kata sandi baru") : mode === "reset" ? t("Kirim tautan pemulihan") : mode === "signup" ? t("Buat akun") : <span>{t("Masuk")}</span>}
             </button>
           </form>
 

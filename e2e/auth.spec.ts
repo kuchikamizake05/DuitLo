@@ -34,7 +34,7 @@ test.describe("password and Google login @critical", () => {
     const email = page.getByLabel("Alamat email");
     await email.fill("bukan-email");
     await page.getByLabel("Kata sandi", { exact: true }).fill("rahasia123");
-    await page.getByRole("button", { name: "Masuk ke FinTrack" }).click();
+    await page.getByRole("button", { name: "Masuk" }).click();
     expect(await email.evaluate((element: HTMLInputElement) => element.checkValidity())).toBe(false);
     await expect(page).toHaveURL(/\/login$/);
   });
@@ -68,7 +68,7 @@ test.describe("password and Google login @critical", () => {
     });
     await page.getByLabel("Alamat email").fill("qa@fintrack.local");
     await page.getByLabel("Kata sandi", { exact: true }).fill("rahasia123");
-    await page.getByRole("button", { name: "Masuk ke FinTrack" }).click();
+    await page.getByRole("button", { name: "Masuk" }).click();
     await expect(page).toHaveURL(/\/transactions$/);
   });
 
