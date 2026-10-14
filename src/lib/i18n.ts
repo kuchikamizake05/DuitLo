@@ -8,7 +8,7 @@ export const LANGUAGE_STORAGE_KEY = "fintrack-language";
 const englishTranslations: Record<string, string> = {
   "Masukkan email": "Enter your email",
   "Masukkan kata sandi": "Enter your password",
-  "Masuk": "Sign in",
+  "Ulangi kata sandi": "Re-enter your password",
   "Lanjutkan perjalanan keuanganmu.": "Continue your financial journey.",
   "Hai, Selamat Datang!": "Hi, welcome!",
   "Kelola keuanganmu dengan lebih tenang.": "Manage your finances with peace of mind.",
