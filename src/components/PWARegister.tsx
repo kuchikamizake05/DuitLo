@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {DialogFrame} from "@/components/ui/DialogFrame";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Download, RefreshCw, WifiOff, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -25,8 +26,24 @@ export default function PWARegister() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstall, setShowInstall] = useState(false);
+  const [installHelp,setInstallHelp]=useState(false);
+  const [installRequested,setInstallRequested]=useState(false);
+  const installPromptRef=useRef<BeforeInstallPromptEvent|null>(null);
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
   const reloadOnControllerChangeRef = useRef(false);
+
+  const installApp=useCallback(async()=>{
+    const prompt=installPromptRef.current;
+    if(!prompt){setInstallHelp(true);return;}
+    installPromptRef.current=null;
+    setInstallPrompt(null);
+    setShowInstall(false);
+    try{
+      await prompt.prompt();
+      const choice=await prompt.userChoice;
+      if(choice.outcome==="accepted")setInstallRequested(true);
+    }catch(error){reportHandledError("PWA installation prompt failed",error,"Permintaan instalasi belum dapat dibuka.");setInstallHelp(true);}
+  },[]);
 
   useEffect(() => {
     const handleInstallPrompt = (event: Event) => {
@@ -39,12 +56,16 @@ export default function PWARegister() {
         dismissedAt: window.localStorage.getItem(installDismissedKey),
         now: Date.now(),
       });
+      installPromptRef.current=promptEvent;
+      setInstallPrompt(promptEvent);
       if (state === "eligible") {
-        setInstallPrompt(promptEvent);
         setShowInstall(true);
       }
     };
+    const handleManualInstall=()=>{void installApp();};
     const handleAppInstalled = () => {
+      installPromptRef.current=null;
+      setInstallRequested(false);
       setInstallPrompt(null);
       setShowInstall(false);
       window.localStorage.removeItem(installDismissedKey);
@@ -55,6 +76,7 @@ export default function PWARegister() {
       window.location.reload();
     };
 
+    window.addEventListener("fintrack:request-install",handleManualInstall);
     window.addEventListener("beforeinstallprompt", handleInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
     navigator.serviceWorker?.addEventListener("controllerchange", handleControllerChange);
@@ -92,19 +114,12 @@ export default function PWARegister() {
     }
 
     return () => {
+      window.removeEventListener("fintrack:request-install",handleManualInstall);
       window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
       navigator.serviceWorker?.removeEventListener("controllerchange", handleControllerChange);
     };
-  }, []);
-
-  async function installApp() {
-    if (!installPrompt) return;
-    await installPrompt.prompt();
-    await installPrompt.userChoice;
-    setInstallPrompt(null);
-    setShowInstall(false);
-  }
+  }, [installApp]);
 
   function dismissInstall() {
     window.localStorage.setItem(installDismissedKey, String(Date.now()));
@@ -120,6 +135,8 @@ export default function PWARegister() {
 
   return (
     <div className="pointer-events-none fixed inset-x-4 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[90] mx-auto flex max-w-md flex-col gap-2 md:bottom-6" aria-live="polite" aria-atomic="true">
+      {installHelp&&<DialogFrame className="pointer-events-auto" titleId="install-help-title" onClose={()=>setInstallHelp(false)}><div className="p-5 text-[var(--ink)]"><h2 id="install-help-title" className="text-lg font-semibold">{t("Pasang FinTrack")}</h2><p className="mt-3 text-sm text-[var(--ink-soft)]">{t("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama.")}</p><p className="mt-2 text-sm text-[var(--ink-soft)]">{t("Di iPhone atau iPad, buka menu Bagikan lalu Tambahkan ke Layar Utama.")}</p><Button className="mt-5 w-full" onClick={()=>setInstallHelp(false)}>{t("Mengerti")}</Button></div></DialogFrame>}
+      {installRequested&&<StatusCard icon={Download} title={t("Permintaan instalasi diterima")} description={t("Browser sedang menyiapkan aplikasi. Periksa layar utama atau notifikasi perangkat.")} action={<Button variant="ghost" size="icon" onClick={()=>setInstallRequested(false)} aria-label={t("Tutup")}><X className="size-4"/></Button>}/>}
       {!online && (
         <StatusCard icon={WifiOff} title={t("Kamu sedang offline")} description={t("Data yang sudah terbuka tetap bisa dibaca. Perubahan baru menunggu koneksi kembali.")} />
       )}

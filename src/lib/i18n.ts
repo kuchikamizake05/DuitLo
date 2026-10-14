@@ -6,6 +6,10 @@ export const DEFAULT_LANGUAGE: Language = "id";
 export const LANGUAGE_STORAGE_KEY = "fintrack-language";
 
 const englishTranslations: Record<string, string> = {
+  "Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama.": "Open your browser menu and choose Install app or Add to home screen.",
+  "Di iPhone atau iPad, buka menu Bagikan lalu Tambahkan ke Layar Utama.": "On iPhone or iPad, open the Share menu and choose Add to Home Screen.",
+  "Permintaan instalasi diterima": "Installation request accepted",
+  "Browser sedang menyiapkan aplikasi. Periksa layar utama atau notifikasi perangkat.": "Your browser is preparing the app. Check your home screen or device notifications.",
   "Lupa PIN?": "Forgot PIN?",
   "Login kembali": "Sign in again",
   "Masukkan email": "Enter your email",

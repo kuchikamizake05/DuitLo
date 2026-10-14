@@ -1,0 +1,25 @@
+import {test,expect,mockSupabase} from "./fixtures";
+test("manual install works after automatic prompt dismissal",async({page})=>{
+ await mockSupabase(page,true);
+ await page.addInitScript(()=>localStorage.setItem("fintrack-install-dismissed-at",String(Date.now())));
+ await page.goto("/settings");
+ await expect(page.getByRole("heading",{name:"Pengaturan",exact:true})).toBeVisible();
+ await page.evaluate(()=>{
+  Reflect.set(window,"installPromptCalls",0);
+  const event=Object.assign(new Event("beforeinstallprompt",{cancelable:true}),{prompt:async()=>Reflect.set(window,"installPromptCalls",Number(Reflect.get(window,"installPromptCalls"))+1),userChoice:Promise.resolve({outcome:"accepted",platform:"web"})});
+  window.dispatchEvent(event);
+ });
+ await expect(page.getByRole("button",{name:"Pasang",exact:true})).toHaveCount(0);
+ await page.getByRole("button",{name:"Pasang FinTrack",exact:true}).click();
+ expect(await page.evaluate(()=>Reflect.get(window,"installPromptCalls"))).toBe(1);
+ await expect(page.getByText("Permintaan instalasi diterima",{exact:true})).toBeVisible();
+});
+test("manual install explains browser installation when unavailable",async({page})=>{
+ await mockSupabase(page,true);await page.goto("/settings");
+ await expect(page.getByRole("heading",{name:"Pengaturan",exact:true})).toBeVisible();
+ await page.getByRole("button",{name:"Pasang FinTrack",exact:true}).click();
+ const dialog=page.getByRole("dialog",{name:"Pasang FinTrack",exact:true});
+ await expect(dialog).toBeVisible();
+ await expect(dialog.getByText("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama.",{exact:true})).toBeVisible();
+ await dialog.getByRole("button",{name:"Mengerti",exact:true}).click();await expect(dialog).toHaveCount(0);
+});
