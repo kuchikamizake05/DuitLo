@@ -143,3 +143,7 @@ venv/
 
 !.frontend/logo-library/icons/
 !.frontend/logo-library/icons/**
+
+# Public PWA icons must not match the macOS Icon? rule.
+!/public/icons/
+!/public/icons/**
