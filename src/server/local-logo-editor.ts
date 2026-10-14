@@ -9,7 +9,7 @@ export function allowLocalLogoRequest(request:Request,mutation=false){
   if(host)url.host=host;
   return localLogoEditorEnabled()&&["localhost","127.0.0.1","[::1]"].includes(url.hostname)&&(!mutation||(request.headers.get("origin")===url.origin&&request.headers.get("content-type")?.split(";")[0]==="application/json"));
 }
-const library=()=>path.join(process.cwd(),".frontend","logo-library");
+const library=()=>path.join(process.cwd(),"assets","logo-library");
 const overridesPath=()=>path.join(process.cwd(),"src","lib","institution-logo-overrides.json");
 export type LogoOverrides=Record<string,LogoSelection&{src:string;approvedAt:string}>;
 export async function readLogoLibrary():Promise<LogoVariant[]>{return JSON.parse(await readFile(path.join(library(),"catalog.json"),"utf8"));}

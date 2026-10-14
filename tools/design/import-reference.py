@@ -3,9 +3,18 @@ from pathlib import Path
 from bs4 import BeautifulSoup, Tag, NavigableString, Comment
 import json, re, tinycss2
 
-ROOT = Path('C:/Users/ASUS/.codex/visualizations/2026/10/08/01a11c02-a255-7fa3-a9c5-ea48a4d95d5c')
-OUT = Path('src/components/reference')
-ASSETS = json.loads(Path('.frontend/reference-assets.json').read_text(encoding='utf8'))
+import argparse
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--source-dir', type=Path, required=True, help='Directory containing the approved HTML references')
+args = parser.parse_args()
+ROOT = args.source_dir.resolve()
+if not ROOT.is_dir():
+    parser.error('The reference source directory does not exist')
+REPO = Path(__file__).resolve().parents[2]
+METADATA = REPO / 'tools/design/reference'
+OUT = REPO / 'src/components/reference'
+ASSETS = json.loads((METADATA / 'reference-assets.json').read_text(encoding='utf8'))
 ASSETS = {key: ('/brand/fintrack-logo-inverted.png' if value == '/reference-assets/960b972e9660fdde.png' else value) for key, value in ASSETS.items()}
 VOID = {'input', 'img', 'br', 'hr', 'meta', 'link', 'area', 'source', 'wbr', 'col'}
 ATTRS = {'stroke-dasharray':'strokeDasharray','stroke-dashoffset':'strokeDashoffset','stroke-opacity':'strokeOpacity','fill-opacity':'fillOpacity','clip-path':'clipPath','class':'className', 'for':'htmlFor', 'tabindex':'tabIndex', 'viewbox':'viewBox', 'stroke-width':'strokeWidth', 'stroke-linecap':'strokeLinecap', 'stroke-linejoin':'strokeLinejoin', 'fill-rule':'fillRule', 'clip-rule':'clipRule', 'maxlength':'maxLength', 'readonly':'readOnly', 'inputmode':'inputMode', 'colspan':'colSpan', 'rowspan':'rowSpan', 'autocomplete':'autoComplete', 'preserveaspectratio':'preserveAspectRatio', 'strokedasharray':'strokeDasharray', 'strokedashoffset':'strokeDashoffset', 'pathlength':'pathLength', 'gradientunits':'gradientUnits', 'gradienttransform':'gradientTransform', 'stop-color':'stopColor', 'stop-opacity':'stopOpacity'}
@@ -123,7 +132,7 @@ for source in sorted(ROOT.glob('*-reference.html')):
         path=source if theme=='light' else ROOT/'fintrack-dark'/source.name
         soup=BeautifulSoup(path.read_text(encoding='utf8'),'html.parser')
         body_classes[theme]=classes(soup.body.get('class',[]))
-        config=json.loads(Path('.frontend/reference-configs.json').read_text())[key][theme]
+        config=json.loads((METADATA / 'reference-configs.json').read_text())[key][theme]
         colors.update(config.get('colors',{}))
         css.append('.ft-reference[data-page='+q(key)+'][data-theme='+q(theme)+']{'+''.join('--ref-'+name+':'+value+';' for name,value in config.get('colors',{}).items())+'}')
         for st in soup.find_all('style'): css.append(scope_css(st.get_text(),'.ft-reference[data-page='+q(key)+'][data-theme='+q(theme)+']'))
@@ -204,7 +213,7 @@ for source in sorted(ROOT.glob('*-reference.html')):
     OUT.joinpath(key+'.tsx').write_text(image_lint+'/* Generated JSX from the approved HTML. Native images preserve source sizing. */\n/* eslint-disable @typescript-eslint/no-unused-vars */\nimport Link from "next/link";\nimport {ProfileAvatar} from "@/components/ProfileAvatar";\nimport type {ReferenceApi,ReferenceTemplateInput} from "./runtime";\nexport const templates={'+',\n'.join(variants)+'};\nexport default function SourceTemplate({theme,part,api}:ReferenceTemplateInput){const render=(templates[theme] as Record<string,(api:ReferenceApi)=>React.ReactNode>)[part];return render?render(api):null;}\n',encoding='utf8')
     layouts[key]={'bodyClass':body_classes,'mainClass':classes(main.get('class',[])),'containerClass':classes(container.get('class',[])),'sectionCount':len(sections)}
 
-Path('.frontend/reference-node-map.json').write_text(json.dumps(maps,ensure_ascii=False,indent=2),encoding='utf8')
+(METADATA / 'reference-node-map.json').write_text(json.dumps(maps,ensure_ascii=False,indent=2),encoding='utf8')
 OUT.joinpath('layouts.json').write_text(json.dumps(layouts,indent=2),encoding='utf8')
 OUT.joinpath('templates.ts').write_text('import dynamic from "next/dynamic";\nexport const referenceTemplates={'+','.join(q(key)+':dynamic(()=>import("./'+key+'"))' for key in layouts)+'};\n',encoding='utf8')
 

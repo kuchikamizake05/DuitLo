@@ -2,7 +2,7 @@ param([switch]$Execute,[switch]$Push)
 $ErrorActionPreference='Stop'
 function Invoke-FinTrackCommits {
  param([switch]$Apply,[switch]$Publish)
- $repoRoot=Split-Path $PSScriptRoot -Parent
+ $repoRoot=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
  Push-Location $repoRoot
  $oldAuthorDate=$env:GIT_AUTHOR_DATE
  $oldCommitterDate=$env:GIT_COMMITTER_DATE

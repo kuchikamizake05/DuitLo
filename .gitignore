@@ -134,15 +134,12 @@ venv/
 
 /.next-e2e/
 
-# Local migration workspace: only source metadata and immutable logo library are shared
-.frontend/*
-!.frontend/convert-reference.py
-!.frontend/reference-*.json
-!.frontend/sources.md
-!.frontend/logo-library/
+# Local design diagnostics and experiments
+/.frontend/
 
-!.frontend/logo-library/icons/
-!.frontend/logo-library/icons/**
+# Licensed source icons must not match the macOS Icon? rule.
+!/assets/logo-library/icons/
+!/assets/logo-library/icons/**
 
 # Public PWA icons must not match the macOS Icon? rule.
 !/public/icons/

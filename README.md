@@ -468,8 +468,10 @@ Financial data, credentials, receipts, local exports, and private automation sta
 - `supabase/`: database migrations and local configuration.
 - `worker/`: Go worker for monthly reports.
 - `n8n/`: integration workflow templates.
-- `scripts/`: demo data and the historical October commit helper.
+- `scripts/`: demo data utilities; historical commit helpers are in `scripts/git/`.
 - `docs/`: architecture, operational guidance, and feature documentation.
-- `design-preview/` and `.frontend/`: design references and the licensed logo library used by the local logo editor.
+- `assets/logo-library/`: licensed source logos and catalog used by the local logo editor.
+- `tools/design/`: prototype import tooling, reference metadata, and standalone preview.
+- `.frontend/`: ignored local screenshots, diagnostics, and temporary experiments.
 
 Use pnpm for application dependencies. Commit `pnpm-lock.yaml`; do not recreate `package-lock.json`. Dependabot uses its `npm` ecosystem identifier for pnpm projects too. Build output, test reports, local logs, environment secrets, and editor state are ignored.
