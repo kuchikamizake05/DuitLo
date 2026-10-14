@@ -23,7 +23,7 @@ export function buildSecurityHeaders({ environment, supabaseUrl }: {
     "default-src 'self'",
     `script-src ${scriptSources.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob: ${getSupabaseConnectSources(supabaseUrl).filter(source => source.startsWith("http")).map(source => `${source}/storage/v1/object/sign/profile-photos/`).join(" ")}`.trim(),
     "font-src 'self' data:",
     `connect-src ${connectSources.join(" ")}`,
     "worker-src 'self' blob:",

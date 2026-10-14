@@ -30,6 +30,7 @@ describe("buildSecurityHeaders", () => {
     expect(headers["Content-Security-Policy"]).toContain("frame-ancestors 'none'");
     expect(headers["Content-Security-Policy"]).toContain("https://project.supabase.co");
     expect(headers["Content-Security-Policy"]).toContain("https://api.frankfurter.dev");
+    expect(headers["Content-Security-Policy"]).toContain("img-src 'self' data: blob: https://project.supabase.co/storage/v1/object/sign/profile-photos/");
   });
 
   it("omits HSTS outside production", () => {
