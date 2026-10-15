@@ -1063,6 +1063,7 @@ body:has(.ft-reference)::-webkit-scrollbar{display:none}@media print{.ft-referen
 .ft-reference[data-page="catat"] :is([data-reference-node="catat.82"],[data-reference-node="catat.88"],[data-reference-node="catat.93"]){font-family:var(--font-manrope),sans-serif!important;font-size:13px!important;line-height:20px!important;font-weight:500!important;text-transform:none!important;letter-spacing:normal!important;color:var(--ref-on-surface-variant)!important;}
 
 .ft-reference[data-page="catat"]{--transaction-input-bg:#eef5f0;}
+.ft-reference[data-page="catat"][data-theme="light"] :is([data-reference-node="catat.37"],[data-reference-node="catat.54"],[data-reference-node="catat.70"],[data-reference-node="catat.84"],[data-reference-node="catat.90"],[data-reference-node="catat.95"]){background:#fff!important;border:1px solid #e4ece7!important;border-radius:24px!important;box-shadow:0 5px 14px rgba(18,53,36,.14),0 2px 4px rgba(18,53,36,.08)!important;}
 .ft-reference[data-page="catat"][data-theme="dark"]{--transaction-input-bg:#191a1d;}
 .ft-reference[data-page="catat"] :is([data-reference-node="catat.84"],[data-reference-node="catat.90"],[data-reference-node="catat.95"]){background:var(--transaction-input-bg)!important;}
 .ft-reference[data-page="catat"] :is([data-reference-node="catat.33"],[data-reference-node="catat.50"],[data-reference-node="catat.66"]) .material-symbols-outlined{display:none!important;}
