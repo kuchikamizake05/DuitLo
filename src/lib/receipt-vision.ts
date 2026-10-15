@@ -5,7 +5,12 @@ const datePattern = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/;
 const jwtPattern = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
 
 export const receiptExtractionSchema = z.strictObject({
-  date: z.string().regex(datePattern, "Format tanggal harus YYYY-MM-DD").nullable(),
+  date: z.string().regex(datePattern, "Format tanggal harus YYYY-MM-DD").refine(value => {
+    const [year,month,day]=value.split("-").map(Number);
+    const leapYear=year%4===0&&(year%100!==0||year%400===0);
+    const days=[31,leapYear?29:28,31,30,31,30,31,31,30,31,30,31];
+    return day>=1&&day<=days[month-1];
+  }, "Tanggal transaksi tidak valid.").nullable(),
   merchant: z.string().trim().min(1).max(120).nullable(),
   amount: z.number().finite().positive().max(1_000_000_000_000).nullable(),
   categoryHint: z.string().trim().min(1).max(80).nullable(),

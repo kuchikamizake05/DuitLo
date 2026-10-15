@@ -5,6 +5,17 @@ export const logoSelectionSchema=z.object({
   crop:z.object({x:z.number().min(0).max(.98),y:z.number().min(0).max(.98),width:z.number().min(.02).max(1),height:z.number().min(.02).max(1)}),
 }).refine(value=>value.crop.x+value.crop.width<=1.000001&&value.crop.y+value.crop.height<=1.000001,{message:"Crop keluar dari batas SVG."});
 export type LogoSelection=z.infer<typeof logoSelectionSchema>;
+export function updateLogoCropPercent(crop:LogoSelection["crop"],field:keyof LogoSelection["crop"],input:string):LogoSelection["crop"] {
+  if (!input.trim()) return crop;
+  const percent=Number(input);
+  if (!Number.isFinite(percent)) return crop;
+  const next={...crop,[field]:percent/100};
+  next.x=Math.max(0,Math.min(.98,next.x));
+  next.y=Math.max(0,Math.min(.98,next.y));
+  next.width=Math.max(.02,Math.min(1-next.x,next.width));
+  next.height=Math.max(.02,Math.min(1-next.y,next.height));
+  return next;
+}
 export type LogoVariant={slug:string;name:string;category:string;viewBox:number[];aliases?:string[]};
 export const defaultLogoSelection=(institution:string,variant:string):LogoSelection=>({institution,variant,background:"#ffffff",zoom:1,panX:0,panY:0,padding:.1,crop:{x:0,y:0,width:1,height:1}});
 export function buildLogoSvg(source:string,box:number[],selection:LogoSelection){
