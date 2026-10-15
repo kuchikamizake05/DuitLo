@@ -1,5 +1,5 @@
 "use client";
-import {createContext,useContext,useEffect,useRef,useState,type ReactNode} from "react";
+import {createContext,useCallback,useContext,useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import type {User} from "@supabase/supabase-js";
 import {supabase} from "@/infrastructure/supabase/browser-client";
 import {AVATAR_BUCKET,compressProfilePhoto,ownedAvatarPath,type PhotoCrop} from "@/lib/profile-photo";
@@ -31,7 +31,7 @@ export function ProfilePhotoProvider({children}:{children:ReactNode}) {
     const timer=window.setInterval(()=>{if(live)void refresh(identity.current);},60*60*1000);
     return()=>{live=false;subscription.unsubscribe();window.clearInterval(timer);};
   },[]);
-  async function upload(file:File,crop?:PhotoCrop){
+  const upload=useCallback(async (file:File,crop?:PhotoCrop)=>{
     if(locked.current)return false;
     locked.current=true;setBusy(true);setError(null);
     let uploaded:string|null=null;
@@ -56,8 +56,8 @@ export function ProfilePhotoProvider({children}:{children:ReactNode}) {
       setError(caught instanceof Error?caught.message:"Foto belum dapat diunggah. Coba lagi.");
       return false;
     }finally{locked.current=false;setBusy(false);}
-  }
-  async function remove(){
+  },[]);
+  const remove=useCallback(async ()=>{
     if(locked.current)return;
     locked.current=true;setBusy(true);setError(null);
     try{
@@ -70,6 +70,8 @@ export function ProfilePhotoProvider({children}:{children:ReactNode}) {
       if(previous)await supabase.storage.from(AVATAR_BUCKET).remove([previous]);
     }catch(caught){setError(caught instanceof Error?caught.message:"Foto belum dapat disimpan. Coba lagi.");}
     finally{locked.current=false;setBusy(false);}
-  }
-  return <ProfilePhotoContext.Provider value={{url,busy,error,upload,remove,clearError:()=>setError(null)}}>{children}</ProfilePhotoContext.Provider>;
+  },[]);
+  const clearError=useCallback(()=>setError(null),[]);
+  const value=useMemo(()=>({url,busy,error,upload,remove,clearError}),[url,busy,error,upload,remove,clearError]);
+  return <ProfilePhotoContext.Provider value={value}>{children}</ProfilePhotoContext.Provider>;
 }

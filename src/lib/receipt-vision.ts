@@ -4,7 +4,7 @@ export { createRateLimiter as createReceiptRateLimiter } from "./rate-limit";
 const datePattern = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/;
 const jwtPattern = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
 
-export const receiptExtractionSchema = z.object({
+export const receiptExtractionSchema = z.strictObject({
   date: z.string().regex(datePattern, "Format tanggal harus YYYY-MM-DD").nullable(),
   merchant: z.string().trim().min(1).max(120).nullable(),
   amount: z.number().finite().positive().max(1_000_000_000_000).nullable(),
@@ -14,7 +14,7 @@ export const receiptExtractionSchema = z.object({
   note: z.string().trim().min(1).max(300).nullable(),
   rawText: z.string().trim().min(1).max(2_000).nullable(),
   confidence: z.number().finite().min(0).max(1).nullable(),
-}).strict().refine((data) => (
+}).refine((data) => (
   data.date !== null
   || data.merchant !== null
   || data.amount !== null

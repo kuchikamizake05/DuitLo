@@ -15,6 +15,16 @@ describe("cached date formatter", () => {
     expect(getDateFormatter("id-ID", { timeZone: "UTC" })).toBe(getDateFormatter("id-ID", { timeZone: "UTC" }));
     expect(getDateFormatter("id-ID", { timeZone: "UTC" })).not.toBe(getDateFormatter("id-ID", { timeZone: "Asia/Jakarta" }));
   });
+  it("keeps formatting correctly after the bounded cache fills", () => {
+    for (const locale of ["id-ID", "en-GB", "en-US", "fr-FR", "de-DE"]) {
+      for (const timeZone of ["UTC", "Asia/Jakarta", "Asia/Tokyo", "America/New_York", "Europe/London"]) {
+        for (const weekday of ["short", "long"] as const) {
+          for (const month of ["short", "long", "numeric"] as const) getDateFormatter(locale, { timeZone, weekday, month });
+        }
+      }
+    }
+    expect(getDateFormatter("id-ID", { timeZone: "Asia/Jakarta", day: "numeric" }).format(new Date("2026-10-14T18:00:00Z"))).toBe("15");
+  });
 });
 
 describe("cached number formatter",()=>{

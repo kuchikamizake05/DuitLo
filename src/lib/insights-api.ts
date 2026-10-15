@@ -169,7 +169,8 @@ export function parseGroqInsightResponse(value: unknown, allowedCandidateIds: re
     const content = (value as { choices?: Array<{ message?: { content?: unknown } }> }).choices?.[0]?.message?.content;
     if (typeof content !== "string") throw new Error("missing content");
     const parsed = generatedInsightSchema.parse(JSON.parse(content));
-    if (parsed.actions.some((action) => !allowedCandidateIds.includes(action.candidateId))) throw new Error("unknown action");
+    const allowedIds = new Set(allowedCandidateIds);
+    if (parsed.actions.some((action) => !allowedIds.has(action.candidateId))) throw new Error("unknown action");
     return parsed;
   } catch {
     throw new Error("Invalid Groq response");

@@ -1,5 +1,5 @@
 "use client";
-import {getNumberFormatter} from "@/lib/intl";
+import {getNumberFormatter,getDateFormatter} from "@/lib/intl";
 
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
@@ -202,7 +202,7 @@ export default function ReportsPage() {
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary">{formatPeriod(report.period_start, locale)}</p>
                         <h3 className="mt-1 text-lg font-bold text-on-surface">{t("Ringkasan {period}", { period: formatPeriod(report.period_start, locale) })}</h3>
-                        <p className="mt-1 text-xs text-on-surface-variant">{t("Dibuat {date}", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(report.generated_at)) })}</p>
+                        <p className="mt-1 text-xs text-on-surface-variant">{t("Dibuat {date}", { date: getDateFormatter(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(report.generated_at)) })}</p>
                       </div>
                       <Button variant="secondary" size="compact" loading={openingReportId === report.id} disabled={openingReportId !== null} onClick={() => void downloadReport(report)}>
                         <Symbol className="text-[20px] h-4 w-4">download</Symbol> {t("Unduh CSV")}
@@ -240,7 +240,7 @@ export default function ReportsPage() {
 }
 
 function formatPeriod(value: string, locale: string) {
-  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${value.slice(0, 10)}T00:00:00Z`));
+  return getDateFormatter(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${value.slice(0, 10)}T00:00:00Z`));
 }
 
 function formatMoney(value: number, currency: string, locale: string) {

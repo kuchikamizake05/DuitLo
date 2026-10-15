@@ -1,5 +1,9 @@
-import { expect, mockSupabase, test } from "./fixtures";
+import { expect, mockSupabase, test, user } from "./fixtures";
 import { JOURNEY_MISSIONS, type JourneyState } from "../src/lib/journey";
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(userId => localStorage.setItem(`fintrack:menu-guide:${userId}:mode`, "paused"), user.id);
+});
 
 const streak = (current = 0, completedToday = false) => ({
   current,

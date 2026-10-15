@@ -28,6 +28,7 @@ async function fulfillRows(route: Route, rows: unknown[]) {
 }
 
 async function mockReportsPage(page: Page) {
+  await page.addInitScript(userId => localStorage.setItem(`fintrack:menu-guide:${userId}:mode`, "paused"), user.id);
   let schedule = { is_active: false, enabled_from_period: null as string | null };
   const scheduleWrites: Array<{ user_id: string; is_active: boolean; enabled_from_period: string | null }> = [];
   let signedRequests = 0;
