@@ -1,6 +1,7 @@
 "use client";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import {createTransactionOnce,TransactionWriteConflict} from "@/lib/transaction-write";
+import {updateTransactionVersion,TransactionVersionConflict} from "@/lib/transaction-version";
 import {beginTransactionAttempt,finishTransactionAttempt,readTransactionAttempt} from "@/lib/transaction-attempt";
 import { useFinancialRefresh } from "@/components/reference/useFinancialRefresh";
 
@@ -523,8 +524,7 @@ export default function TransactionsPage() {
       }
 
       if(isEditMode){
-        const result=await supabase.from("transactions").update(onlinePayload).eq("id",selectedTx.id).eq("user_id",user.id);
-        if(result.error)throw result.error;
+        await updateTransactionVersion(supabase,{id:selectedTx.id,user_id:user.id,updated_at:selectedTx.updated_at},onlinePayload);
       }else{
         const attempt=beginTransactionAttempt(localStorage,"manual",{user_id:user.id,...onlinePayload});
         draftId.current=attempt.id;
@@ -539,7 +539,7 @@ export default function TransactionsPage() {
       showToast(isEditMode ? "Transaksi diperbarui." : "Transaksi disimpan.");
     } catch (error) {
       reportHandledError("Transaction save failed", error, "Transaksi belum berhasil disimpan.");
-      setFormError(t(error instanceof TransactionWriteConflict?error.message:"Transaksi belum berhasil disimpan. Coba lagi."));
+      setFormError(t(error instanceof TransactionWriteConflict||error instanceof TransactionVersionConflict?error.message:"Transaksi belum berhasil disimpan. Coba lagi."));
     } finally {
       saveLock.current=false;
       setSaving(false);
@@ -561,13 +561,14 @@ export default function TransactionsPage() {
     setApprovingId(approveTarget.id);
     setApproveError(null);
     try {
-      const { error } = await supabase.from("transactions").update({ status: "confirmed" }).eq("id", approveTarget.id);
-      if (error) throw error;
+      const {data:{user}}=await supabase.auth.getUser();
+      if(!user)throw new Error("Session unavailable");
+      await updateTransactionVersion(supabase,{id:approveTarget.id,user_id:user.id,updated_at:approveTarget.updated_at},{status:"confirmed"});
       setApproveTarget(null);
       await fetchTransactions();
     } catch (error) {
       reportHandledError("Transaction approval failed", error, "Transaksi belum berhasil disetujui.");
-      setApproveError("Transaksi belum berhasil disetujui. Coba lagi.");
+      setApproveError(t(error instanceof TransactionVersionConflict?error.message:"Transaksi belum berhasil disetujui. Coba lagi."));
     } finally {
       setApprovingId(null);
     }
@@ -603,14 +604,15 @@ export default function TransactionsPage() {
         await loadQueuedOperations(user.id);
         setQueueMessage("Penghapusan manual disimpan di perangkat dan menunggu sinkronisasi.");
       } else {
-        const { error } = await supabase.from("transactions").update({ status: "deleted" }).eq("id", transactionId);
-        if (error) throw error;
+        const {data:{user}}=await supabase.auth.getUser();
+        if(!user)throw new Error("Session unavailable");
+        await updateTransactionVersion(supabase,{id:transactionId,user_id:user.id,updated_at:deleteTarget.updated_at},{status:"deleted"});
         await fetchTransactions();
       }
       setDeleteTarget(null);
     } catch (error) {
       reportHandledError("Transaction delete failed", error, "Transaksi belum berhasil dihapus.");
-      setDeleteError("Transaksi belum berhasil dihapus. Coba lagi.");
+      setDeleteError(t(error instanceof TransactionVersionConflict?error.message:"Transaksi belum berhasil dihapus. Coba lagi."));
     } finally {
       setDeletingId(null);
     }
@@ -625,12 +627,14 @@ export default function TransactionsPage() {
 
     setRestoringId(transactionId);
     try {
-      const { error } = await supabase.from("transactions").update({ status: "confirmed" }).eq("id", transactionId);
-      if (error) throw error;
+      const {data:{user}}=await supabase.auth.getUser();
+      if(!user)throw new Error("Session unavailable");
+      const transaction=transactions.find(item=>item.id===transactionId);
+      await updateTransactionVersion(supabase,{id:transactionId,user_id:user.id,updated_at:transaction?.updated_at},{status:"confirmed"});
       await fetchTransactions();
     } catch (error) {
       reportHandledError("Transaction restore failed", error, "Transaksi belum berhasil dipulihkan.");
-      setPageError("Transaksi belum berhasil dipulihkan. Coba lagi.");
+      setPageError(t(error instanceof TransactionVersionConflict?error.message:"Transaksi belum berhasil dipulihkan. Coba lagi."));
     } finally {
       setRestoringId(null);
     }
