@@ -1,5 +1,21 @@
 import {describe,expect,it} from "vitest";
-import {getNumberFormatter} from "./intl";
+import {getNumberFormatter, getDateFormatter} from "./intl";
+
+describe("cached date formatter", () => {
+  it("preserves timezone and language around a date boundary", () => {
+    const date = new Date("2026-10-14T18:00:00Z");
+    for (const locale of ["id-ID", "en-GB"]) {
+      for (const timeZone of ["Asia/Jakarta", "UTC"]) {
+        const options = { weekday: "short", day: "numeric", month: "short", timeZone } as const;
+        expect(getDateFormatter(locale, options).format(date)).toBe(new Intl.DateTimeFormat(locale, options).format(date));
+      }
+    }
+  });
+  it("reuses matching configurations and separates timezones", () => {
+    expect(getDateFormatter("id-ID", { timeZone: "UTC" })).toBe(getDateFormatter("id-ID", { timeZone: "UTC" }));
+    expect(getDateFormatter("id-ID", { timeZone: "UTC" })).not.toBe(getDateFormatter("id-ID", { timeZone: "Asia/Jakarta" }));
+  });
+});
 
 describe("cached number formatter",()=>{
   it("preserves locale, currency, and precision",()=>{
