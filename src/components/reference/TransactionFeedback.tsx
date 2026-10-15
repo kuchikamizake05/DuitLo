@@ -1,4 +1,5 @@
 "use client";
+import {Check, ArrowRight, Plus, Wallet, Tag, CalendarDays, FileText} from "lucide-react";
 import {format} from "date-fns";
 import {id,enUS} from "date-fns/locale";
 import {ReferencePart,ReferenceRoot} from "./runtime";
@@ -8,7 +9,32 @@ import {useLanguage} from "@/components/LanguageProvider";
 import type {ReferenceTransactionForm} from "./TransactionEditor";
 export function TransactionResult({form,accountName,currency,edited=false,onClose,onAdd}:{form:ReferenceTransactionForm;accountName:string;currency:string;edited?:boolean;onClose:()=>void;onAdd:()=>void}){
  const {t,language}=useLanguage();const amount=new Intl.NumberFormat(language==="en"?"en-ID":"id-ID",{style:"currency",currency,maximumFractionDigits:currency==="IDR"?0:2}).format(Number(form.amount));
- return <ReferenceDialog page="hasil-transaksi" title={t("Hasil Transaksi")} onClose={onClose}><ReferencePart page="hasil-transaksi" values={{"Transaksi Berhasil Dicatat":t(edited?"Transaksi Berhasil Diperbarui":"Transaksi Berhasil Dicatat"),"Perubahan telah tersinkronisasi ke saldo dompet dan laporan arus kas.":t("Transaksi berhasil disimpan."),"Rp 250.000":amount,"Isi Bensin Pertamax":form.merchant||form.category,"BCA Utama":accountName,"Sisa Rp 14.250.000":"","Transportasi (Operasional)":form.category,"12 Okt 2026, 14:20 WIB":format(new Date(form.date),"d MMM yyyy",{locale:language==="en"?enUS:id}),"Kembali ke Beranda":t("Selesai")}} attributes={{"hasil-transaksi.20":{hidden:true},"hasil-transaksi.62":{hidden:true},"hasil-transaksi.15":{hidden:true},"hasil-transaksi.16":{hidden:true},"hasil-transaksi.17":{hidden:true}}} onAction={action=>{if(/Catat Transaksi Baru|pencatatan/.test(action))onAdd();else if(/Beranda|close|arrow_back|history.back/.test(action))onClose();}}/></ReferenceDialog>;
+ const details = [
+  {icon:FileText,label:language==="en"?"Description":"Keterangan",value:form.merchant||form.category},
+  {icon:Wallet,label:language==="en"?"Account":"Rekening",value:accountName},
+  {icon:Tag,label:language==="en"?"Category":"Kategori",value:form.category},
+  {icon:CalendarDays,label:language==="en"?"Date":"Tanggal",value:format(new Date(form.date),"d MMM yyyy",{locale:language==="en"?enUS:id})},
+ ];
+ return <ReferenceDialog page="hasil-transaksi" title={t("Hasil Transaksi")} onClose={onClose}>
+  <main className="mx-auto w-full max-w-md px-5 pb-8 pt-24">
+   <section className="rounded-[28px] bg-surface-container-lowest p-6 shadow-[0_8px_28px_rgba(18,53,36,.10)]" aria-labelledby="transaction-success-title">
+    <div role="status" className="text-center">
+     <span className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#d7f2e2] text-[#00652c]"><Check size={30} strokeWidth={2} aria-hidden="true"/></span>
+     <h1 id="transaction-success-title" className="text-xl font-bold leading-7 text-on-surface">{t(edited?"Transaksi Berhasil Diperbarui":"Transaksi Berhasil Dicatat")}</h1>
+     <p className="mt-2 text-sm leading-5 text-on-surface-variant">{t("Transaksi berhasil disimpan.")}</p>
+    </div>
+    <div className="mb-6 mt-7 border-b border-outline-variant/30 pb-6 text-center">
+     <p className="text-xs font-medium text-on-surface-variant">{language==="en"?"Transaction amount":"Nominal transaksi"}</p>
+     <p className="mt-2 break-words text-[32px] font-extrabold leading-tight tracking-tight text-primary">{amount}</p>
+    </div>
+    <dl className="space-y-4">{details.map(({icon:Icon,label,value})=><div key={label} className="flex items-start justify-between gap-5 text-sm"><dt className="flex shrink-0 items-center gap-2 text-on-surface-variant"><Icon size={16} aria-hidden="true"/>{label}</dt><dd className="min-w-0 break-words text-right font-semibold text-on-surface">{value}</dd></div>)}</dl>
+    <div className="mt-8 flex flex-col gap-3">
+     <button type="button" onClick={onClose} className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 font-bold text-on-primary">{t("Selesai")}<ArrowRight size={18} aria-hidden="true"/></button>
+     <button type="button" onClick={onAdd} className="flex min-h-12 items-center justify-center gap-2 rounded-full border border-outline-variant/40 bg-surface-container-lowest px-4 text-sm font-semibold text-primary"><Plus size={18} aria-hidden="true"/>{t("Catat Transaksi Baru")}</button>
+    </div>
+   </section>
+  </main>
+ </ReferenceDialog>;
 }
 export function TransactionDelete({transaction,accountName,currency,busy,error,onClose,onConfirm}:{transaction:{merchant:string|null;category:string;amount:number;type:"income"|"expense";date:string};accountName:string;currency:string;busy:boolean;error:string|null;onClose:()=>void;onConfirm:()=>void}){
  const {t,language}=useLanguage();const amount=new Intl.NumberFormat(language==="en"?"en-ID":"id-ID",{style:"currency",currency,maximumFractionDigits:currency==="IDR"?0:2}).format(Number(transaction.amount));

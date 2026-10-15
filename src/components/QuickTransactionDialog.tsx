@@ -61,6 +61,7 @@ export function QuickTransactionDialog({ onClose,initialText="" }: { onClose: ()
       setError(t("Lengkapi akun, nominal, dan kategori terlebih dahulu."));
       return;
     }
+    if (!form.note.trim()) { setError(t("Keterangan transaksi wajib diisi.")); return; }
     setSaving(true);
     setError(null);
     try {
@@ -79,6 +80,7 @@ export function QuickTransactionDialog({ onClose,initialText="" }: { onClose: ()
         status: "confirmed",
       });
       if (insertError) throw insertError;
+      window.dispatchEvent(new Event("fintrack:setup-data-saved"));
       setResultOpen(true);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t("Transaksi belum berhasil disimpan. Coba lagi."));
