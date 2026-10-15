@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "./EmptyState";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ReferencePart } from "./runtime";
@@ -20,7 +21,7 @@ export function WalletView({ accounts, onAdd, onTransfer, onDetail }: { accounts
   const [hidden, setHidden] = useState<Record<string, boolean>>({});
   const [filter, setFilter] = useState("all");
   const active = accounts.filter(account => account.is_active);
-  const kind = (account: AccountOverviewRecord) => /tunai|cash/i.test(`${account.name} ${account.institution}`) ? "cash" : account.kind;
+  const kind = (account: AccountOverviewRecord) => (account.kind==="bank" && !account.institution || /tunai|cash/i.test(`${account.name} ${account.institution}`)) ? "cash" : account.kind;
   const filtered = active.filter(account => filter === "all" || kind(account) === filter);
   const assets = active.filter(account => account.kind !== "liability" && account.includeInNetWorth!==false);
   const available = assets.every(account => account.currency === "IDR" || account.reporting_balance_idr != null);
@@ -35,7 +36,8 @@ export function WalletView({ accounts, onAdd, onTransfer, onDetail }: { accounts
   const rows = <section className="flex flex-col gap-3">{filtered.length ? filtered.map(account=><ReferencePart key={account.id} page="dompet" part="account-row" values={{"Bank BCA":account.name,"Utama":"","Rekening Giro / Payroll":account.institution??t(getAccountKindLabel(account.kind)),"Rp 14.500.000":money(account),"Tersinkron":t("Aktif"),"icon:account_balance":<InstitutionLogo name={account.institution||account.name} kind={kind(account)} className="h-11 w-11"/>,"icon:sync":"check_circle"}}
     attributes={{"dompet.107":{className:"w-11 h-11 flex items-center justify-center shrink-0"},"dompet.105":{role:"button",tabIndex:0,onClick:()=>onDetail(account),onKeyDown:(event:React.KeyboardEvent)=>{if(event.key==="Enter")onDetail(account);}}}}/>) : <p className="p-4 rounded-[32px] bg-surface-container-lowest text-body-md text-on-surface-variant">{t(accounts.length?"Tidak ada akun dalam kelompok ini":"Mulai dari dompet pertamamu")}</p>}</section>;
   const filterAttributes = Object.fromEntries(["all","bank","ewallet","cash"].map((value,index)=>[`dompet.${100+index}`,{"aria-pressed":filter===value,className:`shrink-0 px-4 py-1.5 rounded-full text-label-md font-semibold ${filter===value?"bg-secondary-container text-on-secondary-container":"bg-surface-container-lowest text-on-surface-variant"}`} ]));
+  if (!active.length) return <main id="main-content" tabIndex={-1} className="px-margin pt-20 pb-28 space-y-5"><div><h1 className="text-headline-lg font-bold text-on-surface">{t("Dompet")}</h1><p className="mt-2 text-body-sm text-on-surface-variant">{t("Kelola rekening dan saldo di satu tempat.")}</p></div><EmptyState icon="account_balance_wallet" title="Mulai dari dompet pertamamu" description="Tambahkan rekening bank, e-wallet, atau uang tunai beserta saldo awalnya. Setelah itu, kamu bisa mulai mencatat transaksi." action="Tambah Dompet" onAction={onAdd}/></main>;
   return <ReferencePart page="dompet" values={{"Total Saldo Semua Akun":t(active.some(account=>account.includeInNetWorth===false)?"Saldo dalam perhitungan":"Total Saldo Semua Akun"),"icon:add":<span style={{fontSize:20,fontWeight:700,fontVariationSettings:'"wght" 700',WebkitTextStroke:"0.6px currentColor",color:theme==="dark"?"#16417d":"#ffffff"}}>add</span>,"Rp 42.357.852":total,"Sembunyikan":t(visible?"Sembunyikan":"Tampilkan"),"icon:visibility":visible?"visibility":"visibility_off","10 Terdaftar":`${active.length} ${t("Terdaftar")}`,"Semua (10)":`${t("Semua")} (${active.length})`,"Bank (4)":`Bank (${active.filter(account=>account.kind==="bank").length})`,"E-Wallet (4)":`E-Wallet (${active.filter(account=>account.kind==="ewallet").length})`,"Tunai (2)":`${t("Tunai")} (${active.filter(account=>kind(account)==="cash").length})`}}
-    slots={{"wallet-cards":cards,"section-5":rows}} attributes={filterAttributes}
+    slots={{"wallet-cards":cards,"section-5":rows}} attributes={{...filterAttributes}}
     onAction={action=>{if(action==="toggle-privacy-btn")setVisible(!visible);else if(/Transfer Saldo/.test(action))onTransfer();else if(/Tambah Akun|tambah-akun/.test(action))onAdd();else if(/Kelola Limit/.test(action))router.push("/planning");else if(action.startsWith("Semua"))setFilter("all");else if(action.startsWith("Bank ("))setFilter("bank");else if(action.startsWith("E-Wallet"))setFilter("ewallet");else if(action.startsWith("Tunai"))setFilter("cash");}}/>;
 }

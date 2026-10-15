@@ -78,6 +78,7 @@ const kindIcon = {
 const emptyAccountForm = {
   name: "",
   institution: "",
+  isCash: false,
   kind: "bank" as FinancialAccountKind,
   currency: "IDR",
   currentBalance: "0",
@@ -248,6 +249,7 @@ export default function AccountsPage() {
       includeInNetWorth:account.includeInNetWorth!==false,
       name: account.name,
       institution: account.institution ?? "",
+      isCash: account.kind==="bank" && !account.institution,
       kind: account.kind,
       currency: account.currency,
       currentBalance: String(account.current_balance),
@@ -388,7 +390,7 @@ export default function AccountsPage() {
       setFormError(t(offlineWriteMessage));
       return;
     }
-    const submission = {...accountForm,name:accountForm.name.trim()||accountForm.institution.trim()};
+    const submission = {...accountForm,name:accountForm.name.trim()||accountForm.institution.trim()||(accountForm.isCash?"Tunai":"")};
     const validation = validateAccountForm(submission);
     if (!validation.valid) {
       setFormErrors(validation.errors as Record<string, string>);
@@ -400,7 +402,7 @@ export default function AccountsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Sesi login tidak ditemukan.");
       const reportingBalanceIdr = accountForm.reportingBalanceIdr.trim() ? Number(accountForm.reportingBalanceIdr) : null;
-      const identity = { name: submission.name, institution: accountForm.institution.trim() || null };
+      const identity = { name: submission.name, institution: accountForm.isCash ? null : accountForm.institution.trim() || null };
       const { data: savedAccount, error } = editingAccount
         ? await supabase.from("financial_accounts").update(identity).eq("id", editingAccount.id).eq("user_id", user.id).select("id").single()
         : await supabase.from("financial_accounts").insert({
@@ -417,6 +419,7 @@ export default function AccountsPage() {
       setEditingAccount(null);
       setAccountForm(emptyAccountForm);
       await loadAccounts();
+      window.dispatchEvent(new Event("fintrack:setup-data-saved"));
       window.setTimeout(() => lastTriggerRef.current?.focus(), 0);
     } catch (error) {
       reportHandledError("Account save failed", error, "Akun belum berhasil disimpan.");
@@ -542,10 +545,10 @@ export default function AccountsPage() {
   return (
     <ReferenceRoot page="dompet">
       <Navbar />
-      {pageError&&<div role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</div>}{loading?<main className="pt-20 px-margin"><AccountsSkeleton/></main>:<WalletView accounts={accounts} onAdd={openAccountDialog} onTransfer={openTransferDialog} onDetail={openEditAccountDialog}/>}
+      {pageError&&<div role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</div>}{loading?<main className="pt-20 px-margin"><AccountsSkeleton/></main>:!pageError&&<WalletView accounts={accounts} onAdd={openAccountDialog} onTransfer={openTransferDialog} onDetail={openEditAccountDialog}/>}
 
 
-      {activeDialog === "account" && <AccountEditor form={accountForm} setForm={form=>setAccountForm({...form,cardColor:form.cardColor??"green",includeInNetWorth:form.includeInNetWorth!==false})} editing={Boolean(editingAccount)} account={editingAccount} busy={saving} error={formError??(Object.values(formErrors).join(" ")||null)} onClose={closeDialog} onSave={saveAccount} onDelete={editingAccount?()=>openAccountDeleteDialog(editingAccount):undefined} onTransfer={openTransferDialog} onAdjust={editingAccount?()=>openBalanceDialog(editingAccount):undefined}/>}
+      {activeDialog === "account" && <AccountEditor form={accountForm} setForm={form=>setAccountForm({...form,cardColor:form.cardColor??"green",includeInNetWorth:form.includeInNetWorth!==false,isCash:form.isCash??false})} editing={Boolean(editingAccount)} account={editingAccount} busy={saving} error={formError??(Object.values(formErrors).join(" ")||null)} onClose={closeDialog} onSave={saveAccount} onDelete={editingAccount?()=>openAccountDeleteDialog(editingAccount):undefined} onTransfer={openTransferDialog} onAdjust={editingAccount?()=>openBalanceDialog(editingAccount):undefined}/>}
       {accountToToggle && (
         <ConfirmDialog
           titleId="account-lifecycle-title"
