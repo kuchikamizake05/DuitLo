@@ -39,27 +39,27 @@ begin
 
   insert into public.transactions(id,user_id,account_id,amount,type,status,source,note)
   values(transaction_id,owner_id,source_id,100,'expense','confirmed','manual','RLS rollback fixture');
-  if (select current_balance from public.financial_accounts where id=source_id)<>900 then raise exception 'Transaction insert balance failed'; end if;
+  if (select current_balance from public.financial_accounts where id=source_id) is distinct from 900 then raise exception 'Transaction insert balance failed'; end if;
   update public.transactions set amount=150 where id=transaction_id;
-  if (select current_balance from public.financial_accounts where id=source_id)<>850 then raise exception 'Transaction update balance failed'; end if;
+  if (select current_balance from public.financial_accounts where id=source_id) is distinct from 850 then raise exception 'Transaction update balance failed'; end if;
   delete from public.transactions where id=transaction_id;
-  if (select current_balance from public.financial_accounts where id=source_id)<>1000 then raise exception 'Transaction delete balance failed'; end if;
+  if (select current_balance from public.financial_accounts where id=source_id) is distinct from 1000 then raise exception 'Transaction delete balance failed'; end if;
 
   insert into public.account_transfers(id,user_id,source_account_id,destination_account_id,amount,destination_amount,currency,destination_currency)
   values(transfer_id,owner_id,source_id,destination_id,100,100,'IDR','IDR');
-  if (select current_balance from public.financial_accounts where id=source_id)<>900
-     or (select current_balance from public.financial_accounts where id=destination_id)<>100 then raise exception 'Transfer insert balance failed'; end if;
+  if (select current_balance from public.financial_accounts where id=source_id) is distinct from 900
+     or (select current_balance from public.financial_accounts where id=destination_id) is distinct from 100 then raise exception 'Transfer insert balance failed'; end if;
   update public.account_transfers set amount=150,destination_amount=150 where id=transfer_id;
-  if (select current_balance from public.financial_accounts where id=source_id)<>850
-     or (select current_balance from public.financial_accounts where id=destination_id)<>150 then raise exception 'Transfer update balance failed'; end if;
+  if (select current_balance from public.financial_accounts where id=source_id) is distinct from 850
+     or (select current_balance from public.financial_accounts where id=destination_id) is distinct from 150 then raise exception 'Transfer update balance failed'; end if;
   delete from public.account_transfers where id=transfer_id;
-  if (select current_balance from public.financial_accounts where id=source_id)<>1000
-     or (select current_balance from public.financial_accounts where id=destination_id)<>0 then raise exception 'Transfer delete balance failed'; end if;
+  if (select current_balance from public.financial_accounts where id=source_id) is distinct from 1000
+     or (select current_balance from public.financial_accounts where id=destination_id) is distinct from 0 then raise exception 'Transfer delete balance failed'; end if;
 
   perform public.deposit_to_financial_goal(request_id,goal_id,source_id,100);
   perform public.deposit_to_financial_goal(request_id,goal_id,source_id,100);
-  if (select current_balance from public.financial_accounts where id=source_id)<>900
-     or (select current_amount from public.financial_goals where id=goal_id)<>100 then raise exception 'Goal deposit or idempotency failed'; end if;
+  if (select current_balance from public.financial_accounts where id=source_id) is distinct from 900
+     or (select current_amount from public.financial_goals where id=goal_id) is distinct from 100 then raise exception 'Goal deposit or idempotency failed'; end if;
 
   reset role;
   perform set_config('request.jwt.claim.sub',outsider_id::text,true);
