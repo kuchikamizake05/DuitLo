@@ -121,9 +121,9 @@ describe("onboarding redirects", () => {
     expect(resolveOnboardingDestination({ pathname: "/accounts", eligibility: "legacy-active" })).toBeNull();
   });
 
-  it("moves ineligible users away from the onboarding route", () => {
-    expect(resolveOnboardingDestination({ pathname: "/onboarding", eligibility: "legacy-active" })).toBe("/dashboard");
-    expect(resolveOnboardingDestination({ pathname: "/onboarding", eligibility: "completed" })).toBe("/dashboard");
+  it("allows existing and completed users to replay the feature introduction", () => {
+    expect(resolveOnboardingDestination({ pathname: "/onboarding", eligibility: "legacy-active" })).toBeNull();
+    expect(resolveOnboardingDestination({ pathname: "/onboarding", eligibility: "completed" })).toBeNull();
     expect(resolveOnboardingDestination({ pathname: "/onboarding", eligibility: "onboarding-active" })).toBeNull();
   });
 });

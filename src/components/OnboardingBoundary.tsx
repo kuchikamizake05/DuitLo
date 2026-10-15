@@ -117,8 +117,14 @@ export default function OnboardingBoundary({ children }: { children: React.React
 
   useEffect(() => {
     if (!protectedRoute) return;
-    const timer = window.setTimeout(() => void loadEligibility(), 0);
-    return () => window.clearTimeout(timer);
+    let timer = window.setTimeout(() => void loadEligibility(), 0);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT") return;
+      setSnapshot(null);
+      window.clearTimeout(timer);
+      if (event === "SIGNED_IN") timer = window.setTimeout(() => void loadEligibility(), 0);
+    });
+    return () => { window.clearTimeout(timer); subscription.unsubscribe(); };
   }, [loadEligibility, protectedRoute]);
 
   const saveProgress = useCallback((progress: OnboardingProgress) => {
@@ -150,11 +156,8 @@ export default function OnboardingBoundary({ children }: { children: React.React
   }, [destination, router]);
 
   if (!protectedRoute) return children;
-  if (pathname === "/onboarding") {
-    if (error) return <OnboardingGateError message={error} onRetry={() => void loadEligibility()} />;
-    if (!contextValue || destination) return <ApplicationLoading />;
-  }
-  if (destination) return <ApplicationLoading />;
+  if (error) return <OnboardingGateError message={error} onRetry={() => void loadEligibility()} />;
+  if (!contextValue || destination) return <ApplicationLoading />;
 
   return <OnboardingContext.Provider value={contextValue}>{children}</OnboardingContext.Provider>;
 }

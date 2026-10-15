@@ -99,7 +99,7 @@ export function resolveOnboardingDestination({ pathname, eligibility }: {
   eligibility: OnboardingEligibility;
 }) {
   if (pathname === "/onboarding") {
-    return eligibility === "legacy-active" || eligibility === "completed" ? "/dashboard" : null;
+    return null;
   }
   return eligibility === "onboarding-required" || eligibility === "onboarding-active" ? "/onboarding" : null;
 }

@@ -1,28 +1,65 @@
-.page { min-height: 100svh; background: #fff; color: #123524; }
-.main { max-width: 1040px; margin: auto; padding: 4px 20px 24px; }
-.panel { width: 100%; max-width: 520px; margin: auto; }
-.panel h1 { font-size: 28px; line-height: 1.15; font-weight: 800; letter-spacing: -.045em; }
-.panel > p, .panel > form > p { text-align: center; }
-.panel h1 { text-align: center; }
-.panel input, .panel select, .panel textarea { background: #f7f9f7; border-color: #e5ebe7; border-radius: 14px; }
-.panel form > div:last-child > button:last-child { flex: 1; }
-.art { position: relative; height: 120px; width: 230px; margin: 4px auto 16px; isolation: isolate; }
-.art::before { content: ''; position: absolute; inset: 12px 16px; background: #eaf6e9; border-radius: 48% 52% 40% 60%; transform: rotate(-9deg); z-index: -1; }
-.wallet { position: absolute; inset: 16px 42px 8px; border-radius: 22px; background: #173e2b; box-shadow: 0 14px 24px #173e2b20; transform: rotate(-8deg); color: #d0f4b0; display: grid; place-items: center; }
-.wallet svg { width: 54px; height: 54px; stroke-width: 1.4; }
-.receipt { position: absolute; right: 10px; top: 0; width: 70px; height: 86px; background: #fff; border: 1px solid #e3ece5; border-radius: 14px; transform: rotate(12deg); box-shadow: 0 8px 20px #12352412; padding: 10px 12px; }
-.receipt span { display: block; height: 5px; background: #dbe9df; margin: 9px 0; border-radius: 4px; }
-.receipt span:first-child { background: #91b376; width: 55%; }
-.coin { position: absolute; left: 16px; bottom: 6px; display: grid; place-items: center; height: 56px; width: 56px; border-radius: 50%; background: #d7efa4; border: 5px solid #ecf6d4; color: #456b2f; transform: rotate(-16deg); }
-.progress { display: flex; justify-content: center; align-items: center; gap: 7px; margin: 0 auto 14px; }
-.dot { width: 7px; height: 7px; border-radius: 9px; background: #dce6df; }
-.current { width: 28px; background: #277043; }
-.complete { background: #8ab996; }
-.aside { display: none; }
-@media (min-width: 900px) {
-  .page { background: #f5f8f3; }
-  .main { display: grid; grid-template-columns: 300px 1fr; gap: 72px; align-items: center; padding-top: 28px; }
-  .aside { display: block; }
-  .panel { padding: 32px; background: white; border-radius: 28px; box-shadow: 0 18px 70px #173e2b08; max-width: 580px; }
-}
-@media (max-height: 740px) and (max-width: 899px) { .art { height: 100px; margin-bottom: 12px; } .wallet { inset-block: 10px 4px; } }
+.introPage {min-height:100svh;background:#cde9d8;color:#161d1a;}
+.introHeader {max-width:440px;margin:auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.introHeaderActions {display:flex;align-items:center;gap:8px;}
+.introBrand {display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800;color:#123524;}
+.introMain {width:100%;max-width:480px;min-height:calc(100svh - 76px);margin:0 auto;display:flex;flex-direction:column;align-items:center;}
+.introCard {order:2;flex:1;width:100%;min-height:350px;margin-top:52px;padding:20px 28px 32px;display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:32px 32px 0 0;}
+.introCopy {order:3;text-align:center;width:100%;max-width:340px;}
+.introCopy h1 {font-size:27px;line-height:1.25;font-weight:800;letter-spacing:-.035em;margin:56px 0 12px;text-wrap:balance;}
+.introCopy p {font-size:14px;line-height:1.65;color:#59655e;text-wrap:pretty;}
+.introPreview,.introWelcome {order:1;position:relative;margin:0;width:calc(100% - 48px);height:clamp(260px,42svh,400px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.introPhone {height:calc(100% - 30px);width:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 12px 18px #12352416);}
+.introPreview figcaption {font-size:10px;line-height:1.4;text-align:center;color:#66746b;}
+.introWelcome {--intro-art-light:#f4f6ef;--intro-art-deep:#d4d8c9;}
+.introBackdrop {position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.introCharacters {position:relative;display:flex;align-items:flex-end;justify-content:center;width:100%;}
+.introCharacters img {width:56%;max-width:220px;height:auto;object-fit:contain;}
+.introCharacters img+img {margin-left:-12%;}
+.introCompanion {position:absolute;right:0;bottom:30px;width:88px;height:108px;object-fit:contain;pointer-events:none;}
+.introNavigation {display:contents;}
+.introDots {order:2;display:flex;align-items:center;justify-content:center;}
+.introProgress {order:0;width:48px;height:3px;background:#ffffff70;border-radius:3px;margin:4px 0 16px;overflow:hidden;flex-shrink:0;}
+.introProgress span {display:block;height:100%;background:#00652c;border-radius:3px;transition:width .2s;}
+.introDots button {width:32px;min-height:44px;display:grid;place-items:center;}
+.introDots span {width:10px;height:10px;border-radius:50%;background:#94aa9c;}
+.introDots button[aria-pressed="true"] span {background:#00652c;transform:scale(1.25);}
+.introActions {order:4;width:100%;max-width:340px;margin-top:auto;padding-top:28px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.introActions button {min-height:44px;padding:10px 8px;font-size:12px;font-weight:600;border-radius:24px;}
+.introActions .introSkip {min-height:48px;padding:12px 8px;font-size:18px;font-weight:700;color:#253e32;}
+.introBack {display:grid;place-items:center;width:44px;flex-shrink:0;color:#253e32;}
+.introActions .introNext {display:grid;place-items:center;width:56px;height:56px;padding:0;flex-shrink:0;border-radius:18px;background:#00652c;color:#fff;box-shadow:0 8px 16px #00652c20;}
+.introPage button:focus-visible {outline:2px solid #00652c;outline-offset:3px;}
+:global(.dark) .introPage {background:#14231c;color:#f1f2f4;}
+:global(.dark) .introCard {background:#202024;box-shadow:0 -6px 28px #0002;}
+:global(.dark) .introBrand {color:#f1f2f4;}
+:global(.dark) .introCopy p,:global(.dark) .introPreview figcaption,:global(.dark) .introBack,:global(.dark) .introSkip {color:#b2b6bf;}
+:global(.dark) .introWelcome {--intro-art-light:#14231c;--intro-art-deep:#425044;}
+:global(.dark) .introActions .introNext {background:#a8c4fc;color:#173456;}
+:global(.dark) .introDots button[aria-pressed="true"] span {background:#a8c4fc;}
+@media(min-width:900px){.introMain{min-height:700px;padding-bottom:24px;}.introCard{border-radius:32px;}.introPreview,.introWelcome{height:360px;}}
+@media(prefers-reduced-motion:reduce){.introProgress span{transition:none;}}
+@media(max-width:360px){.introCard{padding-inline:18px;}.introCopy h1{font-size:24px;}.introCompanion{width:70px;right:-4px;}}
+
+.introDuo {position:relative;width:100%;height:100%;object-fit:contain;}
+
+.introAmbient {position:absolute;width:calc(100% + 24px);height:calc(100% + 64px);top:-32px;left:-12px;pointer-events:none;opacity:.85;}
+
+.introPreview {width:100%;}
+.introPhone {height:100%;max-width:none;transform:scale(1.12);}
+
+.introPhoneFirst {transform:scale(.96);}
+.introPhoneSecond {transform:scale(1.22);}
+.introPhoneThird {transform:translateX(-14px) scale(1.12);}
+
+.introMockupPage {background:radial-gradient(ellipse at 52% 24%,#d8eddf 0%,#aacbb9 38%,#7eaa94 70%,#6c9983 100%);}
+.introMockupPage .introPreview,.introMockupPage .introWelcome {isolation:isolate;}
+.introMockupPage .introPreview::before {content:"";position:absolute;z-index:-1;inset:4% 6% 0;border-radius:50%;background:radial-gradient(ellipse,#f0faf0a3 0%,#d1e9d940 45%,transparent 72%);filter:blur(18px);pointer-events:none;}
+.introMockupPage .introPreview::after {content:"";position:absolute;z-index:-1;width:82%;height:86%;left:9%;top:2%;border:1px solid #ffffff30;border-radius:48%;transform:rotate(-24deg);box-shadow:24px 12px 0 -1px #ffffff09,-22px -14px 0 -1px #ffffff0c;pointer-events:none;}
+:global(.dark) .introMockupPage {background:radial-gradient(ellipse at 52% 24%,#375948 0%,#203b2d 45%,#10251a 100%);}
+:global(.dark) .introMockupPage .introPreview::before {background:radial-gradient(ellipse,#86b49d40 0%,#446e5520 45%,transparent 72%);}
+
+.introCopy h1 {color:#253e32;}
+.introTitleAccent {color:#00652c;}
+.introCopy p {color:#62736a;}
+:global(.dark) .introCopy h1 {color:#f0f4f1;}
+:global(.dark) .introTitleAccent {color:#a8c4fc;}
