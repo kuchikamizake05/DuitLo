@@ -9,6 +9,7 @@ const PROTECTED_ROUTE_PREFIXES = [
   "/planning",
   "/reports",
   "/settings",
+  "/shared-receipt",
   "/trading",
   "/transactions",
 ] as const;

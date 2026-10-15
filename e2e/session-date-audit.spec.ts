@@ -3,7 +3,10 @@ import {mockReference} from "./reference-fixtures";
 
 test("signing in from a shared receipt preserves the receipt destination",async({page})=>{
   await mockSupabase(page,false);
-  await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);
+  await page.addInitScript(userId=>{
+    localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused");
+    localStorage.setItem(`fintrack:onboarding:v1:${userId}`,JSON.stringify({version:1,userId,step:"summary",intent:"cash-flow",accountId:null,accountName:null,transactionId:null,completedAt:"2026-10-01T00:00:00Z",deferredUntil:null}));
+  },user.id);
   await page.goto("/login");
   await page.evaluate(async()=>{
     const cache=await caches.open("fintrack-shared-receipts-v1");
@@ -32,7 +35,7 @@ test("a new transaction opened after midnight uses the new local date",async({pa
 });
 
 test.describe("expired session",()=>{
-  test.use({allowedConsoleErrors:["the server responded with a status of 400"]});
+  test.use({allowedConsoleErrors:["the server responded with a status of 400","AuthApiError: Refresh token not found"]});
   test("a rejected refresh returns to login with the original query",async({page})=>{
     await mockReference(page,"light");
     await page.addInitScript(()=>{
