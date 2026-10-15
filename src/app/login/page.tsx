@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   Eye,
@@ -11,7 +11,6 @@ import {
   LockKeyhole,
   Mail,
 } from "lucide-react";
-import {AuthWelcome} from "@/components/AuthWelcome";
 import {AuthShell} from "@/components/AuthShell";
 import { useLanguage } from "@/components/LanguageProvider";
 import { sanitizeNextPath } from "@/lib/auth";
@@ -39,8 +38,6 @@ function getLocationState() {
 export default function LoginPage() {
   const { t } = useLanguage();
   const router = useRouter();
-  const searchParams=useSearchParams();
-  const [welcome,setWelcome]=useState(searchParams.get("welcome")==="1");
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -196,8 +193,7 @@ export default function LoginPage() {
         ? "Daftar dengan email atau gunakan akun Google."
         : "Lanjutkan perjalanan keuanganmu.";
 
-  if(welcome)return <AuthWelcome onLogin={()=>{setWelcome(false);changeMode("login");}} onSignup={()=>{setWelcome(false);changeMode("signup");}}/>;
-  return <AuthShell titleId="login-title" onBack={()=>{if(busy)return;if(mode!=="login")changeMode("login");else setWelcome(true);}} footer={!isUpdate && mode !== "reset" ? (
+  return <AuthShell titleId="login-title" onBack={()=>{if(busy)return;if(mode!=="login")changeMode("login");else router.push("/");}} footer={!isUpdate && mode !== "reset" ? (
             <p className="mt-6 text-center text-xs text-slate-500">
               {t(mode === "signup" ? "Sudah punya akun?" : "Belum punya akun?")} {" "}
               <button type="button" onClick={() => changeMode(mode === "signup" ? "login" : "signup")} disabled={busy} className="font-extrabold text-emerald-700 hover:text-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-50">

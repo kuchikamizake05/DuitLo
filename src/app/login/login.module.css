@@ -683,3 +683,36 @@
 :global(html:not(.dark)) .unlock .key,:global(html:not(.dark)) .unlock .accountHint {
   box-shadow: var(--shadow-control);
 }
+
+
+.account {background:radial-gradient(ellipse at 52% 24%,#d8eddf 0%,#aacbb9 38%,#7eaa94 70%,#6c9983 100%);}
+:global(html.dark) .account {background:radial-gradient(ellipse at 52% 24%,#375948 0%,#203b2d 45%,#10251a 100%);}
+
+:global(html:not(.dark)) .account input {
+  background:#fff;
+  border:1px solid #e4ece7;
+  border-radius:24px;
+  box-shadow:0 5px 14px rgba(18,53,36,.14),0 2px 4px rgba(18,53,36,.08);
+}
+:global(html.dark) .account input {
+  background:var(--field-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:24px;
+  box-shadow:0 5px 14px #0003,0 2px 4px #0002;
+}
+.account input:focus-visible {outline:2px solid var(--auth-link);outline-offset:3px;}
+
+:global(html:not(.dark)) .account .secondary {
+  background:#fff;
+  border:1px solid #e4ece7;
+  border-radius:24px;
+  box-shadow:0 5px 14px rgba(18,53,36,.14),0 2px 4px rgba(18,53,36,.08);
+}
+:global(html.dark) .account .secondary {
+  background:var(--field-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:24px;
+  box-shadow:0 5px 14px #0003,0 2px 4px #0002;
+}
+.account .secondary:hover:not(:disabled) {filter:brightness(.98);}
+.account .secondary:active:not(:disabled) {transform:translateY(1px);}
