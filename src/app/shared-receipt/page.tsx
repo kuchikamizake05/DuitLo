@@ -1,5 +1,7 @@
 "use client";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
+import {createTransactionOnce} from "@/lib/transaction-write";
+import {beginTransactionAttempt,finishTransactionAttempt,readTransactionAttempt} from "@/lib/transaction-attempt";
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -65,6 +67,7 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
   });
 
   const parsedRef = useRef(false);
+  const saveLock=useRef(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -118,6 +121,14 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
         const nextCategories = (categoriesResult.data ?? []).map((item) => item.name);
         setAccounts(nextAccounts);
         setCategories(nextCategories);
+
+        const pending=readTransactionAttempt(localStorage,user.id,`receipt:${shareId}`);
+        if(pending){
+          const p=pending.payload;
+          setForm({date:p.date,merchant:p.merchant??"",note:p.note??"",amount:String(p.amount),accountId:p.account_id,category:p.category});
+          setAiMetadata({rawText:p.raw_text??null,confidence:p.ai_confidence??null});
+          return;
+        }
 
         setForm((current) => ({
           ...current,
@@ -203,11 +214,12 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
+    if(saveLock.current||parsing)return;
     if (!canWriteOnline()) {
       setError(offlineWriteMessage);
       return;
     }
-    if (!form.accountId || !form.category || !Number(form.amount)) {
+    if (!form.accountId || !form.category || !Number.isFinite(Number(form.amount)) || Number(form.amount)<=0) {
       setError("Lengkapi akun, kategori, dan nominal.");
       return;
     }
@@ -218,6 +230,7 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
         return;
       }
     }
+    saveLock.current=true;
     setSaving(true);
     setError(null);
     try {
@@ -228,15 +241,13 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
 
       let receiptUrl: string | null = null;
       if (file) {
-        const path = `${user.id}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const { error: uploadError } = await supabase.storage
-          .from("receipts")
-          .upload(path, file, { contentType: file.type, upsert: false });
-        if (uploadError) throw uploadError;
+        const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(shareId??""));
+        const hash=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,"0")).join("");
+        const path = `${user.id}/shared-${hash}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
         receiptUrl = `receipts/${path}`;
       }
 
-      const { error: insertError } = await supabase.from("transactions").insert({
+      const attempt=beginTransactionAttempt(localStorage,`receipt:${shareId}`,{
         user_id: user.id,
         account_id: form.accountId,
         date: form.date,
@@ -251,8 +262,11 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
         raw_text: aiMetadata.rawText,
         ai_confidence: aiMetadata.confidence,
       });
-
-      if (insertError) throw insertError;
+      if(file&&receiptUrl){
+        const {error:uploadError}=await supabase.storage.from("receipts").upload(receiptUrl.slice("receipts/".length),file,{contentType:file.type,upsert:true});
+        if(uploadError)throw uploadError;
+      }
+      await createTransactionOnce(supabase,attempt.id,attempt.payload);
 
       if (shareId) {
         const cache = await caches.open(sharedCache);
@@ -262,10 +276,12 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
         ]);
       }
 
+      finishTransactionAttempt(localStorage,user.id,`receipt:${shareId}`,attempt.id);
       router.replace("/transactions");
-    } catch {
-      setError("Draft belum tersimpan. Coba lagi.");
+    } catch(cause) {
+      setError(cause instanceof Error?cause.message:"Draft belum tersimpan. Coba lagi.");
     } finally {
+      saveLock.current=false;
       setSaving(false);
     }
   }

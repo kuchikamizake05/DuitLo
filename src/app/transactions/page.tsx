@@ -1,6 +1,7 @@
 "use client";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import {createTransactionOnce,TransactionWriteConflict} from "@/lib/transaction-write";
+import {beginTransactionAttempt,finishTransactionAttempt,readTransactionAttempt} from "@/lib/transaction-attempt";
 import { useFinancialRefresh } from "@/components/reference/useFinancialRefresh";
 
 import { useLanguage } from "@/components/LanguageProvider";
@@ -397,13 +398,23 @@ export default function TransactionsPage() {
     draftId.current=null;
     setSelectedTx(null);
     const nextForm = createDefaultForm();
+    let recoveredScan=false;
     if (chosenDate) nextForm.date = chosenDate;
     nextForm.category = buildTransactionCategoryOptions(categories, "expense")[0] ?? "";
+    if(queueUserId){
+      try {
+        const pending=readTransactionAttempt(localStorage,queueUserId,"manual");
+        if(pending){const p=pending.payload;recoveredScan=p.status==="needs_review";Object.assign(nextForm,{date:p.date,type:p.type,merchant:p.merchant??"",note:p.note??"",category:p.category,amount:String(p.amount),accountId:p.account_id});}
+      } catch {
+        setFormError("Draft pemulihan tidak dapat dibuka. Periksa penyimpanan perangkat sebelum mencoba lagi.");
+        return;
+      }
+    }
     setForm(nextForm);
-    setScanDerived(false);
+    setScanDerived(recoveredScan);
     setFormError(null);
     setModalOpen(true);
-  }, [categories, chosenDate]);
+  }, [categories, chosenDate,queueUserId]);
 
   useEffect(() => {
     if (loading) return;
@@ -494,6 +505,7 @@ export default function TransactionsPage() {
       };
 
       if (offline) {
+        if(!selectedTx&&readTransactionAttempt(localStorage,user.id,"manual"))throw new TransactionWriteConflict();
         draftId.current??=crypto.randomUUID();
         const transactionId = selectedTx?.id ?? draftId.current;
         await queueTransactionOperation(createQueuedTransactionOperation({
@@ -514,8 +526,10 @@ export default function TransactionsPage() {
         const result=await supabase.from("transactions").update(onlinePayload).eq("id",selectedTx.id).eq("user_id",user.id);
         if(result.error)throw result.error;
       }else{
-        draftId.current??=crypto.randomUUID();
-        await createTransactionOnce(supabase,draftId.current,{user_id:user.id,...onlinePayload});
+        const attempt=beginTransactionAttempt(localStorage,"manual",{user_id:user.id,...onlinePayload});
+        draftId.current=attempt.id;
+        await createTransactionOnce(supabase,attempt.id,attempt.payload);
+        finishTransactionAttempt(localStorage,user.id,"manual",attempt.id);
       }
 
       window.dispatchEvent(new Event("fintrack:setup-data-saved"));

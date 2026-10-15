@@ -16,7 +16,7 @@ for(const path of ["/accounts","/transactions"]){
         const row=Array.isArray(raw)?raw[0]:raw;
         ids.push(row.id);
         if(rows.has(row.id)){await route.fulfill({status:409,json:{code:"23505",message:"duplicate key"}});return;}
-        rows.set(row.id,row);
+        rows.set(row.id,{...row,created_at:"2026-10-15T08:00:00Z",updated_at:"2026-10-15T08:00:00Z"});
         await route.fulfill({status:503,json:{message:"Simulated response loss after commit"}});return;
       }
       const requestedId=url.searchParams.get("id")?.replace("eq.","");
@@ -41,6 +41,11 @@ for(const path of ["/accounts","/transactions"]){
     });
     await expect.poll(()=>ids.length).toBe(1);
     await expect(page.getByRole("alert").filter({hasText:/Transaksi belum|Connection|response loss/})).toBeVisible();
+    await page.reload();
+    await page.getByRole("link",{name:"Catat Transaksi Baru",exact:true}).click();
+    await page.getByRole("button",{name:"Catat manual",exact:true}).click();
+    await expect(editor.locator("#desc-input")).toHaveValue("Retry audit");
+    await expect(editor.locator("#nominal-input")).toHaveValue("100");
     await expect(save).toBeEnabled();
     await save.click();
     await expect(page.getByRole("heading",{name:"Transaksi Berhasil Dicatat",exact:true})).toBeVisible();

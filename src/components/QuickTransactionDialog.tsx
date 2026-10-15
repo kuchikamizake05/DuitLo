@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {createTransactionOnce} from "@/lib/transaction-write";
+import {beginTransactionAttempt,finishTransactionAttempt,readTransactionAttempt} from "@/lib/transaction-attempt";
 import { TransactionResult } from "@/components/reference/TransactionFeedback";
 import { TransactionEditor } from "@/components/reference/TransactionEditor";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -44,7 +45,9 @@ export function QuickTransactionDialog({ onClose,initialText="" }: { onClose: ()
         const nextAccounts = (accountResult.data ?? []) as Account[];
         setAccounts(nextAccounts);
         setCategories((categoryResult.data ?? []) as Category[]);
-        setForm((current) => current.accountId || !nextAccounts[0] ? current : { ...current, accountId: nextAccounts[0].id });
+        const pending=readTransactionAttempt(localStorage,user.id,"manual");
+        if(pending){const p=pending.payload;setForm({date:p.date,type:p.type as "income"|"expense",merchant:p.merchant??"",note:p.note??"",category:p.category,amount:String(p.amount),accountId:p.account_id});}
+        else setForm((current) => current.accountId || !nextAccounts[0] ? current : { ...current, accountId: nextAccounts[0].id });
       } catch (cause) {
         if (active) setError(cause instanceof Error ? cause.message : t("Form transaksi belum dapat dimuat."));
       } finally {
@@ -71,8 +74,7 @@ export function QuickTransactionDialog({ onClose,initialText="" }: { onClose: ()
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Sesi login tidak ditemukan.");
-      draftId.current??=crypto.randomUUID();
-      await createTransactionOnce(supabase,draftId.current,{
+      const attempt=beginTransactionAttempt(localStorage,"manual",{
         user_id: user.id,
         date: form.date,
         type: form.type,
@@ -84,6 +86,9 @@ export function QuickTransactionDialog({ onClose,initialText="" }: { onClose: ()
         source: "manual",
         status: "confirmed",
       });
+      draftId.current=attempt.id;
+      await createTransactionOnce(supabase,attempt.id,attempt.payload);
+      finishTransactionAttempt(localStorage,user.id,"manual",attempt.id);
       window.dispatchEvent(new Event("fintrack:setup-data-saved"));
       setResultOpen(true);
     } catch (cause) {

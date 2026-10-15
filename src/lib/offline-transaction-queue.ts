@@ -137,9 +137,11 @@ export function projectQueuedTransactionOperations<T extends { id: string; statu
       projected.set(operation.transactionId, {
         id: operation.transactionId,
         ...operation.payload,
+        created_at:operation.createdAt,
+        updated_at:operation.createdAt,
         status: "needs_review",
         syncPending: true,
-      } as QueueOverlayTransaction<T>);
+      } as unknown as QueueOverlayTransaction<T>);
       continue;
     }
     if (!existing) continue;

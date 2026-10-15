@@ -21,4 +21,11 @@ describe("durable transaction attempts",()=>{
   const store=storage();store.setItem=()=>{throw new Error("storage blocked");};
   expect(()=>beginTransactionAttempt(store,"manual",payload)).toThrow();
  });
+ it("rejects corrupt stored payloads",()=>{
+  const store=storage();
+  for(const raw of ["invalid",JSON.stringify({id:"id",payload:{...payload,amount:"10"}}),JSON.stringify({id:"id",payload:{...payload,user_id:"other"}})]){
+   store.setItem("fintrack:pending-save:v1:user-a:manual",raw);
+   expect(()=>readTransactionAttempt(store,"user-a","manual")).toThrow();
+  }
+ });
 });

@@ -50,7 +50,7 @@ describe("offline transaction queue", () => {
     });
     const result = projectQueuedTransactionOperations([], [edit, create]);
 
-    expect(result).toEqual([expect.objectContaining({ id: "tx-1", merchant: "Warung baru", amount: 30_000, status: "needs_review", syncPending: true })]);
+    expect(result).toEqual([expect.objectContaining({ id: "tx-1", merchant: "Warung baru", amount: 30_000, status: "needs_review", syncPending: true,created_at:create.createdAt,updated_at:create.createdAt })]);
   });
 
   it("projects queued soft-delete without changing confirmed server row", () => {
