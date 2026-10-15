@@ -30,15 +30,18 @@ export default function SharedReceiptPage() {
         </div>
       }
     >
-      <SharedReceiptContent />
+      <SharedReceiptRoute />
     </Suspense>
   );
 }
 
-function SharedReceiptContent() {
+function SharedReceiptRoute() {
+  const shareId = useSearchParams().get("id");
+  return <SharedReceiptContent key={shareId ?? "missing"} shareId={shareId} />;
+}
+
+function SharedReceiptContent({shareId}:{shareId:string|null}) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const shareId = searchParams.get("id");
   const [metadata, setMetadata] = useState<SharedMetadata | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);

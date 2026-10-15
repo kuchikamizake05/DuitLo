@@ -1151,3 +1151,4 @@ body:has(.ft-reference)::-webkit-scrollbar{display:none}@media print{.ft-referen
 .ft-reference[data-theme="dark"] :is([data-reference-node="target.20"],[data-reference-node="target.79"],[data-reference-node="anggaran.21"],[data-reference-node="transfer.67"]){background:#a8c4fc!important;color:#173456!important;}
 
 .ft-reference[data-page][data-theme="dark"] :is([data-reference-node="target.20"],[data-reference-node="target.79"],[data-reference-node="anggaran.21"],[data-reference-node="transfer.67"]){background:#a8c4fc!important;color:#173456!important;}
+.ft-reference[data-page="pengaturan"][data-theme] button[data-settings-action="sign-out"]{box-shadow:none!important;}

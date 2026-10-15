@@ -3,6 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
+import {BookOpen,ChevronRight} from "lucide-react";
 import { useOnboarding } from "./OnboardingBoundary";
 import { useLanguage } from "./LanguageProvider";
 
@@ -192,12 +193,14 @@ export function FirstStepsGuide() {
 export function MenuTourButton() {
   const onboarding=useOnboarding(false);
   const {t}=useLanguage();
+  const router=useRouter();
   if(!onboarding)return null;
-  return <button type="button" className="mt-1 min-h-11 text-[12px] font-semibold text-primary underline underline-offset-4" onClick={()=>{
+  return <button type="button" aria-label={t("Panduan menu")} className="flex min-h-12 w-full items-center justify-between gap-3 text-left transition-opacity hover:opacity-80" onClick={()=>{
     try {
       localStorage.setItem(`fintrack:menu-guide:${onboarding.userId}`,"0");
       localStorage.setItem(`fintrack:menu-guide:${onboarding.userId}:mode`,"active");
     } catch {}
     window.dispatchEvent(new Event(changeEvent));
-  }}>{t("Panduan menu")}</button>;
+    router.push("/dashboard");
+  }}><span className="flex items-center gap-space-md"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-primary"><BookOpen size={20} strokeWidth={1.75} aria-hidden="true"/></span><span><span className="block font-body-lg text-body-lg font-semibold text-on-surface">{t("Panduan menu")}</span><span className="block font-body-sm text-body-sm text-on-surface-variant">{t("Kenali menu dan fitur FinTrack")}</span></span></span><ChevronRight size={20} className="shrink-0 text-primary" aria-hidden="true"/></button>;
 }

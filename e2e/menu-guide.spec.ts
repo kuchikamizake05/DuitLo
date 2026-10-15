@@ -4,7 +4,9 @@ import { mockReference } from "./reference-fixtures";
 for (const theme of ["light", "dark"] as const) {
   test(`menu tour covers all main menus and remembers completion in ${theme}`, async ({ page }, testInfo) => {
     await mockReference(page, theme);
-    await page.goto("/dashboard");
+    await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);
+    await page.goto("/settings");
+    await expect(page.locator('[data-reference-node="pengaturan.144"]').getByRole("button",{name:"Panduan menu",exact:true})).toBeVisible();
     await page.getByRole("button", { name: "Panduan menu", exact: true }).click();
     const guide = page.getByRole("complementary", { name: "Panduan langkah pertama" });
     await expect(guide.getByRole("heading", { name: "Beranda", exact: true })).toBeVisible();
@@ -46,7 +48,8 @@ for (const theme of ["light", "dark"] as const) {
     await page.reload();
     await page.waitForLoadState("networkidle");
     await expect(guide).toHaveCount(0);
-    await page.goto("/dashboard");
+    await page.goto("/settings");
+    await expect(page.locator('[data-reference-node="pengaturan.144"]').getByRole("button",{name:"Panduan menu",exact:true})).toBeVisible();
     await page.getByRole("button", { name: "Panduan menu", exact: true }).click();
     await page.waitForLoadState("networkidle");
     await expect(guide.getByRole("heading", { name: "Beranda", exact: true })).toBeVisible();
@@ -56,7 +59,8 @@ for (const theme of ["light", "dark"] as const) {
 
 test("skipping the menu tour is remembered", async ({ page }) => {
   await mockReference(page, "light");
-  await page.goto("/dashboard");
+  await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);
+  await page.goto("/settings");
   await page.getByRole("button", { name: "Panduan menu", exact: true }).click();
   await page.getByRole("button", { name: "Lewati", exact: true }).click();
   await expect.poll(() => page.evaluate(userId => localStorage.getItem(`fintrack:menu-guide:${userId}`), user.id)).toBe("0");
