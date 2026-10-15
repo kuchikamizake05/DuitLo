@@ -15,6 +15,11 @@ describe("sanitizeNextPath", () => {
 });
 
 describe("public route policy", () => {
+  it("protects shared receipts and preserves the selected receipt through login", () => {
+    expect(isProtectedRoute("/shared-receipt")).toBe(true);
+    expect(sanitizeNextPath("/shared-receipt?id=receipt-a")).toBe("/shared-receipt?id=receipt-a");
+    expect(getAuthGateState({ pathname:"/shared-receipt",configured:true,resolved:true,hasSession:false,online:true })).toBe("redirect-login");
+  });
   it("requires authentication for Journey and preserves the login destination", () => {
     expect(isProtectedRoute("/journey")).toBe(true);
     expect(sanitizeNextPath("/journey")).toBe("/journey");
