@@ -1,5 +1,6 @@
 "use client";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
+import {createTransactionOnce,TransactionWriteConflict} from "@/lib/transaction-write";
 import { useFinancialRefresh } from "@/components/reference/useFinancialRefresh";
 
 import { useLanguage } from "@/components/LanguageProvider";
@@ -139,6 +140,8 @@ export default function TransactionsPage() {
   const autoOpenedRef = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const saveLock=useRef(false);
+  const draftId=useRef<string|null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [restoringId, setRestoringId] = useState<string | null>(null);
   const [approvingId, setApprovingId] = useState<string | null>(null);
@@ -245,19 +248,22 @@ export default function TransactionsPage() {
 
   const syncQueuedOperations = useCallback(async () => {
     if (syncingQueueRef.current || !canWriteOnline()) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
     syncingQueueRef.current = true;
     setSyncingQueue(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
       const results = await replayQueuedTransactionOperations(user.id, {
         create: async (operation) => {
-          const { data: existing, error: existingError } = await supabase.from("transactions").select("id").eq("id", operation.transactionId).eq("user_id", user.id).maybeSingle();
-          if (existingError) throw existingError;
-          if (existing) return "done";
-          const { error } = await supabase.from("transactions").insert({ id: operation.transactionId, user_id: user.id, ...operation.payload, source: "manual" });
-          if (error) throw error;
-          return "done";
+          const payload=operation.payload;
+          if(!payload.date||!payload.type||!payload.category||!payload.account_id||payload.amount===undefined)throw new Error("Invalid queued transaction");
+          try {
+            await createTransactionOnce(supabase,operation.transactionId,{user_id:user.id,date:payload.date,type:payload.type,category:payload.category,account_id:payload.account_id,amount:payload.amount,merchant:payload.merchant??null,note:payload.note??null,source:"manual",status:payload.status??"confirmed"});
+            return "done";
+          } catch(error) {
+            if(error instanceof TransactionWriteConflict)return "conflict";
+            throw error;
+          }
         },
         edit: async (operation) => {
           const query = supabase.from("transactions").update({ ...operation.payload, source: "manual" }).eq("id", operation.transactionId).eq("user_id", user.id);
@@ -388,6 +394,7 @@ export default function TransactionsPage() {
   };
 
   const openAdd = useCallback(() => {
+    draftId.current=null;
     setSelectedTx(null);
     const nextForm = createDefaultForm();
     if (chosenDate) nextForm.date = chosenDate;
@@ -449,6 +456,7 @@ export default function TransactionsPage() {
 
   const handleSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if(saveLock.current)return;
     if (!selectedTx && !form.note.trim()) { setFormError(t("Keterangan transaksi wajib diisi.")); return; }
     const validationError = validateTransactionForm(form);
     if (validationError || !form.category) {
@@ -462,6 +470,7 @@ export default function TransactionsPage() {
       return;
     }
 
+    saveLock.current=true;
     setSaving(true);
     setFormError(null);
     try {
@@ -485,7 +494,8 @@ export default function TransactionsPage() {
       };
 
       if (offline) {
-        const transactionId = selectedTx?.id ?? crypto.randomUUID();
+        draftId.current??=crypto.randomUUID();
+        const transactionId = selectedTx?.id ?? draftId.current;
         await queueTransactionOperation(createQueuedTransactionOperation({
           userId: user.id,
           kind: selectedTx ? "edit" : "create",
@@ -500,10 +510,13 @@ export default function TransactionsPage() {
         return;
       }
 
-      const result = isEditMode
-        ? await supabase.from("transactions").update(onlinePayload).eq("id", selectedTx.id)
-        : await supabase.from("transactions").insert([{ user_id: user.id, ...onlinePayload }]);
-      if (result.error) throw result.error;
+      if(isEditMode){
+        const result=await supabase.from("transactions").update(onlinePayload).eq("id",selectedTx.id).eq("user_id",user.id);
+        if(result.error)throw result.error;
+      }else{
+        draftId.current??=crypto.randomUUID();
+        await createTransactionOnce(supabase,draftId.current,{user_id:user.id,...onlinePayload});
+      }
 
       window.dispatchEvent(new Event("fintrack:setup-data-saved"));
       setSavedResult({form:{...form},edited:isEditMode});
@@ -512,8 +525,9 @@ export default function TransactionsPage() {
       showToast(isEditMode ? "Transaksi diperbarui." : "Transaksi disimpan.");
     } catch (error) {
       reportHandledError("Transaction save failed", error, "Transaksi belum berhasil disimpan.");
-      setFormError("Transaksi belum berhasil disimpan. Coba lagi.");
+      setFormError(t(error instanceof TransactionWriteConflict?error.message:"Transaksi belum berhasil disimpan. Coba lagi."));
     } finally {
+      saveLock.current=false;
       setSaving(false);
     }
   };

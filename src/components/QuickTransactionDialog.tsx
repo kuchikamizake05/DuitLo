@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import {createTransactionOnce} from "@/lib/transaction-write";
 import { TransactionResult } from "@/components/reference/TransactionFeedback";
 import { TransactionEditor } from "@/components/reference/TransactionEditor";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -23,6 +24,8 @@ export function QuickTransactionDialog({ onClose,initialText="" }: { onClose: ()
   const [resultOpen,setResultOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const saveLock=useRef(false);
+  const draftId=useRef<string|null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,18 +59,20 @@ export function QuickTransactionDialog({ onClose,initialText="" }: { onClose: ()
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if(loading || saving)return;
+    if(loading || saving || saveLock.current)return;
     if (!form.accountId || !form.category.trim() || !Number.isFinite(Number(form.amount)) || Number(form.amount) <= 0) {
       setError(t("Lengkapi akun, nominal, dan kategori terlebih dahulu."));
       return;
     }
     if (!form.note.trim()) { setError(t("Keterangan transaksi wajib diisi.")); return; }
+    saveLock.current=true;
     setSaving(true);
     setError(null);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Sesi login tidak ditemukan.");
-      const { error: insertError } = await supabase.from("transactions").insert({
+      draftId.current??=crypto.randomUUID();
+      await createTransactionOnce(supabase,draftId.current,{
         user_id: user.id,
         date: form.date,
         type: form.type,
@@ -79,16 +84,16 @@ export function QuickTransactionDialog({ onClose,initialText="" }: { onClose: ()
         source: "manual",
         status: "confirmed",
       });
-      if (insertError) throw insertError;
       window.dispatchEvent(new Event("fintrack:setup-data-saved"));
       setResultOpen(true);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : t("Transaksi belum berhasil disimpan. Coba lagi."));
+      setError(cause instanceof Error ? t(cause.message) : t("Transaksi belum berhasil disimpan. Coba lagi."));
     } finally {
+      saveLock.current=false;
       setSaving(false);
     }
   };
 
-  if(resultOpen) return <TransactionResult form={form} accountName={accounts.find(account=>account.id===form.accountId)?.name??"—"} currency={accounts.find(account=>account.id===form.accountId)?.currency??"IDR"} onClose={()=>{window.dispatchEvent(new Event("fintrack:data-changed"));onClose();}} onAdd={()=>{setResultOpen(false);setForm({...initialForm(),accountId:form.accountId});}}/>;
+  if(resultOpen) return <TransactionResult form={form} accountName={accounts.find(account=>account.id===form.accountId)?.name??"—"} currency={accounts.find(account=>account.id===form.accountId)?.currency??"IDR"} onClose={()=>{window.dispatchEvent(new Event("fintrack:data-changed"));onClose();}} onAdd={()=>{draftId.current=null;setResultOpen(false);setForm({...initialForm(),accountId:form.accountId});}}/>;
   return <TransactionEditor form={form} onChange={setForm} accounts={accounts} categories={categoryOptions} busy={saving} loading={loading} error={error} onClose={onClose} onSave={submit}/>;
 }

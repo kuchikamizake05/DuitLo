@@ -40,6 +40,7 @@ const englishTranslations: Record<string, string> = {
   "Selesai": "Done",
   "Sebelumnya": "Back",
   "Panduan menu": "Menu guide",
+  "Transaksi sebelumnya sudah tersimpan dengan data berbeda. Periksa Aktivitas sebelum mencoba lagi.": "The previous transaction was saved with different details. Check Activity before trying again.",
   "Unduh laporan bulanan dalam format CSV": "Download monthly reports as CSV",
   "Informasi koneksi bot Telegram": "Telegram bot connection information",
   "Pengaturan koneksi bot Telegram belum tersedia di aplikasi.": "Telegram bot connection settings are not available in the app yet.",

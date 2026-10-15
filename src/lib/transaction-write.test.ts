@@ -35,4 +35,13 @@ describe("idempotent transaction creation",()=>{
     const db=database();db.replace({...payload,id:"stable-id",amount:"100.00"});
     await expect(createTransactionOnce(db.client,"stable-id",payload)).resolves.toBeUndefined();
   });
+  it("propagates a failed ownership lookup instead of treating it as saved",async()=>{
+    const failure={message:"Read unavailable"};
+    const client={from:()=>({insert:async()=>({error:{code:"23505"}}),select:()=>({eq:()=>({eq:()=>({maybeSingle:async()=>({data:null,error:failure})})})})})} as unknown as SupabaseClient;
+    await expect(createTransactionOnce(client,"stable-id",payload)).rejects.toBe(failure);
+  });
+  it("rejects a returned row with the wrong transaction ID",async()=>{
+    const db=database();db.replace({...payload,id:"other-id"});
+    await expect(createTransactionOnce(db.client,"stable-id",payload)).rejects.toBeInstanceOf(TransactionWriteConflict);
+  });
 });
