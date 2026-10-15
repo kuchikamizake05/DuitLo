@@ -45,8 +45,10 @@ export default function SettingsPage() {
   const copyTimer = useRef<number | null>(null);
 
   useEffect(() => {
+    let active = true;
     const fetchUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      if (!active) return;
       if (!session?.user) {
         setLoading(false);
         if (navigator.onLine) router.push("/login");
@@ -57,12 +59,14 @@ export default function SettingsPage() {
       setUserId(session.user.id);
       setDeviceLockEnabled(Boolean(readPasskeyDeviceState(session.user.id)?.enabled));
       const { data, error } = await supabase.auth.passkey.list();
+      if (!active) return;
       if (!error) {
         setPasskeys(Array.isArray(data)?data:[]);
       }
       setLoading(false);
     };
-    void fetchUser();
+    void fetchUser().catch(()=>{if(active)setLoading(false);});
+    return ()=>{active=false;};
   }, [router]);
 
   useEffect(() => {

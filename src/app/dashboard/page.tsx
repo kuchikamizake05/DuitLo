@@ -1,4 +1,6 @@
 "use client";
+import {getNumberFormatter} from "@/lib/intl";
+
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import { useFinancialRefresh } from "@/components/reference/useFinancialRefresh";
 
@@ -232,11 +234,11 @@ export default function DashboardPage() {
   };
 
   const toggleBalances = () => {
-    setShowBalances((current) => {
-      const next = !current;
-      window.localStorage.setItem("fintrack-show-balances", String(next));
-      return next;
-    });
+    const next = !showBalances;
+    setShowBalances(next);
+    try { window.localStorage.setItem("fintrack-show-balances", String(next)); } catch {
+      // The visibility toggle still works when browser storage is unavailable.
+    }
   };
 
   const accountCurrencies = new Map(accounts.map((account) => [account.id, account.currency]));
@@ -267,7 +269,7 @@ export default function DashboardPage() {
   );
   const formatCurrency = (amount: number, currency?: string | null) => {
     const code = currency ?? "IDR";
-    return new Intl.NumberFormat(language === "en" ? "en-US" : "id-ID", { style: "currency", currency: code, maximumFractionDigits: code === "IDR" ? 0 : 2 }).format(Math.abs(amount));
+    return getNumberFormatter(language === "en" ? "en-US" : "id-ID", { style: "currency", currency: code, maximumFractionDigits: code === "IDR" ? 0 : 2 }).format(Math.abs(amount));
   };
   const displayCurrency = (amount: number, currency?: string | null) => maskAmount(formatCurrency(amount, currency), showBalances);
   const pendingByCurrency = groupTransactionAmountsByCurrency(pendingTx, accountCurrencies, ["pending_approval", "needs_review"]);

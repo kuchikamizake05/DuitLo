@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useLanguage } from "@/components/LanguageProvider";
 import {readAccountDisplay,saveAccountDisplay} from "@/lib/account-display";
 import Navbar from "@/components/Navbar";
-import { AccountEditor,TransferEditor } from "@/components/reference/AccountEditors";
+import { AccountEditor,TransferEditor, type ReferenceAccountForm } from "@/components/reference/AccountEditors";
 import { ReferenceRoot } from "@/components/reference/runtime";
 import { WalletView } from "@/components/reference/WalletView";
 import { Button } from "@/components/ui/Button";
@@ -228,20 +228,20 @@ export default function AccountsPage() {
   const destinationAccount = activeAccounts.find((account) => account.id === transferForm.destinationAccountId);
   const isCrossCurrencyTransfer = Boolean(sourceAccount && destinationAccount && sourceAccount.currency !== destinationAccount.currency);
 
-  function rememberTrigger() {
+  const rememberTrigger=useCallback(() => {
     lastTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  }
+  },[]);
 
-  function openAccountDialog() {
+  const openAccountDialog=useCallback(() => {
     rememberTrigger();
     setEditingAccount(null);
     setAccountForm(emptyAccountForm);
     setFormError(null);
     setFormErrors({});
     setActiveDialog("account");
-  }
+  },[rememberTrigger]);
 
-  function openEditAccountDialog(account: AccountOverviewRecord) {
+  const openEditAccountDialog=useCallback((account: AccountOverviewRecord) => {
     rememberTrigger();
     setEditingAccount(account);
     setAccountForm({
@@ -258,7 +258,7 @@ export default function AccountsPage() {
     setFormError(null);
     setFormErrors({});
     setActiveDialog("account");
-  }
+  },[rememberTrigger]);
 
   function openAccountToggleDialog(account: AccountOverviewRecord) {
     rememberTrigger();
@@ -272,7 +272,7 @@ export default function AccountsPage() {
     setAccountToDelete(account);
   }
 
-  useEffect(()=>{const view=params.get("view"),id=params.get("id"),key=`${view}:${id}`;if(loading||!view||openedView.current===key)return;openedView.current=key;const timer=window.setTimeout(()=>{if(view==="create")openAccountDialog();else if(view==="transfer")openTransferDialog();else if(view==="detail"){const account=id?accounts.find(item=>item.id===id):accounts[0];if(account)openEditAccountDialog(account);}},0);return()=>window.clearTimeout(timer);},[loading,params,accounts]);
+
 
   async function deleteAccount() {
     if (!accountToDelete) return;
@@ -324,13 +324,15 @@ export default function AccountsPage() {
     }
   }
 
-  function openTransferDialog() {
+  const openTransferDialog=useCallback(() => {
     rememberTrigger();
     setTransferForm(createTransferForm());
     setFormError(null);
     setFormErrors({});
     setActiveDialog("transfer");
-  }
+  },[rememberTrigger]);
+
+  useEffect(()=>{const view=params.get("view"),id=params.get("id"),key=`${view}:${id}`;if(loading||!view||openedView.current===key)return;const timer=window.setTimeout(()=>{openedView.current=key;if(view==="create")openAccountDialog();else if(view==="transfer")openTransferDialog();else if(view==="detail"){const account=id?accounts.find(item=>item.id===id):accounts[0];if(account)openEditAccountDialog(account);}},0);return()=>window.clearTimeout(timer);},[loading,params,accounts,openAccountDialog,openEditAccountDialog,openTransferDialog]);
 
   function openBalanceDialog(account: AccountOverviewRecord) {
     rememberTrigger();
@@ -382,6 +384,16 @@ export default function AccountsPage() {
     } finally {
       setRefreshingFx(false);
     }
+  }
+
+  function updateAccountDraft(form:ReferenceAccountForm) {
+    setAccountForm({
+      name:form.name, institution:form.institution, kind:form.kind,
+      currency:form.currency, currentBalance:form.currentBalance,
+      reportingBalanceIdr:form.reportingBalanceIdr,
+      cardColor:form.cardColor??"green", includeInNetWorth:form.includeInNetWorth!==false,
+      isCash:form.isCash??false,
+    });
   }
 
   async function saveAccount(event: FormEvent<HTMLFormElement>) {
@@ -548,7 +560,7 @@ export default function AccountsPage() {
       {pageError&&<div role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</div>}{loading?<main className="pt-20 px-margin"><AccountsSkeleton/></main>:!pageError&&<WalletView accounts={accounts} onAdd={openAccountDialog} onTransfer={openTransferDialog} onDetail={openEditAccountDialog}/>}
 
 
-      {activeDialog === "account" && <AccountEditor form={accountForm} setForm={form=>setAccountForm({...form,cardColor:form.cardColor??"green",includeInNetWorth:form.includeInNetWorth!==false,isCash:form.isCash??false})} editing={Boolean(editingAccount)} account={editingAccount} busy={saving} error={formError??(Object.values(formErrors).join(" ")||null)} onClose={closeDialog} onSave={saveAccount} onDelete={editingAccount?()=>openAccountDeleteDialog(editingAccount):undefined} onTransfer={openTransferDialog} onAdjust={editingAccount?()=>openBalanceDialog(editingAccount):undefined}/>}
+      {activeDialog === "account" && <AccountEditor form={accountForm} setForm={updateAccountDraft} editing={Boolean(editingAccount)} account={editingAccount} busy={saving} error={formError??(Object.values(formErrors).join(" ")||null)} onClose={closeDialog} onSave={saveAccount} onDelete={editingAccount?()=>openAccountDeleteDialog(editingAccount):undefined} onTransfer={openTransferDialog} onAdjust={editingAccount?()=>openBalanceDialog(editingAccount):undefined}/>}
       {accountToToggle && (
         <ConfirmDialog
           titleId="account-lifecycle-title"

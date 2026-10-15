@@ -1,4 +1,6 @@
 "use client";
+import {getNumberFormatter} from "@/lib/intl";
+
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
@@ -251,7 +253,7 @@ export default function TradingPage() {
               <div className="relative overflow-hidden rounded-[var(--radius-surface)] bg-[#173c32] p-5 text-white sm:p-7">
                 <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-16 size-56 rounded-full border-[32px] border-white/5" />
                 <div className="relative flex items-center justify-between gap-3"><p className="text-sm font-semibold text-emerald-100">{t("Total equity")}</p><span className="rounded-full border border-white/20 px-3 py-1 text-xs font-bold">{currency}</span></div>
-                <p className="relative mt-3 break-words text-3xl font-extrabold tracking-tight sm:text-4xl">{latestEquity === null ? "—" : new Intl.NumberFormat(language === "en" ? "en-US" : "id-ID", { style: "currency", currency, maximumFractionDigits: currency === "IDR" ? 0 : 2 }).format(latestEquity)}</p>
+                <p className="relative mt-3 break-words text-3xl font-extrabold tracking-tight sm:text-4xl">{latestEquity === null ? "—" : getNumberFormatter(language === "en" ? "en-US" : "id-ID", { style: "currency", currency, maximumFractionDigits: currency === "IDR" ? 0 : 2 }).format(latestEquity)}</p>
                 <p className="mt-2 text-xs text-emerald-100/75">{latestEquity === null ? t("Catat snapshot pertama") : t("Snapshot portfolio terbaru")}</p>
                 <div className="relative mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/15 pt-4"><div><p className="text-xs text-emerald-100/75">{t("P/L tertutup")}</p><p className={cn("mt-1 text-lg font-bold", metrics.pnl >= 0 ? "text-lime-200" : "text-rose-200")}>{formatSignedMoney(metrics.pnl, currency)}</p></div><p className="text-xs text-emerald-100/75">{t("Dari {count} trade tertutup", { count: metrics.closed })}</p></div>
               </div>
@@ -499,7 +501,7 @@ function DialogActions({ saving, onClose, label }: { saving: boolean; onClose: (
 }
 function TradeSkeleton() { return <PageSkeleton variant="trading"/>; }
 function formatSignedMoney(value: number, currency: string) {
-  const amount = new Intl.NumberFormat("id-ID", {
+  const amount = getNumberFormatter("id-ID", {
     style: "currency",
     currency,
     maximumFractionDigits: currency === "IDR" ? 0 : 2,

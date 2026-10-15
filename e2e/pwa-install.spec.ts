@@ -1,6 +1,6 @@
-import {test,expect,mockSupabase} from "./fixtures";
+import {test,expect,mockSupabase,user} from "./fixtures";
 test("manual install works after automatic prompt dismissal",async({page})=>{
- await mockSupabase(page,true);
+ await mockSupabase(page,true);await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);
  await page.addInitScript(()=>localStorage.setItem("fintrack-install-dismissed-at",String(Date.now())));
  await page.goto("/settings");
  await expect(page.getByRole("heading",{name:"Pengaturan",exact:true})).toBeVisible();
@@ -15,7 +15,7 @@ test("manual install works after automatic prompt dismissal",async({page})=>{
  await expect(page.getByText("Permintaan instalasi diterima",{exact:true})).toBeVisible();
 });
 test("manual install explains browser installation when unavailable",async({page})=>{
- await mockSupabase(page,true);await page.goto("/settings");
+ await mockSupabase(page,true);await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);await page.goto("/settings");
  await expect(page.getByRole("heading",{name:"Pengaturan",exact:true})).toBeVisible();
  await page.getByRole("button",{name:"Pasang FinTrack",exact:true}).click();
  const dialog=page.getByRole("dialog",{name:"Pasang FinTrack",exact:true});

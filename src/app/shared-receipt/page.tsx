@@ -64,6 +64,7 @@ function SharedReceiptContent() {
   const parsedRef = useRef(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     void (async () => {
       try {
         if (!shareId) throw new Error("missing share");
@@ -73,6 +74,7 @@ function SharedReceiptContent() {
 
         const nextMetadata = (await metadataResponse.json()) as SharedMetadata;
         const nextDraft = buildSharedReceiptDraft(nextMetadata);
+        if(controller.signal.aborted)return;
         setMetadata(nextMetadata);
 
         let sharedFile: File | null = null;
@@ -81,12 +83,14 @@ function SharedReceiptContent() {
           sharedFile = new File([await fileResponse.blob()], nextMetadata.fileName ?? "receipt", {
             type: nextMetadata.fileType ?? "application/octet-stream",
           });
+          if(controller.signal.aborted)return;
           setFile(sharedFile);
         }
 
         const {
           data: { user },
         } = await supabase.auth.getUser();
+        if(controller.signal.aborted)return;
         if (!user) {
           router.replace("/login");
           return;
@@ -106,6 +110,7 @@ function SharedReceiptContent() {
           throw accountsResult.error || categoriesResult.error;
         }
 
+        if(controller.signal.aborted)return;
         const nextAccounts = (accountsResult.data ?? []) as Account[];
         const nextCategories = (categoriesResult.data ?? []).map((item) => item.name);
         setAccounts(nextAccounts);
@@ -125,6 +130,7 @@ function SharedReceiptContent() {
             data: { session },
           } = await supabase.auth.getSession();
 
+          if(controller.signal.aborted)return;
           if (session?.access_token && sharedFile.type.startsWith("image/")) {
             setParsing(true);
             setParseNotice(null);
@@ -138,6 +144,7 @@ function SharedReceiptContent() {
                 },
                 body,
                 cache: "no-store",
+                signal:controller.signal,
               });
 
               const result = (await response.json().catch(() => ({}))) as {
@@ -145,6 +152,7 @@ function SharedReceiptContent() {
                 error?: string;
               };
 
+              if(controller.signal.aborted)return;
               if (response.ok && result.extraction) {
                 const ext = result.extraction;
                 setForm((prev) => {
@@ -175,18 +183,19 @@ function SharedReceiptContent() {
                 setParseNotice(result.error);
               }
             } catch {
-              setParseNotice("Ekstraksi otomatis gagal. Silakan lengkapi form secara manual.");
+              if(!controller.signal.aborted)setParseNotice("Ekstraksi otomatis gagal. Silakan lengkapi form secara manual.");
             } finally {
-              setParsing(false);
+              if(!controller.signal.aborted)setParsing(false);
             }
           }
         }
       } catch {
-        setError("Bukti share tidak ditemukan. Coba share ulang dari aplikasi asal.");
+        if(!controller.signal.aborted)setError("Bukti share tidak ditemukan. Coba share ulang dari aplikasi asal.");
       } finally {
-        setLoading(false);
+        if(!controller.signal.aborted)setLoading(false);
       }
     })();
+    return ()=>controller.abort();
   }, [router, shareId]);
 
   async function submit(event: React.FormEvent) {

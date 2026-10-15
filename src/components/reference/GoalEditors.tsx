@@ -1,4 +1,6 @@
 "use client";
+import {getNumberFormatter} from "@/lib/intl";
+
 
 import { useState, type FormEvent } from "react";
 
@@ -26,7 +28,7 @@ export function GoalEditor({form,setForm,busy,error,onSave,onClose}:{form:Refere
 
   const [reminder,setReminder]=useState(false);
 
-  const money=(value:number)=>new Intl.NumberFormat("id-ID",{style:"currency",currency:form.currency,maximumFractionDigits:form.currency==="IDR"?0:2}).format(value);
+  const money=(value:number)=>getNumberFormatter("id-ID",{style:"currency",currency:form.currency,maximumFractionDigits:form.currency==="IDR"?0:2}).format(value);
 
   const remaining=Math.max(0,Number(form.targetAmount||0)-Number(form.currentAmount||0));
 
@@ -57,7 +59,7 @@ export function GoalDetail({goal,onEdit,onClose,onArchive,onDeposit,busy,error,s
   const {t,language}=useLanguage();const [deposit,setDeposit]=useState("");const [notes,setNotes]=useState("");const [notice,setNotice]=useState(false);const [sourceId,setSourceId]=useState("");
   const submitDeposit=async()=>{const amount=Number(deposit);if(!busy&&amount>0&&sourceId&&await onDeposit(amount,sourceId)){setDeposit("");setNotes("");setNotice(true);}};
 
-  const money=(value:number)=>new Intl.NumberFormat("id-ID",{style:"currency",currency:goal.currency,maximumFractionDigits:goal.currency==="IDR"?0:2}).format(value);
+  const money=(value:number)=>getNumberFormatter("id-ID",{style:"currency",currency:goal.currency,maximumFractionDigits:goal.currency==="IDR"?0:2}).format(value);
 
   const saved=Number(goal.current_amount),target=Number(goal.target_amount),percentage=target>0?Math.min(100,Math.round(saved/target*100)):0;
 

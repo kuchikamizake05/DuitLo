@@ -247,7 +247,7 @@ export default function InsightsPage() {
         setLoadingAi(false);
       }
     }
-  }, [month, refreshKey, dateLocale, t]);
+  }, [month, refreshKey, dateLocale, t, language]);
 
   useFinancialRefresh(loadInsights);
   useEffect(() => {

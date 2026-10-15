@@ -1,4 +1,6 @@
 "use client";
+import {getNumberFormatter} from "@/lib/intl";
+
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -243,7 +245,7 @@ function formatPeriod(value: string, locale: string) {
 
 function formatMoney(value: number, currency: string, locale: string) {
   try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: currency === "IDR" ? 0 : 2 }).format(Number(value));
+    return getNumberFormatter(locale, { style: "currency", currency, maximumFractionDigits: currency === "IDR" ? 0 : 2 }).format(Number(value));
   } catch {
     return `${currency} ${Number(value).toLocaleString(locale)}`;
   }

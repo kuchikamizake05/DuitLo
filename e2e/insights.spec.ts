@@ -129,7 +129,7 @@ test.describe("Smart Insights @critical", () => {
   test("shows a useful empty state without calling AI", async ({ page }) => {
     const payloads = await mockInsights(page, { empty: true });
     await page.goto("/insights");
-    await expect(page.getByText("Belum ada data terverifikasi",{exact:true})).toBeVisible();
+    await expect(page.getByRole("heading",{name:"Belum ada laporan untuk periode ini",exact:true})).toBeVisible();
     expect(payloads).toHaveLength(0);
   });
 

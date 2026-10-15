@@ -1,4 +1,6 @@
 "use client";
+import {getNumberFormatter} from "@/lib/intl";
+
 import {categoryAttributes} from "./category-palette";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { ReferencePart } from "./runtime";
@@ -12,7 +14,7 @@ type Account={id:string;name:string;currency:string;current_balance?:number;inst
 export function TransactionEditor({form,onChange,accounts,categories,busy,error,onClose,onSave,attachment,loading=false}:{form:ReferenceTransactionForm;onChange:(form:ReferenceTransactionForm)=>void;accounts:Account[];categories:string[];busy:boolean;error:string|null;onClose:()=>void;onSave:(event:FormEvent<HTMLFormElement>)=>void;attachment?:ReactNode;loading?:boolean}) {
  const {t}=useLanguage();const [picker,setPicker]=useState<"account"|"category"|null>(null);
  const account=accounts.find(item=>item.id===form.accountId);const currency=account?.currency||"IDR";
- const money=(value:number)=>new Intl.NumberFormat("id-ID",{style:"currency",currency,maximumFractionDigits:currency==="IDR"?0:2}).format(value);
+ const money=(value:number)=>getNumberFormatter("id-ID",{style:"currency",currency,maximumFractionDigits:currency==="IDR"?0:2}).format(value);
  const amount=Number(form.amount||0);const balance=account?.current_balance;const projected=balance==null?null:Number(balance)+(form.type==="income"?amount:-amount);
  const change=(patch:Partial<ReferenceTransactionForm>)=>onChange({...form,...patch});
  const attrs:Record<string,Record<string,unknown>>={"catat.85":{required:true,"aria-required":true},"catat.36":{hidden:true},"catat.78":{hidden:true},"catat.126":{hidden:true},"catat.129":{hidden:true},"catat.111":{hidden:true},"catat.53":{hidden:true},"catat.69":{hidden:true},"catat.13":{className:"w-full flex flex-col px-margin pt-20 pb-8"},"catat.14":{className:"flex flex-col w-full pb-2"},"catat.20":{id:"new-transaction-title"},"catat.72":categoryAttributes(form.category,"w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"),"catat.54":{role:"button",tabIndex:0,onClick:()=>!loading&&setPicker("account"),onKeyDown:(event:React.KeyboardEvent)=>{if(!loading&&(event.key==="Enter"||event.key===" ")){event.preventDefault();setPicker("account");}}},"catat.70":{role:"button",tabIndex:0,onClick:()=>!loading&&setPicker("category"),onKeyDown:(event:React.KeyboardEvent)=>{if(!loading&&(event.key==="Enter"||event.key===" ")){event.preventDefault();setPicker("category");}}},"catat.97":{hidden:true},"catat.119":{hidden:true},"catat.112":{hidden:!attachment},"catat.17":{disabled:busy||loading},"catat.125":{disabled:busy||loading},"catat.128":{disabled:busy||loading},"catat.22":{hidden:true}};

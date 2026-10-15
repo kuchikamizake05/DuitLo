@@ -1,4 +1,6 @@
 "use client";
+import {getNumberFormatter} from "@/lib/intl";
+
 import {Check, ArrowRight, Plus, Wallet, Tag, CalendarDays, FileText} from "lucide-react";
 import {format} from "date-fns";
 import {id,enUS} from "date-fns/locale";
@@ -8,7 +10,7 @@ import {DialogFrame} from "@/components/ui/DialogFrame";
 import {useLanguage} from "@/components/LanguageProvider";
 import type {ReferenceTransactionForm} from "./TransactionEditor";
 export function TransactionResult({form,accountName,currency,edited=false,onClose,onAdd}:{form:ReferenceTransactionForm;accountName:string;currency:string;edited?:boolean;onClose:()=>void;onAdd:()=>void}){
- const {t,language}=useLanguage();const amount=new Intl.NumberFormat(language==="en"?"en-ID":"id-ID",{style:"currency",currency,maximumFractionDigits:currency==="IDR"?0:2}).format(Number(form.amount));
+ const {t,language}=useLanguage();const amount=getNumberFormatter(language==="en"?"en-ID":"id-ID",{style:"currency",currency,maximumFractionDigits:currency==="IDR"?0:2}).format(Number(form.amount));
  const details = [
   {icon:FileText,label:language==="en"?"Description":"Keterangan",value:form.merchant||form.category},
   {icon:Wallet,label:language==="en"?"Account":"Rekening",value:accountName},
@@ -37,6 +39,6 @@ export function TransactionResult({form,accountName,currency,edited=false,onClos
  </ReferenceDialog>;
 }
 export function TransactionDelete({transaction,accountName,currency,busy,error,onClose,onConfirm}:{transaction:{merchant:string|null;category:string;amount:number;type:"income"|"expense";date:string};accountName:string;currency:string;busy:boolean;error:string|null;onClose:()=>void;onConfirm:()=>void}){
- const {t,language}=useLanguage();const amount=new Intl.NumberFormat(language==="en"?"en-ID":"id-ID",{style:"currency",currency,maximumFractionDigits:currency==="IDR"?0:2}).format(Number(transaction.amount));
+ const {t,language}=useLanguage();const amount=getNumberFormatter(language==="en"?"en-ID":"id-ID",{style:"currency",currency,maximumFractionDigits:currency==="IDR"?0:2}).format(Number(transaction.amount));
  return <DialogFrame titleId="reference-delete-transaction" onClose={onClose} closeDisabled={busy} className="!p-0 !bg-transparent" contentClassName="!h-[100svh] !max-h-none !rounded-none !bg-transparent !border-0 !shadow-none !max-w-none"><ReferenceRoot page="hapus-transaksi" contents><ReferencePart page="hapus-transaksi" part="section-1" values={{"Tindakan ini tidak dapat dibatalkan. Menghapus transaksi akan membatalkan pengaruh nominal terhadap saldo rekening terkait.":t("Transaksi akan dipindahkan ke Sampah. Saldo dan riwayat tetap dapat dipulihkan dari sana."),"Isi Bensin Pertamax":transaction.merchant||transaction.category,"Transportasi":transaction.category,"BCA Utama (Rekening Utama)":accountName,"-Rp 250.000":`${transaction.type==="income"?"+":"−"}${amount}`,"12 Okt 2026 • 14:20 WIB":format(new Date(transaction.date),"d MMM yyyy",{locale:language==="en"?enUS:id}),"Hapus Transaksi":busy?t("Menghapus..."):t("Hapus Transaksi")}} attributes={{"hapus-transaksi.36":{id:"reference-delete-transaction"},"hapus-transaksi.55":{hidden:true},"hapus-transaksi.66":{hidden:true},"hapus-transaksi.63":{disabled:busy}}} onAction={action=>{if(action==="delete-btn"||action==="confirmDelete()")onConfirm();else if(/Batal|close/.test(action))onClose();}}/>{error&&<p role="alert" className="fixed top-20 inset-x-5 z-[80] rounded-2xl bg-error-container p-3 text-error">{error}</p>}</ReferenceRoot></DialogFrame>;
 }

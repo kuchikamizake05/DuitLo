@@ -12,20 +12,20 @@ const hrefValues = ["/transactions", "/accounts", "/dashboard"] as const;
 const finiteNumber = z.number().finite().min(-1_000_000_000_000_000).max(1_000_000_000_000_000);
 const nullableRate = z.number().finite().min(-100_000).max(100_000).nullable();
 
-const candidateActionSchema = z.object({
+const candidateActionSchema = z.strictObject({
   id: z.enum(actionIds),
   title: z.string().trim().min(1).max(100),
   reason: z.string().trim().min(1).max(180),
   impact: z.enum(impactValues),
   href: z.enum(hrefValues),
-}).strict();
+});
 
-export const insightRequestSchema = z.object({
+export const insightRequestSchema = z.strictObject({
   version: z.literal(1),
   language: z.enum(["id","en"]).optional(),
   periodLabel: z.string().trim().min(1).max(40),
   previousPeriodLabel: z.string().trim().min(1).max(40),
-  metrics: z.object({
+  metrics: z.strictObject({
     income: finiteNumber,
     expense: finiteNumber.nonnegative(),
     netCashFlow: finiteNumber,
@@ -37,40 +37,40 @@ export const insightRequestSchema = z.object({
     averageExpense: finiteNumber.nonnegative(),
     activeAccountCount: z.number().int().min(0).max(10_000),
     uncoveredForeignAccountCount: z.number().int().min(0).max(10_000),
-  }).strict(),
-  topCategories: z.array(z.object({
+  }),
+  topCategories: z.array(z.strictObject({
     name: z.string().trim().min(1).max(40),
     amount: finiteNumber.nonnegative(),
     share: z.number().finite().min(0).max(100),
-  }).strict()).max(5),
-  largestCategoryMovement: z.object({
+  })).max(5),
+  largestCategoryMovement: z.strictObject({
     category: z.string().trim().min(1).max(40),
     currentAmount: finiteNumber.nonnegative(),
     previousAmount: finiteNumber.nonnegative(),
     changeAmount: finiteNumber,
-  }).strict().nullable(),
+  }).nullable(),
   candidateActions: z.array(candidateActionSchema).max(3),
-}).strict();
+});
 
-const generatedActionSchema = z.object({
+const generatedActionSchema = z.strictObject({
   candidateId: z.enum(actionIds),
   title: z.string().trim().min(1).max(100),
   reason: z.string().trim().min(1).max(180),
   impact: z.enum(impactValues),
-}).strict();
+});
 
-export const generatedInsightSchema = z.object({
+export const generatedInsightSchema = z.strictObject({
   headline: z.string().trim().min(1).max(100),
   summary: z.string().trim().min(1).max(420),
   tone: z.enum(["positive", "neutral", "attention"]),
   actions: z.array(generatedActionSchema).max(3),
   observations: z.array(z.string().trim().min(1).max(180)).max(3),
-}).strict();
+});
 
 export const generatedInsightEnvelopeSchema = generatedInsightSchema.extend({
   generatedAt: z.string().datetime(),
   model: z.string().trim().min(1).max(100),
-}).strict();
+});
 
 export type InsightApiRequest = z.infer<typeof insightRequestSchema>;
 export type GeneratedInsight = z.infer<typeof generatedInsightSchema>;

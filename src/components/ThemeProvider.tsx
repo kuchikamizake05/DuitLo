@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useMemo, useContext, useEffect, useState, type ReactNode } from "react";
 type Theme = "light" | "dark";
 type ThemeContextValue = {
     theme: Theme;
@@ -67,8 +67,8 @@ export function ThemeProvider({ children }: {
       const timer=window.setTimeout(update,0);media.addEventListener("change",update);
       return()=>{clearTimeout(timer);media.removeEventListener("change",update);};
     },[system]);
-    function setSystem(value:boolean){setSystemState(value);try{localStorage.setItem("fintrack-theme-system",String(value));}catch{}}
-    function setTheme(value: Theme) {
+    const setSystem=useCallback((value:boolean)=>{setSystemState(value);try{localStorage.setItem("fintrack-theme-system",String(value));}catch{}},[]);
+    const setTheme=useCallback((value: Theme) => {
         setSystem(false);
         setThemeState(value);
         applyTheme(value);
@@ -78,8 +78,9 @@ export function ThemeProvider({ children }: {
         catch {
             // Keep the selected theme for this session without persistence.
         }
-    }
-    return <ThemeContext.Provider value={{ theme, setTheme, system, setSystem }}>{children}</ThemeContext.Provider>;
+    },[setSystem]);
+    const value=useMemo(()=>({theme,setTheme,system,setSystem}),[theme,setTheme,system,setSystem]);
+    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 export function useTheme() {
     return useContext(ThemeContext);

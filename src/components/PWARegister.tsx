@@ -14,6 +14,8 @@ import {
   subscribeToNetworkStatus,
 } from "@/lib/pwa";
 
+import {watchServiceWorkerUpdates} from "@/lib/pwa-registration";
+
 const installDismissedKey = "fintrack-install-dismissed-at";
 
 export default function PWARegister() {
@@ -46,6 +48,14 @@ export default function PWARegister() {
   },[]);
 
   useEffect(() => {
+    let stopUpdates: (()=>void)|undefined;
+    const register = () => {
+      stopUpdates=watchServiceWorkerUpdates(navigator.serviceWorker,{
+        onRegistration: registration=>{registrationRef.current=registration;},
+        onUpdate: ()=>setUpdateAvailable(true),
+        onError: error=>reportHandledError("PWA service worker registration failed",error,"Service worker belum dapat didaftarkan."),
+      });
+    };
     const handleInstallPrompt = (event: Event) => {
       const promptEvent = event as BeforeInstallPromptEvent;
       promptEvent.preventDefault();
@@ -94,26 +104,14 @@ export default function PWARegister() {
         );
       }
     } else {
-      const register = async () => {
-        try {
-          const registration = await navigator.serviceWorker.register("/sw.js");
-          registrationRef.current = registration;
-          if (registration.waiting && navigator.serviceWorker.controller) setUpdateAvailable(true);
-          registration.addEventListener("updatefound", () => {
-            const installing = registration.installing;
-            installing?.addEventListener("statechange", () => {
-              if (installing.state === "installed" && navigator.serviceWorker.controller) setUpdateAvailable(true);
-            });
-          });
-        } catch (error) {
-          reportHandledError("PWA service worker registration failed", error, "Service worker belum dapat didaftarkan.");
-        }
-      };
       if (document.readyState === "complete") void register();
       else window.addEventListener("load", register, { once: true });
     }
 
     return () => {
+      window.removeEventListener("load",register);
+      stopUpdates?.();
+      registrationRef.current=null;
       window.removeEventListener("fintrack:request-install",handleManualInstall);
       window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);

@@ -1,4 +1,6 @@
 "use client";
+import {getNumberFormatter} from "@/lib/intl";
+
 
 import {useState} from "react";
 
@@ -18,7 +20,7 @@ type Position=ReturnType<typeof buildInvestmentPositions>[number];
 
 export function InvestmentDetail({position,executions,accountName,totalCost,onClose,onTrade,onEdit,onDelete}:{position:Position;executions:InvestmentExecution[];accountName:string;totalCost:number;onClose:()=>void;onTrade:(side:"buy"|"sell")=>void;onEdit:(execution:InvestmentExecution)=>void;onDelete:()=>void}){
 
- const {t,language}=useLanguage();const [period,setPeriod]=useState("Semua");const trades=executions.filter(item=>item.account_id===position.accountId&&item.ticker===position.ticker).sort((a,b)=>a.executed_at.localeCompare(b.executed_at));const first=trades[0];const metadata=decodeInvestmentNote(first?.note);const isStock=metadata.category==="stock";const factor=isStock&&position.currency==="IDR"?100:1;const unit=isStock?(factor===100?"Lot":"Unit"):metadata.category==="gold"?"Gram":"Unit";const money=(amount:number)=>new Intl.NumberFormat(language==="en"?"en-ID":"id-ID",{style:"currency",currency:position.currency,maximumFractionDigits:position.currency==="IDR"?0:2}).format(amount);
+ const {t,language}=useLanguage();const [period,setPeriod]=useState("Semua");const trades=executions.filter(item=>item.account_id===position.accountId&&item.ticker===position.ticker).sort((a,b)=>a.executed_at.localeCompare(b.executed_at));const first=trades[0];const metadata=decodeInvestmentNote(first?.note);const isStock=metadata.category==="stock";const factor=isStock&&position.currency==="IDR"?100:1;const unit=isStock?(factor===100?"Lot":"Unit"):metadata.category==="gold"?"Gram":"Unit";const money=(amount:number)=>getNumberFormatter(language==="en"?"en-ID":"id-ID",{style:"currency",currency:position.currency,maximumFractionDigits:position.currency==="IDR"?0:2}).format(amount);
 
  const months=period==="1M"?1:period==="3M"?3:period==="6M"?6:period==="1T"?12:null;const start=new Date();if(months)start.setMonth(start.getMonth()-months);const points=trades.filter(item=>!months||new Date(item.executed_at)>=start);const max=Math.max(...points.map(item=>item.price),1),min=Math.min(...points.map(item=>item.price),0);const coords=points.map((item,index)=>`${points.length>1?index/(points.length-1)*320:160},${120-(item.price-min)/(max-min||1)*100}`).join(" ");
 

@@ -36,7 +36,7 @@ export default function ScreenSequence({ screens, active, onChange, reduced, eng
           scale: front ? 1 : .88 - Math.abs(offset) * .06,
           opacity: 1 }}
         transition={{ duration: reduced ? 0 : .8, ease: [.22, 1, .36, 1] }}
-        style={{ zIndex: 3 - Math.abs(offset), pointerEvents: front ? "auto" : "none", filter: front ? "none" : "blur(3px)", willChange: "transform" }}>
+        style={{ zIndex: 3 - Math.abs(offset), pointerEvents: front ? "auto" : "none", filter: front ? "none" : "blur(3px)" }}>
         <motion.div drag={reduced ? false : "x"} dragConstraints={{ left: 0, right: 0 }} dragElastic={.18}
           onDragEnd={(_, info) => {
             if (Math.abs(info.offset.x) > 35) onChange(screens[(selected + (info.offset.x < 0 ? 1 : -1) + screens.length) % screens.length].id);

@@ -905,7 +905,9 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
     setReceiptSuccess(null);
     setReceiptError(null);
   };
-  const scanReceipt = async (file: File) => {
+  const receiptAbortRef=useRef<AbortController|null>(null);
+  useEffect(()=>()=>receiptAbortRef.current?.abort(),[]);
+  const scanReceipt = useCallback(async (file: File) => {
     const validationError = validateSharedReceiptFile(file);
     if (validationError) {
       setReceiptSuccess(null);
@@ -917,11 +919,15 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
       setReceiptError(t(offlineWriteMessage));
       return;
     }
+    receiptAbortRef.current?.abort();
+    const controller=new AbortController();
+    receiptAbortRef.current=controller;
     setScanningReceipt(true);
     setReceiptSuccess(null);
     setReceiptError(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      if(controller.signal.aborted)return;
       if (!session?.access_token) throw new Error("Sesi login tidak ditemukan.");
       const body = new FormData();
       body.append("file", file);
@@ -930,8 +936,10 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
         headers: { Authorization: `Bearer ${session.access_token}` },
         body,
         cache: "no-store",
+        signal:controller.signal,
       });
       const result = await response.json().catch(() => ({})) as { extraction?: ReceiptExtraction; error?: string };
+      if(controller.signal.aborted)return;
       if (!response.ok || !result.extraction) throw new Error(result.error || "AI belum bisa menganalisis struk. Silakan isi form manual.");
       setForm((current) => applyReceiptExtractionToTransactionForm(
         current,
@@ -947,14 +955,14 @@ function TransactionDialog({ form, setForm, accounts, categories, categoryOption
       if (summary) setScanHistory((current) => [summary, ...current].slice(0, 3));
       setReceiptSuccess(t("Data struk berhasil diekstrak otomatis. Periksa kembali sebelum menyimpan."));
     } catch (error) {
-      setReceiptError(t(error instanceof Error ? error.message : "AI belum bisa menganalisis struk. Silakan isi form manual."));
+      if(!controller.signal.aborted)setReceiptError(t(error instanceof Error ? error.message : "AI belum bisa menganalisis struk. Silakan isi form manual."));
     } finally {
       if (receiptInputRef.current) receiptInputRef.current.value = "";
       if (cameraInputRef.current) cameraInputRef.current.value = "";
-      setScanningReceipt(false);
+      if(!controller.signal.aborted)setScanningReceipt(false);
     }
-  };
-  useEffect(()=>{if(captureParams.get("receipt")!=="1")return;const timer=window.setTimeout(()=>{const file=takePendingReceipt();const extraction=takePendingExtraction();if(file&&extraction){setForm(current=>applyReceiptExtractionToTransactionForm(current,extraction,buildTransactionCategoryOptions(categories,extraction.type??current.type)));onScan();}else if(file)void scanReceipt(file);},0);return()=>window.clearTimeout(timer);},[captureParams]);
+  }, [categories,setForm,onScan,t]);
+  useEffect(()=>{if(captureParams.get("receipt")!=="1")return;const timer=window.setTimeout(()=>{const file=takePendingReceipt();const extraction=takePendingExtraction();if(file&&extraction){setForm(current=>applyReceiptExtractionToTransactionForm(current,extraction,buildTransactionCategoryOptions(categories,extraction.type??current.type)));onScan();}else if(file)void scanReceipt(file);},0);return()=>window.clearTimeout(timer);},[captureParams,categories,setForm,onScan,scanReceipt]);
   if (isEditMode) return <EditTransactionEditor form={form} onChange={next=>setForm({...form,...next})} accounts={accounts} categories={categoryOptions} busy={saving} error={error} onClose={onClose} onSave={onSubmit} transactionId={transaction?.id}/>;
   return <><TransactionEditor form={form} onChange={next=>setForm({...form,...next})} accounts={accounts} categories={categoryOptions} busy={saving || scanningReceipt} error={error || receiptError} onClose={onClose} onSave={onSubmit} attachment={<>
     <input ref={receiptInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={event=>{const file=event.target.files?.[0];if(file)void scanReceipt(file);}}/>

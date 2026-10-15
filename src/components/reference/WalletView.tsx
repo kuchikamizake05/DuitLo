@@ -1,4 +1,6 @@
 "use client";
+import {getNumberFormatter} from "@/lib/intl";
+
 
 import { EmptyState } from "./EmptyState";
 import { useEffect, useState } from "react";
@@ -26,8 +28,8 @@ export function WalletView({ accounts, onAdd, onTransfer, onDetail }: { accounts
   const assets = active.filter(account => account.kind !== "liability" && account.includeInNetWorth!==false);
   const available = assets.every(account => account.currency === "IDR" || account.reporting_balance_idr != null);
   const balance = assets.reduce((sum,account)=>sum+Number(account.currency==="IDR"?account.current_balance:account.reporting_balance_idr??0),0);
-  const money = (account: AccountOverviewRecord) => visible && !hidden[account.id] ? new Intl.NumberFormat(language==="en"?"en-ID":"id-ID",{style:"currency",currency:account.currency,maximumFractionDigits:account.currency==="IDR"?0:2}).format(account.current_balance) : `${account.currency==="IDR"?"Rp":account.currency} ••••••`;
-  const total = !visible ? "Rp ••••••••••" : available ? new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(balance) : "—";
+  const money = (account: AccountOverviewRecord) => visible && !hidden[account.id] ? getNumberFormatter(language==="en"?"en-ID":"id-ID",{style:"currency",currency:account.currency,maximumFractionDigits:account.currency==="IDR"?0:2}).format(account.current_balance) : `${account.currency==="IDR"?"Rp":account.currency} ••••••`;
+  const total = !visible ? "Rp ••••••••••" : available ? getNumberFormatter("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(balance) : "—";
   const cards = <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pt-1 pb-0">
     {active.length ? active.map((account,index)=><ReferencePart key={account.id} page="dompet" part="wallet-card" values={{"Rekening Finansial":t(getAccountKindLabel(account.kind)),"Bank BCA":account.name,"BCA":institutionBadge(account.institution||account.name),"Rekening Utama":account.institution??t(getAccountKindLabel(account.kind)),"Rp 14.500.000":money(account),"•••• •••• 8829":account.currency,"icon:visibility":visible&&!hidden[account.id]?"visibility":"visibility_off"}}
       attributes={{"dompet.35":{className:"flex items-center justify-center shrink-0"},"dompet.29":{role:"button",tabIndex:0,"aria-label":`${t("Detail Rekening")} ${account.name}`,onClick:()=>onDetail(account),onKeyDown:(event:React.KeyboardEvent)=>{if(event.target===event.currentTarget&&(event.key==="Enter"||event.key===" ")){event.preventDefault();onDetail(account);}},style:{cursor:"pointer",background:`linear-gradient(125deg,${cardPalettes[account.cardColor??""]??["#11315b,#194b80,#2b65a0","#104238,#176558,#23816e","#102e25,#1b4e3b,#27674e","#252a34,#383f4d,#4d5668"][index%4]})`}},"dompet.41":{onClick:(event:React.MouseEvent)=>{event.stopPropagation();setHidden(current=>({...current,[account.id]:!current[account.id]}));},"aria-label":t(hidden[account.id]?"Tampilkan saldo":"Sembunyikan saldo")}}}

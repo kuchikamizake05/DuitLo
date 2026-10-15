@@ -52,6 +52,7 @@ async function mockTransactionScanPage(page: Page, options: { parserStatus?: num
   let parserRequests = 0;
 
   await mockAuthenticatedSession(page);
+  await page.addInitScript(userId => localStorage.setItem(`fintrack:menu-guide:${userId}:mode`, "paused"), user.id);
   await page.route("**/api/receipts/parse", async (route) => {
     parserRequests += 1;
     expect(route.request().method()).toBe("POST");

@@ -13,7 +13,7 @@ const presets=["#ffffff","#111827","#e2e8f0","#dbeafe","#dcfce7","#fef3c7"];
 export function LogoEditor(){
  const [variants,setVariants]=useState<LogoVariant[]>([]);
  const [approved,setApproved]=useState<Record<string,Approved>>({});
- const [selection,setSelection]=useState<LogoSelection>(defaultLogoSelection(institutions[0].id,"bca"));
+ const [selection,setSelection]=useState<LogoSelection>(()=>defaultLogoSelection(institutions[0].id,"bca"));
  const [source,setSource]=useState("");
  const [institutionSearch,setInstitutionSearch]=useState("");
  const [variantSearch,setVariantSearch]=useState("");
