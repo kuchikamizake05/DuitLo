@@ -21,6 +21,14 @@ const sampleValidPayload = {
 };
 
 describe("receiptExtractionSchema", () => {
+  it("rejects impossible calendar dates from extracted receipts", () => {
+    for (const date of ["2026-02-29", "2026-02-31", "2026-04-31"]) {
+      expect(receiptExtractionSchema.safeParse({ ...sampleValidPayload, date }).success).toBe(false);
+    }
+    for (const date of ["2024-02-29", "2026-02-28", "2026-04-30"]) {
+      expect(receiptExtractionSchema.safeParse({ ...sampleValidPayload, date }).success).toBe(true);
+    }
+  });
   it("accepts valid extraction data", () => {
     const result = receiptExtractionSchema.safeParse(sampleValidPayload);
     expect(result.success).toBe(true);

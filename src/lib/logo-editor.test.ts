@@ -1,11 +1,23 @@
 import {describe,it,expect,vi,afterEach} from 'vitest';
-import {defaultLogoSelection,logoSelectionSchema,buildLogoSvg} from './logo-editor';
+import {defaultLogoSelection,logoSelectionSchema,buildLogoSvg,updateLogoCropPercent} from './logo-editor';
 import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
 import path from 'node:path';
 import {tmpdir} from 'node:os';
 import {allowLocalLogoRequest,approveLogo} from '../server/local-logo-editor';
 afterEach(()=>vi.unstubAllEnvs());
 describe('local SVG editor',()=>{
+ it('keeps the last crop for empty or non-finite input',()=>{
+  const crop={x:0,y:0,width:.35,height:1};
+  for(const value of ['', ' ', '-', 'NaN', 'Infinity'])expect(updateLogoCropPercent(crop,'width',value)).toBe(crop);
+ });
+ it('clamps crop percentages to a valid SVG region',()=>{
+  const initial=defaultLogoSelection('bca','bca');
+  expect(updateLogoCropPercent(initial.crop,'width','35').width).toBe(.35);
+  for(const field of ['x','y','width','height'] as const)for(const value of ['-10','0','98','100','200']){
+   const crop=updateLogoCropPercent(initial.crop,field,value);
+   expect(logoSelectionSchema.safeParse({...initial,crop}).success).toBe(true);
+  }
+ });
  it('keeps original paths and inherited fill while applying crop and background',()=>{const settings={...defaultLogoSelection('bca','bca'),background:'#ffcc00',crop:{x:0,y:0,width:.3,height:1},zoom:1.5,panX:.2};const svg=buildLogoSvg('<svg viewBox="0 0 80 26" fill="none"><path d="M0 0H20V20Z" fill="#0060AF"/></svg>',[0,0,80,26],settings);expect(svg).toContain('fill="#ffcc00"');expect(svg).toContain('width="24"');expect(svg).toContain('fill="none"');expect(svg).toContain('d="M0 0H20V20Z"');});
  it('rejects invalid crop, paths, colors, and active SVG content',()=>{const initial=defaultLogoSelection('bca','bca');for(const value of [{...initial,variant:'../secret'},{...initial,background:'url(http://bad)'},{...initial,crop:{x:.9,y:0,width:.5,height:1}}])expect(logoSelectionSchema.safeParse(value).success).toBe(false);expect(()=>buildLogoSvg('<svg><script>alert(1)</script></svg>',[0,0,80,26],initial)).toThrow();});
  it('writes only the approved export and leaves the original source unchanged',async()=>{
