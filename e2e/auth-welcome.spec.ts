@@ -5,6 +5,7 @@ for(const theme of ["light","dark"]){
   await page.addInitScript(value=>localStorage.setItem("fintrack-theme",value),theme);
   await page.goto("/login?welcome=1");
   await expect(page.getByLabel("Alamat email")).toBeVisible();
+  await expect(page.locator(`img[data-login-theme="${theme}"]`)).toHaveCount(1);
   await expect(page.locator(`img[data-login-theme="${theme}"]`)).toBeVisible();
   await expect(page.locator(`img[data-login-theme="${theme==="dark"?"light":"dark"}"]`)).toBeHidden();
   await page.getByRole("button",{name:"Daftar",exact:true}).click();

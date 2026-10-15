@@ -18,6 +18,8 @@ for (const theme of ["light", "dark"] as const) {
     await page.waitForLoadState("networkidle");
     await expect(guide.getByRole("heading", { name: "Beranda", exact: true })).toBeVisible();
     await guide.getByRole("button", { name: "Lanjut", exact: true }).click();
+    await page.waitForLoadState("networkidle");
+    await expect(guide.getByRole("heading",{name:"Dompet",exact:true})).toBeVisible();
     await guide.getByRole("button", { name: "Lanjut", exact: true }).click();
     await page.waitForLoadState("networkidle");
     await expect(guide.getByRole("heading", { name: "Catat", exact: true })).toBeVisible();
@@ -42,6 +44,7 @@ for (const theme of ["light", "dark"] as const) {
     await guide.getByRole("button", { name: "Selesai", exact: true }).click();
     await expect(guide).toHaveCount(0);
     await page.reload();
+    await page.waitForLoadState("networkidle");
     await expect(guide).toHaveCount(0);
     await page.goto("/dashboard");
     await page.getByRole("button", { name: "Panduan menu", exact: true }).click();
