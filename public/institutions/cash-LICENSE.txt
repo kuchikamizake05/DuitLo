@@ -1,0 +1,5 @@
+Dollar Banknote (1f4b5), Twemoji v14.0.2.
+Copyright Twitter, Inc and other contributors.
+Source: https://github.com/twitter/twemoji/blob/v14.0.2/assets/svg/1f4b5.svg
+Graphics licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Unmodified artwork.
