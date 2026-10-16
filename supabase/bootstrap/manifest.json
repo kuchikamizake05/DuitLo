@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "purpose": "Reviewed fresh build only; not a deployed Supabase migration history repair",
+  "files": [
+    {
+      "path": "supabase/schema.sql",
+      "sha256": "cd82b28989457a804f5069000a8bff334daf57a117ec0613aeed0b4e9dfc2be2"
+    },
+    {
+      "path": "supabase/migrations/20260713_align_transaction_category.sql",
+      "sha256": "e0f026a2f129414ac5fdaed4f46a3ae879377451a347886f4ba904ba833aa20a"
+    },
+    {
+      "path": "supabase/migrations/20260714_add_financial_accounts.sql",
+      "sha256": "b3d695c1ac8405ef729f2a1d5f7fec8dee4866cfc2e5c1eff2ef20a1882868c7"
+    },
+    {
+      "path": "supabase/migrations/20260714_add_account_reporting_value.sql",
+      "sha256": "42a95acb71149d12599bc4b0e40c3d02350d8fffe1ec7b398c75f5354ff87fbf"
+    },
+    {
+      "path": "supabase/migrations/20260714_add_cross_currency_transfer_support.sql",
+      "sha256": "d55c3cbaec24e56f6340416985af5604968b330264d8bdd10c7e7ee1d52521c6"
+    },
+    {
+      "path": "supabase/migrations/20260714_add_financial_goals.sql",
+      "sha256": "b75271587ab85e219cda9faf78c16d773ccd31cbd9474290ea272d1829b29aa5"
+    },
+    {
+      "path": "supabase/migrations/20260714_add_investment_and_forex_journal.sql",
+      "sha256": "e414cb2a5b6cda0e79502a66105027d303d502e0e7fb48dc2cd0427e6da1c3b0"
+    },
+    {
+      "path": "supabase/migrations/20260714_add_ai_trade_reviews.sql",
+      "sha256": "90fb4209a88891ea54e89cb7e05ab8dc512527ea8c8020ac5ae44001f717a2c2"
+    },
+    {
+      "path": "supabase/migrations/20260817_add_financial_controls.sql",
+      "sha256": "60fbcc27859b54e5d693c85d5cdfab11462e1a53f1c98468eafcd6bad1de2879"
+    },
+    {
+      "path": "supabase/migrations/20260820000000_repair_account_equity_snapshots_and_account_lifecycle.sql",
+      "sha256": "5512829cac0873a0b474b318ac06fd421224bac54518e1104560e4003d58789e"
+    },
+    {
+      "path": "supabase/migrations/20260904000000_add_monthly_financial_reports.sql",
+      "sha256": "973f4b9812ddeae2eebb65d74c89d34714a14b4db1eec10001e952b103d594b1"
+    },
+    {
+      "path": "supabase/migrations/20260913000000_add_financial_journey.sql",
+      "sha256": "6746d39d2a47e9ea203ba6413cb8de98aba2dd0c03225a1fb9df66d8e130b2c0"
+    },
+    {
+      "path": "supabase/migrations/20260914000000_add_financial_journey_streak.sql",
+      "sha256": "4cb960fb77cd4a75bf371385c3b64a9b2ca827a47719c62d9b5e92707c7daa2c"
+    },
+    {
+      "path": "supabase/migrations/202610130001_profile_photos.sql",
+      "sha256": "a18216f715925a94a4a406d418ae05a73cf1ffd4ce3ec1cf55db03e69aeb4a9d"
+    },
+    {
+      "path": "supabase/migrations/202610140001_goal_deposits.sql",
+      "sha256": "c39388b029224f646d1bb23ead8e096aa7c5a4b83dd469cdfbe19d54841c0d37"
+    },
+    {
+      "path": "supabase/migrations/202610150001_restrict_ledger_helpers.sql",
+      "sha256": "b9660f55e0181b66ae5366ad7acc4d2c673524771ad55c0cb4495123d48a9bfb"
+    },
+    {
+      "path": "supabase/migrations/202610160001_financial_integrity.sql",
+      "sha256": "f80a6b7b87fd8bd7027a8a061b971e8ce62c8a9171c215cbf0b9f880ccd49f5f"
+    },
+    {
+      "path": "supabase/migrations/202610160002_billing_entitlements.sql",
+      "sha256": "7794629a49035b6fa5f611ecbb8b6bc900cc6fd4ee4d7c2000a1b7a433cb8adb"
+    },
+    {
+      "path": "supabase/migrations/202610160003_data_control_requests.sql",
+      "sha256": "1d1f085af183588e72834e40e9ea48525ddb286e10b5ea631e51cf6cf1f7e902"
+    }
+  ],
+  "excluded": [
+    {
+      "path": "supabase/migrations/20260714_add_account_equity_snapshots.sql",
+      "sha256": "67716149afb7b0b0add70a7dcac1510618618706b2985cec27ac17a4c0e60214",
+      "reason": "Literal ga placeholder. Effective snapshot schema comes from 20260820000000 repair; historical file preserved."
+    }
+  ],
+  "tests": [
+    "supabase/tests/ledger-helper-access.sql",
+    "supabase/tests/financial-integrity.sql",
+    "supabase/tests/billing-entitlements.sql",
+    "supabase/tests/data-control-requests.sql",
+    "supabase/tests/billing-investment-isolation.sql"
+  ]
+}

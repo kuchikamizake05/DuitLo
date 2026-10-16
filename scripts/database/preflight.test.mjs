@@ -26,3 +26,19 @@ test('preflight validates reviewed fresh manifest without executing any SQL', ()
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.match(result.stdout, /Reviewed fresh bootstrap verified/);
 });
+
+test('disposable SQL runner refuses implicit execution before connecting', () => {
+  const result = spawnSync(process.execPath, ['scripts/database/run-disposable.mjs'], {
+    encoding: 'utf8', env: { ...process.env, FINTRACK_DISPOSABLE_DATABASE: '' },
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Requires FINTRACK_DISPOSABLE_DATABASE=YES/);
+});
+
+test('disposable SQL runner refuses a production database name even with explicit flag', () => {
+  const result = spawnSync(process.execPath, ['scripts/database/run-disposable.mjs'], {
+    encoding: 'utf8', env: { ...process.env, FINTRACK_DISPOSABLE_DATABASE: 'YES', PGDATABASE: 'production' },
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /PGDATABASE must be an explicitly named/);
+});

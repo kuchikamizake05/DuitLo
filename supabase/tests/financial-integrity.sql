@@ -14,6 +14,12 @@ begin
  perform set_config('request.jwt.claim.sub',owner_id::text,true);
  set local role authenticated;
  begin
+  insert into financial_goals(user_id,name,target_amount,current_amount)
+  values(owner_id,'Unbacked savings',1000,100);
+  raise exception 'New unbacked goal amount allowed';
+ exception when check_violation then null;
+ end;
+ begin
   update financial_goals set current_amount=500 where id=goal;
   raise exception 'Direct goal mutation allowed';
  exception when insufficient_privilege then null;
@@ -21,10 +27,32 @@ begin
  update financial_goals set name='Renamed safely' where id=goal;
  perform deposit_to_financial_goal(request,goal,wallet,100);
  perform deposit_to_financial_goal(request,goal,wallet,100);
+ update financial_goals set is_active=false where id=goal;
+ perform deposit_to_financial_goal(request,goal,wallet,100);
+ begin
+  perform deposit_to_financial_goal(gen_random_uuid(),goal,wallet,100);
+  raise exception 'New deposit into archived goal allowed';
+ exception when raise_exception then
+  if sqlerrm <> 'Goal unavailable' then raise; end if;
+ end;
  if (select current_amount from financial_goals where id=goal) <> 100
  or (select current_balance from financial_accounts where id=wallet) <> 900 then
   raise exception 'Deposit replay changed balances';
  end if;
+ begin
+  update financial_goals set currency='USD' where id=goal;
+  raise exception 'Funded goal currency was relabelled';
+ exception when check_violation then null;
+ end;
+ -- Historical deposits still lock currency when an administrator has zeroed the goal.
+ reset role;
+ update financial_goals set current_amount=0 where id=goal;
+ set local role authenticated;
+ begin
+  update financial_goals set currency='USD' where id=goal;
+  raise exception 'Goal deposit history currency was relabelled';
+ exception when check_violation then null;
+ end;
  begin
   delete from financial_accounts where id=wallet;
   raise exception 'Nonzero wallet deletion allowed';

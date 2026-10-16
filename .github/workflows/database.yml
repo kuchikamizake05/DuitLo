@@ -1,0 +1,55 @@
+name: Database integrity
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: disposable-ci-only
+          POSTGRES_DB: fintrack_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: disposable-ci-only
+      PGDATABASE: fintrack_ci
+      FINTRACK_DISPOSABLE_DATABASE: 'YES'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Manifest regressions
+        run: node --test scripts/database/preflight.test.mjs
+      - name: Isolated journey regressions before bootstrap
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/financial-journey.sql
+      - name: Fresh bootstrap and financial RLS/trigger regressions
+        run: node scripts/database/run-disposable.mjs
+  worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: worker/go.mod
+          cache-dependency-path: worker/go.mod
+      - name: Worker tests
+        working-directory: worker
+        run: go test ./...
