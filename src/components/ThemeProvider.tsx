@@ -46,16 +46,18 @@ export function ThemeProvider({ children }: {
         return () => observer.disconnect();
     }, []);
     useEffect(() => {
-        let stored: Theme = "light";
+        let savedTheme: string | null = null;
+        let savedSystem: string | null = null;
         try {
-            stored = localStorage.getItem("fintrack-theme") === "dark" ? "dark" : "light";
+            savedTheme = localStorage.getItem("fintrack-theme");
+            savedSystem = localStorage.getItem("fintrack-theme-system");
+        } catch {
+            // Use the device preference when browser storage is unavailable.
         }
-        catch {
-            // Theme switching remains available when browser storage is blocked.
-        }
-        let followsSystem=false;
-        try {followsSystem=localStorage.getItem("fintrack-theme-system")==="true";}catch{}
-        if(followsSystem)stored=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+        const followsSystem = savedSystem === "true" || (savedSystem !== "false" && savedTheme !== "light" && savedTheme !== "dark");
+        const stored: Theme = followsSystem
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+            : savedTheme === "dark" ? "dark" : "light";
         applyTheme(stored);
         const timer = window.setTimeout(() => {setThemeState(stored);setSystemState(followsSystem);}, 0);
         return () => window.clearTimeout(timer);

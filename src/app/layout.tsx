@@ -62,7 +62,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${jetbrainsMono.variable} ${manrope.variable} ${archivoBlack.variable} ${jakarta.variable} h-full antialiased`}>
+    <html lang="id" className={`${jetbrainsMono.variable} ${manrope.variable} ${archivoBlack.variable} ${jakarta.variable} h-full antialiased`} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: `(function(){var t=null,s=null;try{t=localStorage.getItem("fintrack-theme");s=localStorage.getItem("fintrack-theme-system")}catch(e){}var follow=s==="true"||(s!=="false"&&t!=="light"&&t!=="dark");var dark=follow?window.matchMedia("(prefers-color-scheme: dark)").matches:t==="dark";document.documentElement.classList.toggle("dark",dark);document.documentElement.style.colorScheme=dark?"dark":"light"})();` }} /></head>
       <body className="flex min-h-full flex-col bg-[var(--canvas)] font-sans text-slate-900">
         <ThemeProvider><LanguageProvider>
           <ProfilePhotoProvider><ToastProvider>
