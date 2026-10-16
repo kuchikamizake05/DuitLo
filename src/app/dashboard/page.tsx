@@ -1,4 +1,5 @@
 "use client";
+import { fetchAllRows } from "@/lib/paginated-query";
 import {getNumberFormatter} from "@/lib/intl";
 
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
@@ -142,32 +143,39 @@ export default function DashboardPage() {
         const previousMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1);
 
         const [txResult, previousResult, pendingResult, accountResult, goalResult, budgetResult] = await Promise.all([
-          supabase
+          fetchAllRows((from, to) => supabase
             .from("transactions")
-            .select("*")
+            .select("*", { count: "exact" })
             .eq("user_id", user.id)
             .neq("status", "deleted")
             .neq("status", "pending_approval")
             .neq("status", "needs_review")
             .gte("date", start)
             .lte("date", end)
-            .order("date", { ascending: false }),
-          supabase
+            .order("date", { ascending: false })
+            .order("id", { ascending: false })
+            .range(from, to)),
+          fetchAllRows((from, to) => supabase
             .from("transactions")
-            .select("amount, account_id")
+            .select("id, amount, account_id", { count: "exact" })
             .eq("user_id", user.id)
             .eq("type", "expense")
             .neq("status", "deleted")
             .neq("status", "pending_approval")
             .neq("status", "needs_review")
             .gte("date", format(startOfMonth(previousMonth), "yyyy-MM-dd"))
-            .lte("date", format(endOfMonth(previousMonth), "yyyy-MM-dd")),
-          supabase
+            .lte("date", format(endOfMonth(previousMonth), "yyyy-MM-dd"))
+            .order("date", { ascending: false })
+            .order("id", { ascending: false })
+            .range(from, to)),
+          fetchAllRows((from, to) => supabase
             .from("transactions")
-            .select("*")
+            .select("*", { count: "exact" })
             .eq("user_id", user.id)
             .in("status", ["pending_approval", "needs_review"])
-            .order("created_at", { ascending: false }),
+            .order("created_at", { ascending: false })
+            .order("id", { ascending: false })
+            .range(from, to)),
           supabase
             .from("financial_accounts")
             .select("id, name, institution, kind, currency, current_balance, reporting_balance_idr, is_active, updated_at")

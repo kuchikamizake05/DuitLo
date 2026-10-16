@@ -32,6 +32,20 @@ describe("fetchAllRows", () => {
     expect((await fetchAllRows(async () => ({ data: [], error: null, count: 0 }))).data).toEqual([]);
   });
 
+  it("continues across capped pages when counts are unavailable until an empty page", async () => {
+    const rows = [{ id: "a" }, { id: "b" }, { id: "c" }];
+    const page = vi.fn(async (from: number) => ({ data: rows.slice(from, from + 1), error: null, count: null }));
+    expect((await fetchAllRows(page)).data).toEqual(rows);
+    expect(page).toHaveBeenCalledTimes(4);
+  });
+
+  it("rejects malformed successful responses instead of presenting partial totals", async () => {
+    await expect(fetchAllRows(async () => ({ data: null, error: null, count: 0 }))).rejects.toThrow(/missing rows/i);
+    await expect(fetchAllRows(async () => ({ data: [], error: null, count: -1 }))).rejects.toThrow(/invalid.*count/i);
+    await expect(fetchAllRows(async () => ({ data: [{ id: "a" }, { id: "b" }], error: null, count: 1 }))).rejects.toThrow(/count changed/i);
+    await expect(fetchAllRows(async () => ({ data: [{ id: "a" }, { id: "b" }], error: null, count: 2 }), { pageSize: 1 })).rejects.toThrow(/range/i);
+  });
+
   it("rejects unbounded or invalid pagination options", async () => {
     const page = vi.fn(async (from: number) => ({ data: [{ id: String(from) }], error: null, count: null }));
     await expect(fetchAllRows(page, { maxPages: 2 })).rejects.toThrow(/limit/i);

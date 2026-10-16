@@ -1,6 +1,6 @@
 import {describe,it,expect} from "vitest";
 import type {SupabaseClient} from "@supabase/supabase-js";
-import {beginFinancialOperation,finishFinancialOperation,readFinancialOperation,goalMetadataPayload,createTransferOnce} from "./financial-operation";
+import {beginFinancialOperation,finishFinancialOperation,readFinancialOperation,goalMetadataPayload,createTransferOnce,goalCreatePayload} from "./financial-operation";
 
 function storage(){const values=new Map<string,string>();return {getItem:(key:string)=>values.get(key)??null,setItem:(key:string,value:string)=>{values.set(key,value);},removeItem:(key:string)=>{values.delete(key);}};}
 const payload={goal_id:"goal",account_id:"wallet",amount:100000};
@@ -32,6 +32,11 @@ describe("durable financial operations",()=>{
   const result=goalMetadataPayload("alice",{name:"New laptop",targetAmount:"2000000",currentAmount:"0",currency:"IDR",dueDate:""});
   expect(result).toEqual({user_id:"alice",name:"New laptop",target_amount:2000000,currency:"IDR",due_date:null});
   expect(result).not.toHaveProperty("current_amount");
+ });
+ it("requires new goals to start empty so source-wallet deposits fund savings",()=>{
+  const form={name:"Laptop",targetAmount:"2000000",currentAmount:"0",currency:"IDR",dueDate:""};
+  expect(goalCreatePayload("alice",form)).toMatchObject({current_amount:0});
+  expect(()=>goalCreatePayload("alice",{...form,currentAmount:"100000"})).toThrow();
  });
 });
 

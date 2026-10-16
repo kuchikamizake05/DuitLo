@@ -1,4 +1,5 @@
 "use client";
+import { fetchAllRows } from "@/lib/paginated-query";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import { useFinancialRefresh } from "@/components/reference/useFinancialRefresh";
 
@@ -134,18 +135,26 @@ export default function InsightsPage() {
       if (sessionError || !session) throw sessionError ?? new Error("Sesi login tidak ditemukan.");
       const bounds = monthBounds(month, dateLocale);
       const [currentResult, previousResult, accountsResult] = await Promise.all([
-        supabase
+        fetchAllRows((from, to) => supabase
           .from("transactions")
-          .select("id, date, type, category, amount, status, account_id")
+          .select("id, date, type, category, amount, status, account_id", { count: "exact" })
           .eq("user_id", session.user.id)
           .gte("date", bounds.currentStart)
-          .lte("date", bounds.currentEnd),
-        supabase
+          .lte("date", bounds.currentEnd)
+          .order("date", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to)
+          .abortSignal(controller.signal)),
+        fetchAllRows((from, to) => supabase
           .from("transactions")
-          .select("id, date, type, category, amount, status, account_id")
+          .select("id, date, type, category, amount, status, account_id", { count: "exact" })
           .eq("user_id", session.user.id)
           .gte("date", bounds.previousStart)
-          .lte("date", bounds.previousEnd),
+          .lte("date", bounds.previousEnd)
+          .order("date", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to)
+          .abortSignal(controller.signal)),
         supabase
           .from("financial_accounts")
           .select("id, currency, reporting_balance_idr, is_active")

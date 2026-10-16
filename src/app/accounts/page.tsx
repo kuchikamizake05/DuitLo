@@ -25,6 +25,9 @@ type AccountFilter,
 type AccountOverviewRecord
 } from "@/lib/accounts";
 import { reportHandledError } from "@/lib/errors";
+import {fetchAllRows} from "@/lib/paginated-query";
+import type {ReservedGoalAsset} from "@/lib/financial-assets";
+import {beginFinancialOperation,finishFinancialOperation,readFinancialOperation,createTransferOnce,FinancialOperationConflict,type TransferPayload} from "@/lib/financial-operation";
 import { getIdrRates,type FxRateResult } from "@/lib/fx";
 import type { FinancialAccountKind } from "@/lib/ledger";
 import { formatLocalDate } from "@/lib/planning";
@@ -97,6 +100,10 @@ const createTransferForm = () => ({
   note: "",
 });
 
+function recoveredTransfer(payload:Record<string,string|number|boolean|null>){
+ return {sourceAccountId:String(payload.source_account_id),destinationAccountId:String(payload.destination_account_id),amount:String(payload.amount),destinationAmount:String(payload.destination_amount),date:String(payload.date),kind:String(payload.kind),note:String(payload.note??"")};
+}
+
 type AccountFormState = typeof emptyAccountForm;
 type TransferFormState = ReturnType<typeof createTransferForm>;
 type BalanceFormState = { currentBalance: string; reportingBalanceIdr: string };
@@ -142,6 +149,7 @@ export default function AccountsPage() {
   const params=useSearchParams();
   const openedView=useRef<string|null>(null);
   const [accounts, setAccounts] = useState<AccountOverviewRecord[]>([]);
+  const [reservedGoals,setReservedGoals]=useState<ReservedGoalAsset[]>([]);
   const [transfers, setTransfers] = useState<TransferRecord[]>([]);
   const [reconciliations, setReconciliations] = useState<ReconciliationRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -165,6 +173,7 @@ export default function AccountsPage() {
   const sourceInputRef = useRef<HTMLSelectElement>(null);
   const balanceInputRef = useRef<HTMLInputElement>(null);
   const lastTriggerRef = useRef<HTMLElement | null>(null);
+  const transferLock=useRef(false);
 
   const loadAccounts = useCallback(async () => {
     setLoading(true);
@@ -172,13 +181,13 @@ export default function AccountsPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const [accountsResult, transfersResult, reconciliationsResult] = await Promise.all([
-        supabase
+      const [accountsResult, transfersResult, reconciliationsResult, goalsResult] = await Promise.all([
+        fetchAllRows((from,to)=>supabase
           .from("financial_accounts")
-          .select("id, name, institution, kind, currency, current_balance, reporting_balance_idr, is_active, updated_at")
+          .select("id, name, institution, kind, currency, current_balance, reporting_balance_idr, is_active, updated_at",{count:"exact"})
           .eq("user_id", user.id)
           .order("is_active", { ascending: false })
-          .order("name", { ascending: true }),
+          .order("name", { ascending: true }).order("id",{ascending:true}).range(from,to)),
         supabase
           .from("account_transfers")
           .select("id, source_account_id, destination_account_id, amount, destination_amount, currency, destination_currency, date, note")
@@ -191,12 +200,14 @@ export default function AccountsPage() {
           .eq("user_id", user.id)
           .order("reconciled_at", { ascending: false })
           .limit(5),
+        fetchAllRows((from,to)=>supabase.from("financial_goals").select("id,currency,current_amount,is_active",{count:"exact"}).eq("user_id",user.id).order("id",{ascending:true}).range(from,to)),
       ]);
-      const error = accountsResult.error || transfersResult.error || reconciliationsResult.error;
+      const error = accountsResult.error || transfersResult.error || reconciliationsResult.error || goalsResult.error;
       if (error) throw error;
       setAccounts(((accountsResult.data ?? []) as AccountOverviewRecord[]).map((account,index)=>{const display=readAccountDisplay(user.id,account.id);return {...account,...display,cardColor:display.cardColor||["royal-blue","green","green","slate"][index%4]};}));
       setTransfers((transfersResult.data ?? []) as TransferRecord[]);
       setReconciliations((reconciliationsResult.data ?? []) as ReconciliationRecord[]);
+      setReservedGoals(goalsResult.data as ReservedGoalAsset[]);
     } catch (error) {
       reportHandledError("Accounts unavailable", error, "Data akun belum berhasil dimuat.");
       setPageError(t("Data akun belum berhasil dimuat. Coba lagi beberapa saat lagi."));
@@ -324,13 +335,18 @@ export default function AccountsPage() {
     }
   }
 
-  const openTransferDialog=useCallback(() => {
+  const openTransferDialog=useCallback(async () => {
     rememberTrigger();
     setTransferForm(createTransferForm());
     setFormError(null);
     setFormErrors({});
     setActiveDialog("transfer");
-  },[rememberTrigger]);
+    try{
+      const {data:{user}}=await supabase.auth.getUser();
+      const pending=user?readFinancialOperation(localStorage,user.id,"transfer"):null;
+      if(pending){setTransferForm(recoveredTransfer(pending.payload));setFormError(t("Data transfer yang belum terkonfirmasi dipulihkan. Periksa lalu konfirmasi lagi untuk memastikan hasilnya."));}
+    }catch{setFormError(t("Draft pemulihan belum dapat dibaca. Penyimpanan transfer memerlukan akses penyimpanan perangkat."));}
+  },[rememberTrigger,t]);
 
   useEffect(()=>{const view=params.get("view"),id=params.get("id"),key=`${view}:${id}`;if(loading||!view||openedView.current===key)return;const timer=window.setTimeout(()=>{openedView.current=key;if(view==="create")openAccountDialog();else if(view==="transfer")openTransferDialog();else if(view==="detail"){const account=id?accounts.find(item=>item.id===id):accounts[0];if(account)openEditAccountDialog(account);}},0);return()=>window.clearTimeout(timer);},[loading,params,accounts,openAccountDialog,openEditAccountDialog,openTransferDialog]);
 
@@ -471,6 +487,7 @@ export default function AccountsPage() {
 
   async function saveTransfer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if(transferLock.current||saving)return;
     if (!canWriteOnline()) {
       setFormError(t(offlineWriteMessage));
       return;
@@ -488,13 +505,13 @@ export default function AccountsPage() {
       setFormErrors(validation.errors as Record<string, string>);
       return;
     }
-    setSaving(true);
+    transferLock.current=true;setSaving(true);
     setFormError(null);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Sesi login tidak ditemukan.");
       const destinationAmount = isCrossCurrencyTransfer ? Number(transferForm.destinationAmount) : Number(transferForm.amount);
-      const { error } = await supabase.from("account_transfers").insert({
+      const payload:TransferPayload={
         user_id: user.id,
         source_account_id: sourceAccount.id,
         destination_account_id: destinationAccount.id,
@@ -505,8 +522,10 @@ export default function AccountsPage() {
         date: transferForm.date,
         kind: transferForm.kind,
         note: transferForm.note.trim() || null,
-      });
-      if (error) throw error;
+      };
+      const operation=beginFinancialOperation(localStorage,user.id,"transfer",payload);
+      await createTransferOnce(supabase,operation.id,payload);
+      finishFinancialOperation(localStorage,user.id,"transfer",operation.id);
       setActiveDialog(null);
       setTransferForm(createTransferForm());
       await loadAccounts();
@@ -514,8 +533,13 @@ export default function AccountsPage() {
     } catch (error) {
       reportHandledError("Transfer save failed", error, "Transfer belum berhasil disimpan.");
       setFormError(t("Transfer belum berhasil disimpan. Coba lagi."));
+      if(error instanceof FinancialOperationConflict){
+        const {data:{user}}=await supabase.auth.getUser();
+        if(user){const pending=readFinancialOperation(localStorage,user.id,"transfer");if(pending)setTransferForm(recoveredTransfer(pending.payload));}
+        setFormError(t("Data transfer sebelumnya dipulihkan. Periksa lalu konfirmasi lagi sebelum membuat transfer baru."));
+      }
     } finally {
-      setSaving(false);
+      transferLock.current=false;setSaving(false);
     }
   }
 
@@ -557,7 +581,7 @@ export default function AccountsPage() {
   return (
     <ReferenceRoot page="dompet">
       <Navbar />
-      {pageError&&<div role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</div>}{loading?<main className="pt-20 px-margin"><AccountsSkeleton/></main>:!pageError&&<WalletView accounts={accounts} onAdd={openAccountDialog} onTransfer={openTransferDialog} onDetail={openEditAccountDialog}/>}
+      {pageError&&<div role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</div>}{loading?<main className="pt-20 px-margin"><AccountsSkeleton/></main>:!pageError&&<WalletView accounts={accounts} reservedGoals={reservedGoals} onAdd={openAccountDialog} onTransfer={openTransferDialog} onDetail={openEditAccountDialog}/>}
 
 
       {activeDialog === "account" && <AccountEditor form={accountForm} setForm={updateAccountDraft} editing={Boolean(editingAccount)} account={editingAccount} busy={saving} error={formError??(Object.values(formErrors).join(" ")||null)} onClose={closeDialog} onSave={saveAccount} onDelete={editingAccount?()=>openAccountDeleteDialog(editingAccount):undefined} onTransfer={openTransferDialog} onAdjust={editingAccount?()=>openBalanceDialog(editingAccount):undefined}/>}

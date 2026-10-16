@@ -1,4 +1,5 @@
 "use client";
+import { fetchAllRows } from "@/lib/paginated-query";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import {useSearchParams} from "next/navigation";
 
@@ -59,7 +60,7 @@ export default function PlanningPage() {
       if (!user) return;
       const [accountsResult, txResult, budgetsResult, savedCategoriesResult] = await Promise.all([
         supabase.from("financial_accounts").select("id,name,currency,current_balance,updated_at,is_active,kind").eq("user_id", user.id).order("is_active", { ascending: false }).order("name"),
-        supabase.from("transactions").select("id,date,type,merchant,category,amount,note,status,account_id").eq("user_id", user.id).gte("date", dateContext.month).lt("date", dateContext.nextMonth).order("date", { ascending: false }),
+        fetchAllRows((from, to) => supabase.from("transactions").select("id,date,type,merchant,category,amount,note,status,account_id", { count: "exact" }).eq("user_id", user.id).gte("date", dateContext.month).lt("date", dateContext.nextMonth).order("date", { ascending: false }).order("id", { ascending: false }).range(from, to)),
         supabase.from("financial_budgets").select("id,category,month,limit_amount").eq("user_id", user.id).eq("month", dateContext.month),
         supabase.from("categories").select("name,type").or(`user_id.is.null,user_id.eq.${user.id}`).order("name"),
       ]);

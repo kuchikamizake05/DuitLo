@@ -1,4 +1,5 @@
 "use client";
+import { fetchAllRows } from "@/lib/paginated-query";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import {createTransactionOnce,TransactionWriteConflict} from "@/lib/transaction-write";
 import {updateTransactionVersion,TransactionVersionConflict} from "@/lib/transaction-version";
@@ -199,12 +200,14 @@ export default function TransactionsPage() {
       }
 
       const [transactionResult, accountResult, categoryResult] = await Promise.all([
-        supabase
+        fetchAllRows((from, to) => supabase
           .from("transactions")
-          .select("*")
+          .select("*", { count: "exact" })
           .eq("user_id", user.id)
           .order("date", { ascending: false })
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to)),
         supabase
           .from("financial_accounts")
           .select("id, name, currency, current_balance, institution, kind")

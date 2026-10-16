@@ -12,7 +12,10 @@ import { GoalsView } from "@/components/reference/GoalsView";
 import { ReferenceRoot } from "@/components/reference/runtime";
 import { supabase } from "@/infrastructure/supabase/browser-client";
 import { reportHandledError } from "@/lib/errors";
+import {fetchAllRows} from "@/lib/paginated-query";
+import {beginFinancialOperation,finishFinancialOperation,readFinancialOperation,goalMetadataPayload,goalCreatePayload,FinancialOperationConflict,type FinancialOperation} from "@/lib/financial-operation";
 import { useCallback,useEffect,useRef,useState,type FormEvent } from "react";
+import type {GoalDeposit} from "@/components/reference/GoalEditors";
 
 type FinancialGoal = { id: string; name: string; target_amount: number; current_amount: number; currency: string; color: string | null; due_date: string | null; is_active: boolean };
 type GoalForm = { name: string; targetAmount: string; currentAmount: string; currency: string; dueDate: string };
@@ -37,7 +40,9 @@ export default function GoalsPage() {
   const [saving, setSaving] = useState(false);
   const [archivingId, setArchivingId] = useState<string | null>(null);
   const requestRef = useRef(0);
-  const depositLock=useRef(false);const depositRequest=useRef<{signature:string;id:string}|null>(null);
+  const depositLock=useRef(false);
+  const [pendingDeposit,setPendingDeposit]=useState<FinancialOperation|null>(null);
+  const [deposits,setDeposits]=useState<GoalDeposit[]>([]);
 
   const load = useCallback(async () => {
     const requestId = ++requestRef.current;
@@ -49,7 +54,9 @@ export default function GoalsPage() {
       const { data, error: goalsError } = await supabase.from("financial_goals").select("id,name,target_amount,current_amount,currency,color,due_date,is_active").eq("user_id", user.id).order("due_date", { ascending: true, nullsFirst: false });
       if (goalsError) throw goalsError;
       const {data:accountData,error:accountError}=await supabase.from("financial_accounts").select("id,name,currency,current_balance").eq("user_id",user.id).eq("is_active",true).neq("kind","liability");if(accountError)throw accountError;
-      if (requestId === requestRef.current){setGoals((data ?? []) as FinancialGoal[]);setSources(accountData??[]);}
+      const {data:depositData}=await fetchAllRows((from,to)=>supabase.from("financial_goal_deposits").select("id,goal_id,account_id,amount,currency,created_at,account:financial_accounts(name)",{count:"exact"}).eq("user_id",user.id).order("created_at",{ascending:false}).order("id",{ascending:false}).range(from,to).returns<GoalDeposit[]>());
+      const pending=readFinancialOperation(localStorage,user.id,"goal-deposit");
+      if (requestId === requestRef.current){setGoals((data ?? []) as FinancialGoal[]);setSources(accountData??[]);setDeposits(depositData??[]);setPendingDeposit(pending);}
     } catch (caught) {
       if (requestId === requestRef.current) { reportHandledError("Goals unavailable", caught, "Goals belum berhasil dimuat."); setError(t("Goals belum berhasil dimuat. Coba lagi.")); }
     } finally { if (requestId === requestRef.current) setLoading(false); }
@@ -67,7 +74,8 @@ export default function GoalsPage() {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) throw authError ?? new Error("Session unavailable");
-      const payload={user_id:user.id,name:form.name.trim(),target_amount:targetAmount,current_amount:currentAmount,currency:form.currency,due_date:form.dueDate||null};
+      const metadata=goalMetadataPayload(user.id,form);
+      const payload=editingId?metadata:goalCreatePayload(user.id,form);
       const {error:insertError}=editingId?await supabase.from("financial_goals").update(payload).eq("id",editingId).eq("user_id",user.id):await supabase.from("financial_goals").insert(payload);
       if (insertError) throw insertError;
       setSheetOpen(false); await load();
@@ -80,11 +88,12 @@ export default function GoalsPage() {
     depositLock.current=true;setSaving(true);setError(null);
     try{
       const {data:{user},error:authError}=await supabase.auth.getUser();if(authError||!user)throw new Error("Session unavailable");
-      const signature=`${goal.id}:${accountId}:${amount}`;if(depositRequest.current?.signature!==signature)depositRequest.current={signature,id:crypto.randomUUID()};
-      const {data,error:updateError}=await supabase.rpc("deposit_to_financial_goal",{p_request_id:depositRequest.current.id,p_goal_id:goal.id,p_account_id:accountId,p_amount:amount});
+      const operation=beginFinancialOperation(localStorage,user.id,"goal-deposit",{goal_id:goal.id,account_id:accountId,amount});
+      setPendingDeposit(operation);
+      const {data,error:updateError}=await supabase.rpc("deposit_to_financial_goal",{p_request_id:operation.id,p_goal_id:goal.id,p_account_id:accountId,p_amount:amount});
       if(updateError||!data)throw updateError??new Error("Goal changed");
-      depositRequest.current=null;setDetailGoal(current=>current?.id===goal.id?data as FinancialGoal:current);setGoals(current=>current.map(item=>item.id===goal.id?data as FinancialGoal:item));setSources(current=>current.map(item=>item.id===accountId?{...item,current_balance:Number(item.current_balance)-amount}:item));return true;
-    }catch(caught){reportHandledError("Goal deposit failed",caught,"Setoran belum tersimpan.");setError(t("Setoran belum tersimpan. Coba lagi."));return false;}finally{depositLock.current=false;setSaving(false);}
+      finishFinancialOperation(localStorage,user.id,"goal-deposit",operation.id);setPendingDeposit(null);setDetailGoal(current=>current?.id===goal.id?data as FinancialGoal:current);await load();return true;
+    }catch(caught){reportHandledError("Goal deposit failed",caught,"Setoran belum tersimpan.");setError(t(caught instanceof FinancialOperationConflict?"Pulihkan setoran sebelumnya, lalu konfirmasi dengan data semula sebelum membuat setoran baru.":"Setoran belum tersimpan. Coba lagi."));return false;}finally{depositLock.current=false;setSaving(false);}
   }
 
   async function archiveGoal(goal: FinancialGoal) {
@@ -100,6 +109,6 @@ export default function GoalsPage() {
   }
 
   return <ReferenceRoot page="target"><Navbar/>{loading?<main className="pt-20 px-margin" aria-busy="true"><PageSkeleton variant="goals"/></main>:<GoalsView goals={goals} onQuickSave={goal=>{setQuickGoal(goals.find(item=>item.id===goal.id)??null);setQuickAmount("");setSourceId("");setError(null);}} onAdd={openSheet} onDetail={goal=>setDetailGoal(goals.find(item=>item.id===goal.id)??null)}/>}{error&&<p role="alert" className="px-margin text-error">{error}</p>}
-{quickGoal&&<DialogFrame titleId="quick-goal-title" onClose={()=>!saving&&setQuickGoal(null)} closeDisabled={saving}><form className="p-5 flex flex-col gap-4" onSubmit={async event=>{event.preventDefault();if(await depositGoal(quickGoal,Number(quickAmount),sourceId))setQuickGoal(null);}}><div><h2 id="quick-goal-title" className="text-headline-sm font-bold">{t("Nabung Cepat")}</h2><p className="mt-1 text-body-sm text-on-surface-variant">{quickGoal.name}</p></div><label className="text-body-sm">{t("Nominal Setoran")}<div className="quick-goal-amount mt-2 flex gap-3 items-center rounded-2xl bg-surface-container-low p-3"><span className="text-on-surface-variant">{quickGoal.currency==="IDR"?"Rp":quickGoal.currency}</span><input placeholder="0" autoFocus inputMode="decimal" required disabled={saving} value={quickAmount} onChange={event=>setQuickAmount(event.target.value)} type="number" min="0.01" step="any" className="w-full bg-transparent text-on-surface outline-none"/></div></label><label className="text-body-sm">{t("Rekening Sumber")}<select required disabled={saving} value={sourceId} onChange={event=>setSourceId(event.target.value)} className="mt-2 w-full rounded-2xl bg-surface-container p-3"><option value="">{t("Pilih akun")}</option>{sources.filter(item=>item.currency===quickGoal.currency).map(item=><option key={item.id} value={item.id}>{item.name} · {getNumberFormatter("id-ID",{style:"currency",currency:item.currency}).format(item.current_balance)}</option>)}</select></label><p className="text-body-sm text-on-surface-variant">{t("Setoran mengurangi saldo rekening sumber.")}</p>{error&&<p role="alert" className="text-error">{error}</p>}<div className="flex gap-3"><button type="button" disabled={saving} onClick={()=>setQuickGoal(null)} className="flex-1 rounded-full bg-surface-container py-3">{t("Batal")}</button><button type="submit" disabled={saving||Number(quickAmount)<=0||!sourceId} className="flex-1 rounded-full bg-primary-container py-3 disabled:opacity-50" style={{color:"#fff"}}>{t(saving?"Menyimpan...":"Konfirmasi Setoran")}</button></div></form></DialogFrame>}
-{sheetOpen&&<GoalEditor form={form} setForm={setForm} busy={saving} error={error} onSave={saveGoal} onClose={()=>!saving&&setSheetOpen(false)}/>}{detailGoal&&<GoalDetail goal={detailGoal} busy={saving} error={error} sources={sources} onDeposit={(amount,accountId)=>depositGoal(detailGoal,amount,accountId)} onClose={()=>setDetailGoal(null)} onEdit={()=>{setEditingId(detailGoal.id);setForm({name:detailGoal.name,targetAmount:String(detailGoal.target_amount),currentAmount:String(detailGoal.current_amount),currency:detailGoal.currency,dueDate:detailGoal.due_date??""});setDetailGoal(null);setSheetOpen(true);}} onArchive={()=>{void archiveGoal(detailGoal);setDetailGoal(null);}}/>}</ReferenceRoot>;
+{pendingDeposit&&!detailGoal&&!quickGoal&&<div className="mx-margin rounded-2xl bg-surface-container p-4"><p>{t("Ada setoran yang belum terkonfirmasi. Pulihkan untuk memastikan hasil tanpa mendebit dua kali.")}</p><button type="button" className="mt-2 text-primary font-semibold" onClick={()=>{const goal=goals.find(item=>item.id===pendingDeposit.payload.goal_id);if(goal)setDetailGoal(goal);}}>{t("Pulihkan setoran")}</button></div>}{quickGoal&&<DialogFrame titleId="quick-goal-title" onClose={()=>!saving&&setQuickGoal(null)} closeDisabled={saving}><form className="p-5 flex flex-col gap-4" onSubmit={async event=>{event.preventDefault();if(await depositGoal(quickGoal,Number(quickAmount),sourceId))setQuickGoal(null);}}><div><h2 id="quick-goal-title" className="text-headline-sm font-bold">{t("Nabung Cepat")}</h2><p className="mt-1 text-body-sm text-on-surface-variant">{quickGoal.name}</p></div><label className="text-body-sm">{t("Nominal Setoran")}<div className="quick-goal-amount mt-2 flex gap-3 items-center rounded-2xl bg-surface-container-low p-3"><span className="text-on-surface-variant">{quickGoal.currency==="IDR"?"Rp":quickGoal.currency}</span><input placeholder="0" autoFocus inputMode="decimal" required disabled={saving} value={quickAmount} onChange={event=>setQuickAmount(event.target.value)} type="number" min="0.01" step="any" className="w-full bg-transparent text-on-surface outline-none"/></div></label><label className="text-body-sm">{t("Rekening Sumber")}<select required disabled={saving} value={sourceId} onChange={event=>setSourceId(event.target.value)} className="mt-2 w-full rounded-2xl bg-surface-container p-3"><option value="">{t("Pilih akun")}</option>{sources.filter(item=>item.currency===quickGoal.currency).map(item=><option key={item.id} value={item.id}>{item.name} · {getNumberFormatter("id-ID",{style:"currency",currency:item.currency}).format(item.current_balance)}</option>)}</select></label><p className="text-body-sm text-on-surface-variant">{t("Setoran mengurangi saldo rekening sumber.")}</p>{error&&<p role="alert" className="text-error">{error}</p>}<div className="flex gap-3"><button type="button" disabled={saving} onClick={()=>setQuickGoal(null)} className="flex-1 rounded-full bg-surface-container py-3">{t("Batal")}</button><button type="submit" disabled={saving||Number(quickAmount)<=0||!sourceId} className="flex-1 rounded-full bg-primary-container py-3 disabled:opacity-50" style={{color:"#fff"}}>{t(saving?"Menyimpan...":"Konfirmasi Setoran")}</button></div></form></DialogFrame>}
+{sheetOpen&&<GoalEditor form={form} setForm={setForm} editing={Boolean(editingId)} busy={saving} error={error} onSave={saveGoal} onClose={()=>!saving&&setSheetOpen(false)}/>}{detailGoal&&<GoalDetail key={detailGoal.id} goal={detailGoal} deposits={deposits.filter(item=>item.goal_id===detailGoal.id)} pending={pendingDeposit?.payload.goal_id===detailGoal.id?pendingDeposit.payload:null} busy={saving} error={error} sources={sources} onDeposit={(amount,accountId)=>depositGoal(detailGoal,amount,accountId)} onClose={()=>setDetailGoal(null)} onEdit={()=>{setEditingId(detailGoal.id);setForm({name:detailGoal.name,targetAmount:String(detailGoal.target_amount),currentAmount:String(detailGoal.current_amount),currency:detailGoal.currency,dueDate:detailGoal.due_date??""});setDetailGoal(null);setSheetOpen(true);}} onArchive={()=>{void archiveGoal(detailGoal);setDetailGoal(null);}}/>}</ReferenceRoot>;
 }
