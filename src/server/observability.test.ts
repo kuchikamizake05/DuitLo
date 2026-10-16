@@ -26,3 +26,19 @@ it("requires both reachable configured dependencies", async () => {
  expect((await getReadiness(environment,async () => new Response("error",{status:503}))).ready).toBe(false);
  expect((await getReadiness({...environment,NEXT_PUBLIC_SUPABASE_URL:"invalid"},fetcher)).ready).toBe(false);
 });
+
+it("checks an empty application query when anonymous OpenAPI discovery is forbidden", async () => {
+ const environment={NODE_ENV:"production",NEXT_PUBLIC_SUPABASE_URL:"https://database.example",NEXT_PUBLIC_SUPABASE_ANON_KEY:"public-anon-key",UPSTASH_REDIS_REST_URL:"https://redis.example",UPSTASH_REDIS_REST_TOKEN:"private-token"};
+ const fetcher:typeof fetch=async(input,init)=>{
+  const url=new URL(String(input));
+  if(url.hostname==="redis.example")return new Response(JSON.stringify({result:"PONG"}));
+  if(url.pathname==="/rest/v1/")return new Response("metadata access forbidden",{status:401});
+  expect(url.pathname).toBe("/rest/v1/categories");
+  expect(url.searchParams.get("select")).toBe("id");
+  expect(url.searchParams.get("limit")).toBe("0");
+  expect(init?.method).toBe("HEAD");
+  expect(new Headers(init?.headers).get("apikey")).toBe("public-anon-key");
+  return new Response(null,{status:200});
+ };
+ expect(await getReadiness(environment,fetcher)).toEqual({ready:true,checks:{limiter:"ready",database:"ready"}});
+});

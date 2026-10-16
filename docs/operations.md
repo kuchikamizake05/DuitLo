@@ -2,7 +2,7 @@
 
 `GET /api/health` is liveness only: an HTTP 200 means this process responds. It does not certify deployment configuration.
 
-`GET /api/health?ready=1` returns 200 only when Supabase REST accepts the configured public key and the shared Redis limiter answers PING. Missing/invalid configuration, network failure, or a bounded timeout returns 503 with generic dependency statuses. No credentials, account identifiers, or provider bodies are returned. These probes do not verify migrations, RLS policies, AI models, payment callbacks, or backup recovery; run the separate release checks for those.
+`GET /api/health?ready=1` returns 200 only when Supabase REST accepts a zero-row HEAD query on the categories table with the configured public key and the shared Redis limiter answers PING. OpenAPI discovery is deliberately not used: a managed project can reject anonymous schema discovery while allowing ordinary application requests. Missing/invalid configuration, network failure, or a bounded timeout returns 503 with generic dependency statuses. No row contents, credentials, account identifiers, or provider bodies are returned. These probes do not verify every migration, RLS policy, AI model, payment callback, or backup recovery; run the separate release checks for those.
 
 Public production requires HTTPS `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. Each limit operation is atomic in Redis and has a 1.5 second timeout covering headers and JSON body. Unavailable Redis rejects expensive routes with 503 and Retry-After: 5; exhausted allowance returns 429. Local fallback is allowed only in development/test, or with the explicit private single-instance opt-in `RATE_LIMIT_ALLOW_LOCAL=true`. Do not set this opt-in on public/multi-instance deployments.
 

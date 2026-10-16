@@ -37,7 +37,7 @@ export async function getReadiness(environment: Record<string, string | undefine
     const key = environment.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (key && (url.protocol === "https:" || (environment.NODE_ENV !== "production" && url.hostname === "localhost"))) {
       database = await probe(async (signal) => {
-        const response = await fetchImpl(new URL("/rest/v1/", url).href, {headers: {apikey: key}, signal, cache: "no-store"});
+        const response = await fetchImpl(new URL("/rest/v1/categories?select=id&limit=0", url).href, {method: "HEAD", headers: {apikey: key}, signal, cache: "no-store"});
         return response.ok;
       });
     }
