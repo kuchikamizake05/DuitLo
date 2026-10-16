@@ -29,11 +29,11 @@
 .introBack {display:grid;place-items:center;width:44px;flex-shrink:0;color:#253e32;}
 .introActions .introNext {display:grid;place-items:center;width:56px;height:56px;padding:0;flex-shrink:0;border-radius:18px;background:#00652c;color:#fff;box-shadow:0 8px 16px #00652c20;}
 .introPage button:focus-visible {outline:2px solid #00652c;outline-offset:3px;}
-:global(.dark) .introPage {background:#14231c;color:#f1f2f4;}
+:global(.dark) .introPage {background:#141d2b;color:#f1f2f4;}
 :global(.dark) .introCard {background:#202024;box-shadow:0 -6px 28px #0002;}
 :global(.dark) .introBrand {color:#f1f2f4;}
 :global(.dark) .introCopy p,:global(.dark) .introPreview figcaption,:global(.dark) .introBack,:global(.dark) .introSkip {color:#b2b6bf;}
-:global(.dark) .introWelcome {--intro-art-light:#14231c;--intro-art-deep:#425044;}
+:global(.dark) .introWelcome {--intro-art-light:#141d2b;--intro-art-deep:#3b4c65;}
 :global(.dark) .introActions .introNext {background:#a8c4fc;color:#173456;}
 :global(.dark) .introDots button[aria-pressed="true"] span {background:#a8c4fc;}
 @media(min-width:900px){.introMain{min-height:700px;padding-bottom:24px;}.introCard{border-radius:32px;}.introPreview,.introWelcome{height:360px;}}
@@ -55,11 +55,13 @@
 .introMockupPage .introPreview,.introMockupPage .introWelcome {isolation:isolate;}
 .introMockupPage .introPreview::before {content:"";position:absolute;z-index:-1;inset:4% 6% 0;border-radius:50%;background:radial-gradient(ellipse,#f0faf0a3 0%,#d1e9d940 45%,transparent 72%);filter:blur(18px);pointer-events:none;}
 .introMockupPage .introPreview::after {content:"";position:absolute;z-index:-1;width:82%;height:86%;left:9%;top:2%;border:1px solid #ffffff30;border-radius:48%;transform:rotate(-24deg);box-shadow:24px 12px 0 -1px #ffffff09,-22px -14px 0 -1px #ffffff0c;pointer-events:none;}
-:global(.dark) .introMockupPage {background:radial-gradient(ellipse at 52% 24%,#375948 0%,#203b2d 45%,#10251a 100%);}
-:global(.dark) .introMockupPage .introPreview::before {background:radial-gradient(ellipse,#86b49d40 0%,#446e5520 45%,transparent 72%);}
+:global(.dark) .introMockupPage {background:radial-gradient(ellipse at 52% 24%,#344d6b 0%,#1d3049 45%,#101b2b 100%);}
+:global(.dark) .introMockupPage .introPreview::before {background:radial-gradient(ellipse,#86a8d040 0%,#445f8520 45%,transparent 72%);}
 
 .introCopy h1 {color:#253e32;}
 .introTitleAccent {color:#00652c;}
 .introCopy p {color:#62736a;}
 :global(.dark) .introCopy h1 {color:#f0f4f1;}
 :global(.dark) .introTitleAccent {color:#a8c4fc;}
+
+:global(.dark) .introDots span {background:#8495ad;}

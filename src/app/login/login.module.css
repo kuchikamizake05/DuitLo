@@ -686,7 +686,7 @@
 
 
 .account {background:radial-gradient(ellipse at 52% 24%,#d8eddf 0%,#aacbb9 38%,#7eaa94 70%,#6c9983 100%);}
-:global(html.dark) .account {background:radial-gradient(ellipse at 52% 24%,#375948 0%,#203b2d 45%,#10251a 100%);}
+:global(html.dark) .account {background:radial-gradient(ellipse at 52% 24%,#344d6b 0%,#1d3049 45%,#101b2b 100%);}
 
 :global(html:not(.dark)) .account input {
   background:#fff;
