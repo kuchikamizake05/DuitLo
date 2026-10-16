@@ -16,3 +16,13 @@ describe("safe operations", () => {
   expect(JSON.stringify(result)).not.toContain("super-secret");
  });
 });
+
+it("requires both reachable configured dependencies", async () => {
+ const environment = {NODE_ENV:"production", NEXT_PUBLIC_SUPABASE_URL:"https://database.example", NEXT_PUBLIC_SUPABASE_ANON_KEY:"private-key", UPSTASH_REDIS_REST_URL:"https://redis.example", UPSTASH_REDIS_REST_TOKEN:"private-token"};
+ const fetcher = vi.fn(async () => new Response(JSON.stringify({result:"PONG"}), {status:200}));
+ expect((await getReadiness(environment,fetcher)).ready).toBe(true);
+ expect(fetcher).toHaveBeenCalledTimes(2);
+ expect(JSON.stringify(await getReadiness(environment, async () => {throw new Error("private-detail");}))).not.toContain("private");
+ expect((await getReadiness(environment,async () => new Response("error",{status:503}))).ready).toBe(false);
+ expect((await getReadiness({...environment,NEXT_PUBLIC_SUPABASE_URL:"invalid"},fetcher)).ready).toBe(false);
+});

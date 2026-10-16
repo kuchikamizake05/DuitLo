@@ -1,8 +1,9 @@
+import { createRequestObservability } from "@/server/observability";
 import { NextRequest } from "next/server";
 import { createTimeoutSignal } from "@/lib/async";
 import { authenticateSupabaseAccessToken } from "@/infrastructure/supabase/server-client";
 import { consumeRouteRateLimit } from "@/lib/rate-limit";
-import { noStoreJson as json } from "@/server/http";
+import { noStoreJson as baseJson } from "@/server/http";
 import {
   buildGroqInsightRequest,
   createInsightRateLimiter,
@@ -12,6 +13,11 @@ import {
   validateInsightRequestSecurity,
 } from "@/lib/insights-api";
 
+const json = (body: Record<string, unknown>, status: number, headers: Record<string, string> = {}) => {
+  const observation = createRequestObservability("insights:generate");
+  const details = typeof body.correlationId === "string" ? { correlationId: body.correlationId } : status >= 500 ? observation.failure("upstream_unavailable", null, status) : { correlationId: observation.correlationId };
+  return baseJson(status >= 400 ? { ...details, ...body } : body, status, { "X-Correlation-Id": details.correlationId, ...headers });
+};
 export const dynamic = "force-dynamic";
 
 const limiter = createInsightRateLimiter({ maxRequests: 6, windowMs: 60_000 });
@@ -43,6 +49,10 @@ export async function POST(request: NextRequest) {
   const { user } = authentication;
 
   const rateLimit = await consumeRouteRateLimit({ route: "insights:generate", userId: user.id, maxRequests: 6, windowMs: 60_000, fallback: limiter });
+  if (!rateLimit.allowed && rateLimit.reason === "unavailable") {
+    const observation = createRequestObservability("rate_limit");
+    return json({error: "Layanan sementara tidak tersedia. Coba lagi sebentar.", ...observation.failure("rate_limit_unavailable", null, 503)}, 503, {"Retry-After": String(rateLimit.retryAfterSeconds), "X-Correlation-Id": observation.correlationId});
+  }
   if (!rateLimit.allowed) {
     return json(
       { error: "Terlalu banyak permintaan insight. Coba lagi sebentar." },

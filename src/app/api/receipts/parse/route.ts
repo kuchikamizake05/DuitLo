@@ -1,7 +1,10 @@
+import { createRequestObservability } from "@/server/observability";
+import { reserveReceiptUsage, finishReceiptUsage } from "@/server/billing/usage";
+import { BillingError } from "@/server/billing/billing";
 import { NextRequest } from "next/server";
 import { createTimeoutSignal } from "@/lib/async";
 import { authenticateSupabaseAccessToken } from "@/infrastructure/supabase/server-client";
-import { noStoreJson as json } from "@/server/http";
+import { noStoreJson as baseJson } from "@/server/http";
 import { consumeRouteRateLimit } from "@/lib/rate-limit";
 import { validateSharedReceiptFile } from "@/lib/shared-receipt";
 import {
@@ -12,6 +15,11 @@ import {
   validateReceiptParseSecurity,
 } from "@/lib/receipt-vision";
 
+const json = (body: Record<string, unknown>, status: number, headers: Record<string, string> = {}) => {
+  const observation = createRequestObservability("receipts:parse");
+  const details = typeof body.correlationId === "string" ? { correlationId: body.correlationId } : status >= 500 ? observation.failure("upstream_unavailable", null, status) : { correlationId: observation.correlationId };
+  return baseJson(status >= 400 ? { ...details, ...body } : body, status, { "X-Correlation-Id": details.correlationId, ...headers });
+};
 export const dynamic = "force-dynamic";
 
 const limiter = createReceiptRateLimiter({ maxRequests: 5, windowMs: 60_000 });
@@ -46,6 +54,10 @@ export async function POST(request: NextRequest) {
   const { user } = authentication;
 
   const rateLimit = await consumeRouteRateLimit({ route: "receipts:parse", userId: user.id, maxRequests: 5, windowMs: 60_000, fallback: limiter });
+  if (!rateLimit.allowed && rateLimit.reason === "unavailable") {
+    const observation = createRequestObservability("rate_limit");
+    return json({error: "Layanan sementara tidak tersedia. Coba lagi sebentar.", ...observation.failure("rate_limit_unavailable", null, 503)}, 503, {"Retry-After": String(rateLimit.retryAfterSeconds), "X-Correlation-Id": observation.correlationId});
+  }
   if (!rateLimit.allowed) {
     return json(
       { error: "Terlalu banyak permintaan pembacaan struk. Coba lagi sebentar." },
@@ -84,6 +96,18 @@ export async function POST(request: NextRequest) {
   }
 
   const model = process.env.GEMINI_RECEIPT_MODEL?.trim() || "gemini-3.5-flash";
+  const operationId = request.headers.get("idempotency-key") ?? crypto.randomUUID();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(operationId)) {
+    return json({error: "ID permintaan tidak valid."}, 400);
+  }
+  try {
+    const reservation = await reserveReceiptUsage(user.id, operationId);
+    if (!reservation.reserved || reservation.replayed) return json({error: "Permintaan ini sudah diproses. Mulai pemindaian baru."}, 409);
+  } catch (error) {
+    const status = error instanceof BillingError && error.status === 402 ? 402 : 503;
+    return json({error: status === 402 ? "Kuota pembacaan struk bulan ini habis." : "Kuota belum dapat diperiksa. Coba lagi sebentar."}, status);
+  }
+  let completed = false;
   const timeout = createTimeoutSignal(60_000);
 
   try {
@@ -119,7 +143,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!providerResponse?.ok) {
-      console.error("Receipt provider rejected request",{model,status:providerResponse?.status});
+      createRequestObservability("receipts:parse").failure("provider_rejected", null, providerResponse?.status ?? 502);
       const failure = providerResponse?.status===503?{message:"Layanan AI sedang sibuk. Coba lagi sebentar.",status:503}:mapGeminiFailure(providerResponse?.status ?? 500);
       const retryAfter = providerResponse?.headers.get("retry-after");
       return json({ error: failure.message }, failure.status, retryAfter ? { "Retry-After": retryAfter } : {});
@@ -127,6 +151,8 @@ export async function POST(request: NextRequest) {
 
     const providerBody: unknown = await providerResponse.json();
     const extraction = parseGeminiReceiptResponse(providerBody);
+    await finishReceiptUsage(user.id, operationId, true);
+    completed = true;
 
     return json(
       {
@@ -136,14 +162,20 @@ export async function POST(request: NextRequest) {
       200,
     );
   } catch (error) {
+    if (error instanceof BillingError) return json({error: "Hasil pemindaian belum dapat dikonfirmasi. Coba lagi sebentar."}, 503);
     if (error instanceof Error && error.name === "AbortError") {
       return json({ error: "AI tidak merespons tepat waktu. Silakan isi form manual." }, 504);
     }
     if (error instanceof Error && error.message) {
-      return json({ error: error.message }, 422);
+      const observation = createRequestObservability("receipts:parse");
+      return json({ error: "Hasil analisis struk tidak valid. Silakan isi form manual.", ...observation.failure("receipt_parse_failed", error, 422) }, 422, {"X-Correlation-Id": observation.correlationId});
     }
     return json({ error: "AI belum bisa menganalisis struk. Silakan isi form manual." }, 502);
   } finally {
     timeout.cleanup();
+    if (!completed) {
+      try { await finishReceiptUsage(user.id, operationId, false); }
+      catch (error) { createRequestObservability("receipts:parse").failure("quota_reconciliation_required", error, 503); }
+    }
   }
 }

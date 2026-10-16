@@ -26,7 +26,7 @@ describe("createRateLimiter", () => {
       maxRequests: 1,
       windowMs: 1_000,
       fallback,
-      environment: { UPSTASH_REDIS_REST_URL: "https://example.upstash.io", UPSTASH_REDIS_REST_TOKEN: "secret-token" },
+      environment: { NODE_ENV: "test", UPSTASH_REDIS_REST_URL: "https://example.upstash.io", UPSTASH_REDIS_REST_TOKEN: "secret-token" },
       fetchImpl,
     })).resolves.toEqual({ allowed: false, retryAfterSeconds: 1 });
     expect(calls).toHaveLength(1);
@@ -44,7 +44,7 @@ describe("createRateLimiter", () => {
       maxRequests: 1,
       windowMs: 1_000,
       fallback,
-      environment: { UPSTASH_REDIS_REST_URL: "https://example.upstash.io", UPSTASH_REDIS_REST_TOKEN: "secret-token" },
+      environment: { NODE_ENV: "test", UPSTASH_REDIS_REST_URL: "https://example.upstash.io", UPSTASH_REDIS_REST_TOKEN: "secret-token" },
       fetchImpl,
     };
 
@@ -68,3 +68,15 @@ describe("createRateLimiter", () => {
     expect(Date.now() - start).toBeLessThan(1000);
   });
  });
+
+
+it("rejects invalid Redis responses and HTTP errors in production", async () => {
+ for (const response of [{ok: false, json: async () => ({})}, {ok: true, json: async () => ({result:[NaN,-1]})}, {ok:true, json: async () => {throw new Error("private");}}]) {
+  const result = await consumeRouteRateLimit({route:"test", userId:"test", maxRequests:1, windowMs:1000, fallback:createRateLimiter({maxRequests:1,windowMs:1000}), environment:{NODE_ENV:"production",UPSTASH_REDIS_REST_URL:"https://example.upstash.io",UPSTASH_REDIS_REST_TOKEN:"secret"}, fetchImpl:async()=>response});
+  expect(result).toMatchObject({allowed:false,reason:"unavailable"});
+ }
+});
+it("allows only explicit local fallback in private production", async () => {
+ const fallback=createRateLimiter({maxRequests:1,windowMs:1000});
+ expect(await consumeRouteRateLimit({route:"test",userId:"test",maxRequests:1,windowMs:1000,fallback,environment:{NODE_ENV:"production",RATE_LIMIT_ALLOW_LOCAL:"true"}})).toEqual({allowed:true,retryAfterSeconds:0});
+});
