@@ -56,11 +56,11 @@
     },
     {
       "path": "supabase/migrations/202610130001_profile_photos.sql",
-      "sha256": "a18216f715925a94a4a406d418ae05a73cf1ffd4ce3ec1cf55db03e69aeb4a9d"
+      "sha256": "f936446b431f267350d8083d429980f64cfd025682aa8ae0646788dd8bd85bf3"
     },
     {
       "path": "supabase/migrations/202610140001_goal_deposits.sql",
-      "sha256": "c39388b029224f646d1bb23ead8e096aa7c5a4b83dd469cdfbe19d54841c0d37"
+      "sha256": "2446755a99d0e7720584dd92c9c6446c028478bf967d6fbc149d2879a23b5314"
     },
     {
       "path": "supabase/migrations/202610150001_restrict_ledger_helpers.sql",
@@ -76,7 +76,7 @@
     },
     {
       "path": "supabase/migrations/202610160003_data_control_requests.sql",
-      "sha256": "1d1f085af183588e72834e40e9ea48525ddb286e10b5ea631e51cf6cf1f7e902"
+      "sha256": "a6e07cea60067ca460f7c5dd1a4372b452ce84b2904ce6ddfc8c948157dcec67"
     }
   ],
   "excluded": [
@@ -92,5 +92,6 @@
     "supabase/tests/billing-entitlements.sql",
     "supabase/tests/data-control-requests.sql",
     "supabase/tests/billing-investment-isolation.sql"
-  ]
+  ],
+  "checksumFormat": "sha256 of UTF-8 SQL with CRLF normalized to LF"
 }

@@ -17,7 +17,7 @@ test('fresh bootstrap manifest explicitly excludes malformed history and include
   assert.ok(manifest.excluded.some((entry) => entry.path.endsWith('20260714_add_account_equity_snapshots.sql')));
   assert.ok(manifest.files.some((entry) => entry.path.endsWith('202610160001_financial_integrity.sql')));
   for (const entry of [...manifest.files, ...manifest.excluded]) {
-    assert.equal(entry.sha256, createHash('sha256').update(readFileSync(entry.path)).digest('hex'), entry.path);
+    assert.equal(entry.sha256, createHash('sha256').update(readFileSync(entry.path, 'utf8').replace(/\r\n/g, '\n')).digest('hex'), entry.path);
   }
 });
 

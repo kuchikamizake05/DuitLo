@@ -23,7 +23,7 @@ if (process.argv.includes('--history')) {
     if (listed.has(item.path)) throw new Error(`Duplicate manifest entry: ${item.path}`);
     listed.add(item.path);
     if (!/^supabase\/(schema\.sql|migrations\/[^/]+\.sql)$/.test(item.path)) throw new Error(`Invalid manifest path: ${item.path}`);
-    if (createHash('sha256').update(read(item.path)).digest('hex') !== item.sha256) throw new Error(`Review checksum mismatch: ${item.path}`);
+    if (createHash('sha256').update(read(item.path).toString('utf8').replace(/\r\n/g, '\n')).digest('hex') !== item.sha256) throw new Error(`Review checksum mismatch: ${item.path}`);
   }
   for (const name of history) {
     if (!listed.has(`supabase/migrations/${name}`)) throw new Error(`Unreviewed migration: ${name}`);
