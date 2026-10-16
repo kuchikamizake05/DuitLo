@@ -15,6 +15,15 @@ describe("sanitizeNextPath", () => {
 });
 
 describe("public route policy", () => {
+  it.each(["/billing", "/data-controls", "/goals"])("protects %s and preserves its login destination", pathname => {
+    expect(isProtectedRoute(pathname)).toBe(true);
+    expect(sanitizeNextPath(`${pathname}?view=detail`)).toBe(`${pathname}?view=detail`);
+    expect(getAuthGateState({pathname,configured:true,resolved:true,hasSession:false,online:true})).toBe("redirect-login");
+  });
+  it.each(["/privacy", "/terms", "/support"])("allows public information at %s", pathname => {
+    expect(isPublicRoute(pathname)).toBe(true);
+    expect(getAuthGateState({pathname,configured:true,resolved:false,hasSession:false,online:true})).toBe("public");
+  });
   it("protects shared receipts and preserves the selected receipt through login", () => {
     expect(isProtectedRoute("/shared-receipt")).toBe(true);
     expect(sanitizeNextPath("/shared-receipt?id=receipt-a")).toBe("/shared-receipt?id=receipt-a");
