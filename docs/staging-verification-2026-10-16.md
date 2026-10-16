@@ -65,12 +65,30 @@ The live check found a readiness bug: anonymous access to Supabase OpenAPI disco
 
 Test Redis keys were random, short-lived verification counters. No database flush, provider configuration change, or production Redis use occurred. Staging credentials remain separate; Preview wiring must map them to the application's standard environment names.
 
+## Xendit and Preview preparation
+
+The staging secret key was confirmed to use a test-key prefix. A single PAY / PAYMENT_LINK sandbox session was created with the configured test price and then fetched by its returned ID. The reference, amount, currency IDR, country ID and sandbox checkout hostname matched. The session was ACTIVE; no payment was performed and no Pro entitlement was granted. Its business ID was saved into `STAGING_XENDIT_BUSINESS_ID` without displaying the secret key or verification token. The local ignored probe record retains the stable reference/session ID and prevents recreating an unresolved request.
+
+Callback verification-token presence is confirmed, but authenticity and delivery are not yet verified. That requires a public staging webhook plus an actual Xendit test callback. The discovery probe is not an application checkout order and must not be used to grant Pro.
+
+A production build using staging Supabase/Redis and billing disabled passed. The build was started temporarily on local port 3200: `/api/health?ready=1` returned HTTP 200 with database/limiter ready; `/privacy` returned 200. That process was stopped afterward. The local dev server and production deployment were unchanged.
+
+### Prepared Preview rollout scope
+
+- Vercel project: existing `fintrack`, team `kuchikamizakes-projects`.
+- Git branch: `codex/production-hardening-2026-10-16`; production branch `main` is excluded.
+- Push only reviewed commits; do not stage unrelated marketing assets or local environment files.
+- Configure branch-scoped Preview variables from the matching `STAGING_*` credentials. Map staging Supabase, Redis and Xendit values to the application's standard variable names; never use production database credentials for this Preview.
+- Begin with billing disabled, obtain the actual Preview URL, then use that origin for the sandbox return URLs and webhook configuration. Subsequent sandbox enablement applies only to staging, with server and database billing toggles kept consistent.
+- Payment Session webhook path: `/api/billing/webhook`. Delivery and idempotent entitlement activation still require verification after deployment.
+- Push, Preview configuration and publishing await explicit approval. Production deployments, live payment keys and production billing remain outside this rollout.
+
 ## Remaining release work
 
 - Full managed database and object-storage backup/restore verification, including production backup protection.
 - Deployed HTTP readiness checks and monitoring/alert delivery; staging Redis helper checks above are complete.
 - Preview environment wiring and deployed UI tests against staging.
-- Xendit sandbox credentials, approved price/term and end-to-end payment testing.
+- Public sandbox webhook delivery, actual application checkout/entitlement end-to-end testing and refund/reconciliation operations. Test credentials and price/term are present; live pricing approval is separate.
 - Production migration reconciliation and separate release approval.
 
 Billing remains disabled. Production credentials, data and deployed application were unchanged.
