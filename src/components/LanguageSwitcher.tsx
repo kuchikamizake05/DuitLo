@@ -30,7 +30,7 @@ export function LanguageSwitcher({ compact = false, detailed = false, className 
             className={`${detailed ? "w-full rounded-lg px-3 text-left" : "rounded-full px-2.5"} min-h-8 text-[11px] font-black tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] ${
               active
                 ? "bg-[var(--brand-primary)] text-white"
-                : "text-[var(--ink-soft)] hover:bg-[var(--brand-mint)] hover:text-[var(--brand-ink)]"
+                : "text-[var(--ink-soft)]"
             }`}
           >
             {choice.label}
