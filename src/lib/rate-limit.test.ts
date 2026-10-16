@@ -52,3 +52,19 @@ describe("createRateLimiter", () => {
     await expect(consumeRouteRateLimit(options)).resolves.toEqual({ allowed: false, retryAfterSeconds: 1 });
   });
 });
+
+ describe("production distributed limiter", () => {
+  const options = () => ({route: "receipts:parse", userId: "private-user", maxRequests: 1, windowMs: 1000, fallback: createRateLimiter({maxRequests: 1, windowMs: 1000})});
+  it("fails closed without Redis configuration", async () => {
+    expect(await consumeRouteRateLimit({...options(), environment: {NODE_ENV: "production"}})).toEqual({allowed: false, reason: "unavailable", retryAfterSeconds: 5});
+  });
+  it("fails closed on Redis errors instead of spending a local allowance", async () => {
+    expect(await consumeRouteRateLimit({...options(), environment: {NODE_ENV: "production", UPSTASH_REDIS_REST_URL: "https://example.upstash.io", UPSTASH_REDIS_REST_TOKEN: "secret"}, fetchImpl: async () => {throw new Error("secret provider response");}})).toEqual({allowed: false, reason: "unavailable", retryAfterSeconds: 5});
+  });
+  it("bounds an unresponsive Redis call including response body", async () => {
+    const start = Date.now();
+    const result = await consumeRouteRateLimit({...options(), environment: {NODE_ENV: "production", UPSTASH_REDIS_REST_URL: "https://example.upstash.io", UPSTASH_REDIS_REST_TOKEN: "secret"}, timeoutMs: 10, fetchImpl: async () => ({ok: true, json: () => new Promise(() => {})})});
+    expect(result).toMatchObject({allowed: false, reason: "unavailable"});
+    expect(Date.now() - start).toBeLessThan(1000);
+  });
+ });
