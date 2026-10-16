@@ -1,15 +1,22 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
+import { ReferenceRoot } from "@/components/reference/runtime";
 import { useEffect, useState } from "react";
 import { supabase } from "@/infrastructure/supabase/browser-client";
 import { Button } from "@/components/ui/Button";
-import { Surface } from "@/components/ui/Surface";
+import { ArrowRight, Check, ChartNoAxesCombined, ShieldCheck, Sparkles } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import styles from "./billing.module.css";
 import type { Entitlements } from "@/lib/entitlements";
 
 type PlanStatus = { enabled: boolean; checkoutAvailable: boolean; amount: number | null; termDays: number | null; proUntil: string | null; receiptScansUsed: number; entitlements: Entitlements };
 
 export default function BillingPage() {
+  const router = useRouter();
+  const { language } = useLanguage();
+  const id = language === "id";
   const [status, setStatus] = useState<PlanStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -61,27 +68,47 @@ export default function BillingPage() {
     finally { setBusy(false); }
   }
 
-  return <main className="mx-auto min-h-screen max-w-lg space-y-5 px-5 py-8">
-    <Link href="/settings" className="text-sm font-semibold text-[var(--text-secondary)]">Back to settings</Link>
-    <h1 className="text-2xl font-bold">Your FinTrack plan</h1>
-    {error && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
-    {!status && !error && <p role="status">Loading your plan…</p>}
+  const pro = status?.entitlements.plan === "pro";
+  const beta = status?.entitlements.plan === "beta";
+  const price = status?.amount ? new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(status.amount) : null;
+  const features = id ? {
+    free: ["3 dompet untuk rekening, e-wallet, dan tunai", "3 anggaran bulanan", "1 target tabungan", "15 scan struk per bulan", "Catatan transaksi dan laporan", "Ekspor data keuangan"],
+    pro: ["Dompet tanpa batas", "Anggaran bulanan tanpa batas", "Target tabungan tanpa batas", "150 scan struk per bulan", "Kelola investasi dan jurnal trading", "Semua fitur Free, termasuk ekspor"],
+  } : {
+    free: ["3 wallets for bank, e-wallet and cash", "3 monthly budgets", "1 savings goal", "15 receipt scans per month", "Transaction tracking and reports", "Financial data exports"],
+    pro: ["Unlimited wallets", "Unlimited monthly budgets", "Unlimited savings goals", "150 receipt scans per month", "Investment and trading journals", "Everything in Free, including exports"],
+  };
+
+  return <ReferenceRoot page="detail" contents><Navbar onBack={() => router.push("/settings")} /><main className={styles.page}>
+    <header className={styles.header}>
+      <span className={styles.headerIcon}><ChartNoAxesCombined size={25} strokeWidth={1.7} aria-hidden="true" /></span>
+      <div><h1>{id ? "Pilihan paket" : "Upgrade your plan"}</h1><p>{id ? "Atur hari ini. Rencanakan lebih jauh." : "Stay on top of today. Plan for what’s next."}</p></div>
+    </header>
+
+    {error && <p role="alert" className={styles.error}>{error}</p>}
+    {!status && !error && <p role="status" className={styles.notice}>{id ? "Memuat paketmu…" : "Loading your plan…"}</p>}
     {status && <>
-      <Surface className="space-y-3 p-5">
-        <h2 className="text-xl font-bold">{status.entitlements.plan === "beta" ? "Private beta" : status.entitlements.plan === "pro" ? "FinTrack Pro" : "FinTrack Free"}</h2>
-        {!status.enabled ? <p>Payments are not open yet. Your private beta access continues.</p> : <>
-          <p>{status.receiptScansUsed} / {status.entitlements.receiptScans} receipt scans used this month. Resets on the first day of each month in UTC.</p>
-          {status.entitlements.plan === "pro" && status.proUntil && <p>Pro access until {new Date(status.proUntil).toLocaleDateString()}.</p>}
-          <p>Your existing records and exports remain available when Pro expires.</p>
-        </>}
-      </Surface>
-      <Surface className="space-y-4 p-5">
-        <h2 className="text-xl font-bold">Pro includes</h2>
-        <ul className="list-disc space-y-2 pl-5 text-sm"><li>Unlimited wallets, monthly budgets and savings goals</li><li>150 receipt scans per month</li><li>Investment and trading journal management</li></ul>
-        {status.amount && status.termDays ? <p className="font-semibold">{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(status.amount)} for {status.termDays} days. One payment, no automatic renewal.</p> : <p className="text-sm text-[var(--text-secondary)]">Pricing and payments will appear when checkout is available.</p>}
-        <Button className="w-full" disabled={!status.checkoutAvailable} loading={busy} onClick={() => void startCheckout()}>{status.checkoutAvailable ? "Continue to secure payment" : "Payments not available yet"}</Button>
-      </Surface>
+      {beta && <p className={styles.notice}><Sparkles size={16} aria-hidden="true" />{id ? "Akses private beta kamu tetap aktif. Pembayaran belum dibuka." : "Your private beta access continues. Payments are not open yet."}</p>}
+      <section className={styles.plans} aria-label={id ? "Perbandingan paket" : "Compare plans"}>
+        <article className={styles.card}>
+          <div className={styles.planHeading}><h2>Free</h2><span className={styles.planTag}>{id ? "Untuk sehari-hari" : "The everyday essentials"}</span></div>
+          <p className={styles.description}>{id ? "Mulai kebiasaan keuangan yang lebih teratur, satu transaksi setiap hari." : "Build better money habits, one everyday transaction at a time."}</p>
+          <div className={styles.price}><strong>Rp0</strong><span>{id ? "Gratis, seterusnya" : "Free, always"}</span></div>
+          <Button variant="secondary" className={styles.planButton} disabled>{pro ? (id ? "Paket dasar" : "Base plan") : beta ? (id ? "Akses beta aktif" : "Beta access active") : (id ? "Paket saat ini" : "Current plan")}</Button>
+          <ul className={styles.features}>{features.free.map(feature => <li key={feature}><Check size={15} strokeWidth={2.5} aria-hidden="true" /><span>{feature}</span></li>)}</ul>
+        </article>
+        <article className={`${styles.card} ${styles.proCard}`}>
+          <span className={styles.recommended}><Sparkles size={13} aria-hidden="true" />{pro ? (id ? "Paketmu saat ini" : "Your current plan") : (id ? "Lebih leluasa" : "Room to grow")}</span>
+          <div className={styles.planHeading}><h2>Pro</h2><span className={styles.proTag}>{id ? "Untuk rencana besarmu" : "For your bigger plans"}</span></div>
+          <p className={styles.description}>{id ? "Lebih banyak ruang untuk mengelola uang, investasi, dan tujuanmu." : "More room for your money, investments and everything you’re working toward."}</p>
+          <div className={styles.price}><strong className={!price ? styles.pendingPrice : undefined}>{price ?? (id ? "Segera hadir" : "Coming soon")}</strong><span>{status.termDays && price ? (id ? `untuk ${status.termDays} hari · sekali bayar` : `for ${status.termDays} days · one payment`) : (id ? "Harga tersedia saat pembayaran dibuka" : "Pricing available when payments open")}</span></div>
+          <Button className={styles.planButton} disabled={!status.checkoutAvailable} loading={busy} onClick={() => void startCheckout()}><span>{!status.checkoutAvailable ? (id ? "Belum tersedia" : "Not available yet") : pro ? (id ? "Perpanjang Pro" : "Extend Pro") : (id ? "Upgrade ke Pro" : "Upgrade to Pro")}</span>{status.checkoutAvailable && <ArrowRight size={16} aria-hidden="true" />}</Button>
+          <ul className={styles.features}>{features.pro.map(feature => <li key={feature}><Check size={15} strokeWidth={2.5} aria-hidden="true" /><span>{feature}</span></li>)}</ul>
+        </article>
+      </section>
+      <div className={styles.footer}><p><ShieldCheck size={16} aria-hidden="true" />{id ? "Data dan ekspormu tetap bisa diakses saat Pro berakhir." : "Your records and exports stay accessible when Pro expires."}</p><span>{id ? "Tanpa perpanjangan otomatis." : "No automatic renewal."}</span></div>
+      {status.enabled && <div className={styles.usage}><span>{id ? "Scan struk bulan ini" : "Receipt scans this month"}: <strong>{status.receiptScansUsed} / {status.entitlements.receiptScans}</strong></span>{pro && status.proUntil && <span>{id ? "Pro aktif hingga" : "Pro active until"} {new Date(status.proUntil).toLocaleDateString(id ? "id-ID" : "en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>}<span>{id ? "Kuota direset tanggal 1 setiap bulan (UTC)." : "Scan allowance resets on the first of each month (UTC)."}</span></div>}
     </>}
-    <Button variant="secondary" onClick={() => setRefresh((value) => value + 1)}>Refresh plan</Button>
-  </main>;
+    <button type="button" className={styles.refresh} onClick={() => setRefresh(value => value + 1)}>{id ? "Perbarui status paket" : "Refresh plan status"}</button>
+  </main></ReferenceRoot>;
 }
