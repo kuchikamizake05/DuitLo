@@ -81,14 +81,36 @@ A production build using staging Supabase/Redis and billing disabled passed. The
 - Configure branch-scoped Preview variables from the matching `STAGING_*` credentials. Map staging Supabase, Redis and Xendit values to the application's standard variable names; never use production database credentials for this Preview.
 - Begin with billing disabled, obtain the actual Preview URL, then use that origin for the sandbox return URLs and webhook configuration. Subsequent sandbox enablement applies only to staging, with server and database billing toggles kept consistent.
 - Payment Session webhook path: `/api/billing/webhook`. Delivery and idempotent entitlement activation still require verification after deployment.
-- Push, Preview configuration and publishing await explicit approval. Production deployments, live payment keys and production billing remain outside this rollout.
+- User approved the branch push, isolated Preview configuration/deployment and sandbox webhook setup. Production deployments, live payment keys and production billing remain outside this rollout.
 
 ## Remaining release work
 
 - Full managed database and object-storage backup/restore verification, including production backup protection.
-- Deployed HTTP readiness checks and monitoring/alert delivery; staging Redis helper checks above are complete.
-- Preview environment wiring and deployed UI tests against staging.
-- Public sandbox webhook delivery, actual application checkout/entitlement end-to-end testing and refund/reconciliation operations. Test credentials and price/term are present; live pricing approval is separate.
+- Monitoring and alert delivery verification; deployed HTTP readiness now passes as recorded below.
+- Broader deployed UI coverage beyond the authenticated staging dashboard and Pro plan smoke checks.
+- Refund/reconciliation operations and live pricing approval. Sandbox checkout, provider webhook delivery, entitlement activation and duplicate-callback handling passed as recorded below.
 - Production migration reconciliation and separate release approval.
 
-Billing remains disabled. Production credentials, data and deployed application were unchanged.
+Production billing remains unchanged. Sandbox billing is enabled only on the hardening branch Preview and staging database.
+
+
+## Deployed Preview and sandbox payment verification
+
+User authorized publishing the hardening branch to Preview and adding its protected webhook URL to Xendit Test Mode. Branch-specific Preview variables use staging Supabase, Redis and Xendit credentials; production environment metadata fingerprints were unchanged. Billing is enabled in both this Preview and its staging database. External AI/review integrations are blank overrides on this branch to avoid inheriting production integrations.
+
+Preview: https://fintrack-git-codex-production-ha-2bc4be-kuchikamizakes-projects.vercel.app
+
+- Deployed HTTP readiness returned 200, with both required dependencies ready. Privacy, terms and support pages returned 200.
+- Fifteen deployed checks passed: dummy staging authentication, billing availability, application-created sandbox checkout, stable checkout retry, rejected foreign origin/anonymous checkout/forged token, one persisted order, authoritative provider order matching, and rejection of an invented completed status without granting Pro.
+- Xendit Test Mode Payment Session Completed and Expired webhook URLs were saved using the existing Vercel automation bypass token. The token and composed URL remain private in local configuration. No global deployment-protection settings were changed.
+- Xendit's dashboard test fixtures reached the endpoint and returned 400 because their fixed merchant identity differs from this merchant. This rejection is expected; these fixtures do not represent valid application payments.
+- Opened the application's sandbox checkout, selected QRIS and generated a test payment request. Used Xendit's documented test-only `POST /v3/payment_requests/{id}/simulate` with API version `2024-11-11`. No real funds were transferred.
+- The actual provider session became COMPLETED and its automatic webhook changed the matching application order to paid. The authenticated status API reported the Pro plan.
+- Replayed the completed callback: HTTP 200; the stored Pro expiry did not change. This confirms duplicate delivery does not grant a second term. The real browser plan page displayed FinTrack Pro and its expiry date. Reloading Xendit settings confirmed both webhook URLs remained saved.
+- Browser smoke: real dummy-user sign-in succeeded and the dashboard displayed the expected fixture wallet balance Rp875,000, expense Rp25,000 and goal reserve Rp100,000.
+
+The first database CI run exposed CRLF/LF-dependent manifest hashes. Canonical UTF-8/LF checksums fixed the issue without changing SQL semantics. All five local manifest regression checks and the subsequent PostgreSQL 17 database CI passed. The application CI on commit 6e75841 passed quality, security and both desktop/mobile E2E jobs; the rerun for checksum-only commit a0b389c is tracked separately.
+
+Official simulation reference: https://docs.xendit.co/apidocs/simulate-payment-test-mode
+
+Ignored local evidence contains the fixture operation/session IDs and redacted check results. Production remains on its prior deployment; nothing was merged into main.
