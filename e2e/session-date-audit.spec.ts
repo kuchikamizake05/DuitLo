@@ -9,8 +9,8 @@ test("signing in from a shared receipt preserves the receipt destination",async(
   },user.id);
   await page.goto("/login");
   await page.evaluate(async()=>{
-    const cache=await caches.open("fintrack-shared-receipts-v1");
-    await cache.put("/__shared-receipts/auth-audit/metadata",new Response(JSON.stringify({title:"Login receipt",text:"Receipt note",url:"",fileName:null,fileType:null}),{headers:{"Content-Type":"application/json"}}));
+    const cache=await caches.open("fintrack-shared-receipts-v2");
+    await cache.put("/__shared-receipts/auth-audit/metadata",new Response(JSON.stringify({ownerId:null,createdAt:Date.now(),expiresAt:Date.now()+86400000,title:"Login receipt",text:"Receipt note",url:"",fileName:null,fileType:null}),{headers:{"Content-Type":"application/json"}}));
   });
   await page.goto("/shared-receipt?id=auth-audit");
   await expect(page).toHaveURL(/\/login\?next=%2Fshared-receipt%3Fid%3Dauth-audit$/);

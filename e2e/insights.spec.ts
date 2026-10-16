@@ -1,4 +1,5 @@
-import type { Page, Route } from "@playwright/test";
+import { fulfillPostgrestRows as fulfillRows } from "./postgrest-response";
+import type { Page } from "@playwright/test";
 import { expect, mockAuthenticatedSession, test, user } from "./fixtures";
 
 const currentTransactions = [
@@ -13,9 +14,6 @@ const previousTransactions = [
   { id: "old-expense", date: "2026-06-03", type: "expense", category: "Makanan", amount: 3_500_000, status: "confirmed", account_id: "account-1" },
 ];
 
-async function fulfillRows(route: Route, rows: unknown[]) {
-  await route.fulfill({ status: 200, headers: { "Content-Type": "application/json", "Content-Range": rows.length ? `0-${rows.length - 1}/${rows.length}` : "*/0" }, body: JSON.stringify(rows) });
-}
 
 async function mockInsights(page: Page, options: { empty?: boolean; aiStatus?: number } = {}) {
   await mockAuthenticatedSession(page);

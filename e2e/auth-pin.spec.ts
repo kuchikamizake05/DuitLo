@@ -12,9 +12,9 @@ for(const theme of ["light","dark"] as const){
   await mockSupabase(page,false);await page.addInitScript(value=>localStorage.setItem("fintrack-theme",value),theme);await page.goto("/login");
   const card=page.getByRole("region",{name:"Masuk ke FinTrack",exact:true});await expect(card).toBeVisible();
   await expect(card).toHaveCSS("background-color","rgba(0, 0, 0, 0)");
-  await expect(page.getByLabel("Alamat email")).toHaveCSS("background-color",theme==="dark"?"rgb(28, 29, 32)":"rgb(238, 245, 240)");
-  await expect(page.getByLabel("Alamat email")).toHaveCSS("border-top-width","0px");
-  await expect(page.getByRole("button",{name:"Masuk dengan Google",exact:true})).toHaveCSS("background-color",theme==="dark"?"rgb(39, 40, 45)":"rgb(238, 245, 240)");
+  await expect(page.getByLabel("Alamat email")).toHaveCSS("background-color",theme==="dark"?"rgb(28, 29, 32)":"rgb(255, 255, 255)");
+  await expect(page.getByLabel("Alamat email")).toHaveCSS("border-top-width","1px");
+  await expect(page.getByRole("button",{name:"Masuk dengan Google",exact:true})).toHaveCSS("background-color",theme==="dark"?"rgb(28, 29, 32)":"rgb(255, 255, 255)");
   await expect(page.getByRole("button",{name:"Masuk",exact:true})).toHaveCSS("background-color",theme==="dark"?"rgb(168, 196, 252)":"rgb(21, 128, 61)");
   const primary=page.getByRole("button",{name:"Masuk",exact:true});
   const tokens=await page.evaluate(()=>{const root=getComputedStyle(document.documentElement);return {background:root.getPropertyValue("--create-bg").trim(),foreground:root.getPropertyValue("--create-fg").trim()};});

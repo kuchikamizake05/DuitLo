@@ -1,10 +1,11 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import {test,expect} from '@playwright/test';
 import {mockReference,account} from './reference-fixtures';
 
 test('transfer retry after a committed but lost response retains operation identity',async({page})=>{
  await mockReference(page,'light');
  const other={...account,id:'other-account',name:'Mandiri',institution:'Bank Mandiri'};
- await page.route('**/rest/v1/financial_accounts**',route=>route.fulfill({json:[account,other]}));
+ await page.route('**/rest/v1/financial_accounts**',route=>fulfillPostgrestRows(route,[account,other]));
  const writes:Record<string,unknown>[]=[];
  const committed=new Set<string>();let balance=1000000;
  await page.route('**/rest/v1/account_transfers**',async route=>{
@@ -35,7 +36,7 @@ test('goal deposit retry after reload reuses committed request identity',async({
  await mockReference(page,'light');
  let balance=1000000;
  const goal={id:'audit-goal',name:'Audit goal',target_amount:2000000,current_amount:0,currency:'IDR',color:null,due_date:null,is_active:true};
- await page.route('**/rest/v1/financial_accounts**',route=>route.fulfill({json:[{...account,current_balance:balance}]}));
+ await page.route('**/rest/v1/financial_accounts**',route=>fulfillPostgrestRows(route,[{...account,current_balance:balance}]));
  await page.route('**/rest/v1/financial_goals**',route=>route.fulfill({json:[goal]}));
  const ids:string[]=[];
  let attempts=0;
@@ -79,4 +80,12 @@ test('stale goal metadata draft never writes the saved balance',async({page})=>{
  expect(goal.current_amount).toBe(100000);
 });
 
-
+test('goal history renders persisted deposits including archived source names',async({page})=>{
+ await mockReference(page,'light');
+ await page.route('**/rest/v1/financial_goals**',route=>route.fulfill({json:[{id:'history-goal',name:'History goal',target_amount:2000000,current_amount:100000,currency:'IDR',due_date:null,is_active:true}]}));
+ await page.route('**/rest/v1/financial_goal_deposits**',route=>fulfillPostgrestRows(route,[{id:'deposit',goal_id:'history-goal',account_id:'archived-wallet',amount:100000,currency:'IDR',created_at:'2026-10-15T07:30:00Z',account:{name:'Old cash wallet'}}]));
+ await page.goto('/goals?view=detail&id=history-goal');
+ await expect(page.getByText('Old cash wallet',{exact:true})).toBeVisible();
+ await expect(page.locator('time[datetime="2026-10-15T07:30:00Z"]')).toContainText('15 Okt 2026');
+ await expect(page.getByText('Belum ada alokasi dana tercatat.',{exact:true})).toHaveCount(0);
+});

@@ -1,3 +1,4 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import {test,expect,user} from "./fixtures";
 import {mockReference} from "./reference-fixtures";
 test.use({allowedConsoleErrors:["the server responded with a status of 503","the server responded with a status of 409"]});
@@ -13,10 +14,10 @@ test("shared receipt retry after reload reuses transaction and upload location",
    if(row){await route.fulfill({status:409,json:{code:"23505",message:"duplicate"}});return;}
    row={...next,created_at:"2026-10-15T08:00:00Z",updated_at:"2026-10-15T08:00:00Z"};await route.fulfill({status:503,json:{message:"Lost response"}});return;
   }
-  await route.fulfill({json:row?[row]:[]});
+  await fulfillPostgrestRows(route,row?[row]:[]);
  });
  await page.goto("/dashboard");await page.waitForLoadState("networkidle");
- await page.evaluate(async()=>{const cache=await caches.open("fintrack-shared-receipts-v1");await cache.put("/__shared-receipts/retry/metadata",new Response(JSON.stringify({title:"Receipt",text:"",url:"",fileName:"receipt.png",fileType:"image/png"}),{headers:{"Content-Type":"application/json"}}));await cache.put("/__shared-receipts/retry/file",new Response(new Uint8Array([1,2,3]),{headers:{"Content-Type":"image/png"}}));});
+ await page.evaluate(async()=>{const cache=await caches.open("fintrack-shared-receipts-v2");await cache.put("/__shared-receipts/retry/metadata",new Response(JSON.stringify({ownerId:null,createdAt:Date.now(),expiresAt:Date.now()+86400000,title:"Receipt",text:"",url:"",fileName:"receipt.png",fileType:"image/png"}),{headers:{"Content-Type":"application/json"}}));await cache.put("/__shared-receipts/retry/file",new Response(new Uint8Array([1,2,3]),{headers:{"Content-Type":"image/png"}}));});
  await page.goto("/shared-receipt?id=retry");
  await expect(page.getByLabel("Nominal",{exact:true})).toHaveValue("100");
  await page.locator('button[type="submit"]').click();await expect.poll(()=>ids.length).toBe(1);

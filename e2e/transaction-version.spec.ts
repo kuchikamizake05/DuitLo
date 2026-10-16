@@ -1,3 +1,4 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import {test,expect,user} from "./fixtures";
 import {mockReference,transaction} from "./reference-fixtures";
 for(const action of ["edit","delete"] as const)test(`stale ${action} cannot overwrite another tab`,async({page})=>{
@@ -13,7 +14,7 @@ for(const action of ["edit","delete"] as const)test(`stale ${action} cannot over
    accepted++;row={...row,...route.request().postDataJSON(),updated_at:"2026-10-15T08:00:00Z"};
    await route.fulfill({json:[{id:row.id}]});return;
   }
-  await route.fulfill({json:[row]});
+  await fulfillPostgrestRows(route,[row]);
  });
  await page.goto(`/transactions?view=detail&id=${row.id}`);
  const detail=page.getByRole("dialog",{name:"Detail",exact:true});await expect(detail).toBeVisible();

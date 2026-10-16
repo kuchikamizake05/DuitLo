@@ -1,4 +1,5 @@
-import type { Page, Route } from "@playwright/test";
+import { fulfillPostgrestRows as fulfillRows } from "./postgrest-response";
+import type { Page } from "@playwright/test";
 import { expect, mockAuthenticatedSession, test, user } from "./fixtures";
 
 const account = {
@@ -35,16 +36,6 @@ type Transaction = {
   updated_at: string;
 };
 
-async function fulfillRows(route: Route, rows: unknown[]) {
-  await route.fulfill({
-    status: 200,
-    headers: {
-      "Content-Type": "application/json",
-      "Content-Range": rows.length ? `0-${rows.length - 1}/${rows.length}` : "*/0",
-    },
-    body: JSON.stringify(rows),
-  });
-}
 
 async function mockTransactionScanPage(page: Page, options: { parserStatus?: number } = {}) {
   const transactions: Transaction[] = [];

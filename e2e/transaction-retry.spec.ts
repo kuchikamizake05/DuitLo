@@ -1,3 +1,4 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import {test,expect,user} from "./fixtures";
 import {mockReference} from "./reference-fixtures";
 
@@ -20,7 +21,7 @@ for(const path of ["/accounts","/transactions"]){
         await route.fulfill({status:503,json:{message:"Simulated response loss after commit"}});return;
       }
       const requestedId=url.searchParams.get("id")?.replace("eq.","");
-      await route.fulfill({json:[...rows.values()].filter(row=>!requestedId||row.id===requestedId)});
+      await fulfillPostgrestRows(route,[...rows.values()].filter(row=>!requestedId||row.id===requestedId));
     });
     await page.goto(path);
     await page.getByRole("link",{name:"Catat Transaksi Baru",exact:true}).click();

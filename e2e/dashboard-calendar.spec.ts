@@ -1,3 +1,4 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import type { Page } from "@playwright/test";
 import { expect, mockSupabase, test } from "./fixtures";
 
@@ -16,7 +17,7 @@ async function prepareDashboard(page: Page, language: "id" | "en") {
       { id: "expense", date: "2026-10-08", type: "expense", merchant: "Lunch", category: "Makanan", amount: 250000, account_id: "bank", status: "confirmed", created_at: "2026-10-08T00:00:00Z" },
       { id: "income", date: "2026-10-09", type: "income", merchant: "Salary", category: "Gaji", amount: 1000000, account_id: "bank", status: "confirmed", created_at: "2026-10-09T00:00:00Z" },
     ];
-    await route.fulfill({ status: 200, json: rows });
+    await fulfillPostgrestRows(route, rows);
   });
   await page.goto("/dashboard");
   await expect(page.locator("#main-balance")).toBeVisible();

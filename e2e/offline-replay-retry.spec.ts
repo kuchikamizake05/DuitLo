@@ -1,3 +1,4 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import {test,expect,user} from "./fixtures";
 import {mockReference,account} from "./reference-fixtures";
 
@@ -15,7 +16,7 @@ test("offline create survives a committed response failure and reconnects once",
    row={...(Array.isArray(raw)?raw[0]:raw),status:"confirmed",created_at:"2026-10-15T08:00:00Z",updated_at:"2026-10-15T08:00:00Z"};
    await route.fulfill({status:503,json:{message:"Response lost"}});return;
   }
-  await route.fulfill({json:row?[row]:[]});
+  await fulfillPostgrestRows(route,row?[row]:[]);
  });
  await page.goto("/transactions");await page.waitForLoadState("networkidle");
  await context.setOffline(true);

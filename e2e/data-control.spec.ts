@@ -24,3 +24,16 @@ test("deletion request is recorded and cancellable without deleting the account"
   await expect(page.getByText("cancelled", { exact: true })).toBeVisible();
   expect(requests).toHaveLength(1);
 });
+
+test("settings exposes plan, privacy and support routes and unavailable reminders honestly", async ({page}) => {
+  await mockReference(page, "light");
+  await page.goto("/settings");
+  const links = page.getByRole("navigation", {name:"Paket dan bantuan"});
+  for (const href of ["/billing", "/data-controls", "/privacy", "/terms", "/support"]) {
+    await expect(links.locator(`a[href="${href}"]`)).toHaveCount(1);
+  }
+  await expect(page.locator("#notifReminder")).toBeDisabled();
+  await links.locator('a[href="/data-controls"]').click();
+  await expect(page).toHaveURL(/\/data-controls$/);
+  await expect(page.getByLabel("Request type")).toBeVisible();
+});

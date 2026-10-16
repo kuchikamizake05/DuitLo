@@ -1,4 +1,5 @@
-import type { Page, Route } from "@playwright/test";
+import { fulfillPostgrestRows as fulfillRows } from "./postgrest-response";
+import type { Page } from "@playwright/test";
 import { expect, mockAuthenticatedSession, mockSupabase, test, user } from "./fixtures";
 
 const account = {
@@ -26,6 +27,7 @@ const transaction = {
   ai_confidence: null,
   status: "confirmed" as const,
   created_at: "2026-08-10T08:00:00.000Z",
+  updated_at: "2026-08-10T08:00:00.000Z",
   account_id: account.id,
 };
 
@@ -39,16 +41,6 @@ const category = {
   created_at: "2026-01-01T00:00:00.000Z",
 };
 
-async function fulfillRows(route: Route, rows: unknown[]) {
-  await route.fulfill({
-    status: 200,
-    headers: {
-      "Content-Type": "application/json",
-      "Content-Range": rows.length ? `0-${rows.length - 1}/${rows.length}` : "*/0",
-    },
-    body: JSON.stringify(rows),
-  });
-}
 
 async function mockTransactionsPage(page: Page) {
   let deleteRequests = 0;
@@ -73,7 +65,7 @@ async function mockTransactionsPage(page: Page) {
       if (request.method() === "PATCH") {
         deleteRequests += 1;
         deleted = true;
-        await fulfillRows(route, []);
+        await route.fulfill({json:[{id:transaction.id}]});
         return;
       }
       await fulfillRows(route, deleted ? [{ ...transaction, status: "deleted" }] : [transaction]);
@@ -181,6 +173,7 @@ test.describe("keyboard and confirmation regressions @critical", () => {
 
   test("skip link and profile menu support keyboard recovery", async ({ page }) => {
     await mockSupabase(page, true);
+    await page.addInitScript(userId => localStorage.setItem(`fintrack:menu-guide:${userId}:mode`, "paused"), user.id);
     await page.goto("/dashboard");
 
     await expect(page.getByRole("heading",{name:/^Halo,/})).toBeVisible();

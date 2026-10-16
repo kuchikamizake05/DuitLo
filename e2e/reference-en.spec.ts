@@ -1,12 +1,13 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import {test,expect,user} from "./fixtures";
 import {account,transaction,mockReference} from "./reference-fixtures";
 import {writeFile} from "node:fs/promises";
 for(const theme of ["light","dark"] as const)test(`English routes and forms in ${theme}`,async({page},info)=>{
  test.setTimeout(180000);await mockReference(page,theme);await page.clock.setFixedTime(new Date("2026-10-13T05:00:00Z"));
- await page.route("https://e2e-project.supabase.co/rest/v1/financial_accounts**",route=>route.fulfill({json:[account,{...account,id:"broker",name:"Test broker",kind:"investment"}]}));
- await page.route("https://e2e-project.supabase.co/rest/v1/financial_goals**",route=>route.fulfill({json:[{id:"goal",name:"My laptop",target_amount:18000000,current_amount:7200000,currency:"IDR",due_date:"2027-01-01",is_active:true}]}));
- await page.route("https://e2e-project.supabase.co/rest/v1/financial_budgets**",route=>route.fulfill({json:[{id:"budget",category:"Transportasi",limit_amount:1000000,month:"2026-10-01"}]}));
- await page.route("https://e2e-project.supabase.co/rest/v1/stock_executions**",route=>route.fulfill({json:[{id:"execution",account_id:"broker",user_id:user.id,ticker:"BBCA",side:"buy",quantity:1000,price:8500,fee:0,currency:"IDR",executed_at:"2026-10-12T07:00:00Z"}]}));
+ await page.route("https://e2e-project.supabase.co/rest/v1/financial_accounts**",route=>fulfillPostgrestRows(route,[account,{...account,id:"broker",name:"Test broker",kind:"investment"}]));
+ await page.route("https://e2e-project.supabase.co/rest/v1/financial_goals**",route=>fulfillPostgrestRows(route,[{id:"goal",name:"My laptop",target_amount:18000000,current_amount:7200000,currency:"IDR",due_date:"2027-01-01",is_active:true}]));
+ await page.route("https://e2e-project.supabase.co/rest/v1/financial_budgets**",route=>fulfillPostgrestRows(route,[{id:"budget",category:"Transportasi",limit_amount:1000000,month:"2026-10-01"}]));
+ await page.route("https://e2e-project.supabase.co/rest/v1/stock_executions**",route=>fulfillPostgrestRows(route,[{id:"execution",account_id:"broker",user_id:user.id,ticker:"BBCA",side:"buy",quantity:1000,price:8500,fee:0,currency:"IDR",executed_at:"2026-10-12T07:00:00Z"}]));
  const paths=["/dashboard","/accounts","/transactions","/insights","/planning","/goals","/investments","/settings","/reports","/trading","/journey","/design/beranda-preview","/design/mobile-dashboard","/accounts?view=create",`/accounts?view=detail&id=${account.id}`,"/accounts?view=transfer","/goals?view=create","/goals?view=detail&id=goal","/planning?view=edit&id=budget","/transactions?new=1",`/transactions?view=detail&id=${transaction.id}`,"/investments?view=create","/investments?view=detail&id=BBCA","/investments?view=edit","/investments?view=execution",`/transactions?view=detail&id=${transaction.id}&qa=edit-transaction`,`/transactions?view=detail&id=${transaction.id}&qa=delete-transaction`,"/transactions?new=1&qa=category-picker","/accounts?qa=account-picker","/investments?view=detail&id=BBCA&qa=delete-asset"];
  await page.goto("/dashboard");await page.getByRole("button",{name:"EN",exact:true}).click();
  const remaining:Record<string,string[]>={};

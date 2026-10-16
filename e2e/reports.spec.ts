@@ -1,4 +1,5 @@
-import type { Page, Route } from "@playwright/test";
+import { fulfillPostgrestRows as fulfillRows } from "./postgrest-response";
+import type { Page } from "@playwright/test";
 import { expect, mockAuthenticatedSession, test, user, userId } from "./fixtures";
 
 const report = {
@@ -18,14 +19,6 @@ const report = {
   csv_path: `${userId}/2026-08.csv`,
 };
 
-async function fulfillRows(route: Route, rows: unknown[]) {
-  const acceptsObject = route.request().headers()["accept"]?.includes("application/vnd.pgrst.object+json");
-  await route.fulfill({
-    status: 200,
-    headers: { "Content-Type": "application/json", "Content-Range": rows.length ? `0-${rows.length - 1}/${rows.length}` : "*/0" },
-    body: JSON.stringify(acceptsObject ? (rows[0] ?? null) : rows),
-  });
-}
 
 async function mockReportsPage(page: Page) {
   await page.addInitScript(userId => localStorage.setItem(`fintrack:menu-guide:${userId}:mode`, "paused"), user.id);

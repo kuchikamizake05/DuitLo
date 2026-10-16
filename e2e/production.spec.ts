@@ -39,7 +39,9 @@ test("keeps invalid API responses private and safely validated @critical", async
   });
   expect(response.status()).toBe(401);
   expect(response.headers()["cache-control"]).toContain("no-store");
-  await expect(response.json()).resolves.toEqual({ error: "Permintaan atau sesi tidak valid." });
+  const body = await response.json();
+  expect(body).toEqual({ error: "Permintaan atau sesi tidak valid.", correlationId: expect.any(String) });
+  expect(body.correlationId).toBe(response.headers()["x-correlation-id"]);
 });
 
 test.describe("offline PWA", () => {

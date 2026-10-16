@@ -22,9 +22,9 @@ test("changing shared receipt IDs clears the previous receipt draft",async({page
   await page.goto("/dashboard");
   await page.waitForLoadState("networkidle");
   await page.evaluate(async()=>{
-    const cache=await caches.open("fintrack-shared-receipts-v1");
+    const cache=await caches.open("fintrack-shared-receipts-v2");
     for(const id of ["audit-first","audit-second"]){
-      await cache.put(`/__shared-receipts/${id}/metadata`,new Response(JSON.stringify({title:id,text:`Note ${id}`,url:"",fileName:null,fileType:null}),{headers:{"Content-Type":"application/json"}}));
+      await cache.put(`/__shared-receipts/${id}/metadata`,new Response(JSON.stringify({ownerId:null,createdAt:Date.now(),expiresAt:Date.now()+86400000,title:id,text:`Note ${id}`,url:"",fileName:null,fileType:null}),{headers:{"Content-Type":"application/json"}}));
     }
   });
   await page.goto("/shared-receipt?id=audit-first");
@@ -46,9 +46,9 @@ test("a late receipt parse cannot overwrite a newly selected receipt",async({pag
   await page.goto("/dashboard");
   await page.waitForLoadState("networkidle");
   await page.evaluate(async()=>{
-    const cache=await caches.open("fintrack-shared-receipts-v1");
+    const cache=await caches.open("fintrack-shared-receipts-v2");
     for(const id of ["parse-first","parse-second"]){
-      await cache.put(`/__shared-receipts/${id}/metadata`,new Response(JSON.stringify({title:id,text:"",url:"",fileName:`${id}.png`,fileType:"image/png"}),{headers:{"Content-Type":"application/json"}}));
+      await cache.put(`/__shared-receipts/${id}/metadata`,new Response(JSON.stringify({ownerId:null,createdAt:Date.now(),expiresAt:Date.now()+86400000,title:id,text:"",url:"",fileName:`${id}.png`,fileType:"image/png"}),{headers:{"Content-Type":"application/json"}}));
       await cache.put(`/__shared-receipts/${id}/file`,new Response(new Uint8Array([1,2,3]),{headers:{"Content-Type":"image/png"}}));
     }
   });

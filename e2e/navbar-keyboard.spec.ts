@@ -1,4 +1,9 @@
-import { expect, mockSupabase, test } from "./fixtures";
+import { fulfillPostgrestRows } from "./postgrest-response";
+import { expect, mockSupabase, test, user } from "./fixtures";
+
+test.beforeEach(async ({page}) => {
+  await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);
+});
 
 test.describe("FinTrack navigation and appearance @critical", () => {
   test("mobile navigation opens quick entry with the keyboard", async ({ page }) => {
@@ -43,10 +48,10 @@ for (const theme of ["light", "dark"] as const) {
     await page.setViewportSize({width:390,height:844});
     await mockSupabase(page,true);
     await page.addInitScript(value => localStorage.setItem("fintrack-theme",value),theme);
-    await page.route("https://e2e-project.supabase.co/rest/v1/financial_accounts?**", route => route.fulfill({status:200,json:[
+    await page.route("https://e2e-project.supabase.co/rest/v1/financial_accounts?**", route => fulfillPostgrestRows(route,[
       {id:"bank",name:"BCA Utama",kind:"bank",institution:"BCA",currency:"IDR",current_balance:14500000,reporting_balance_idr:null,is_active:true,updated_at:"2026-10-12T00:00:00Z"},
       {id:"wallet",name:"GoPay",kind:"ewallet",institution:"GoPay",currency:"IDR",current_balance:1450000,reporting_balance_idr:null,is_active:true,updated_at:"2026-10-12T00:00:00Z"}
-    ]}));
+    ]));
     await page.goto("/accounts");
     const carousel = page.locator(".ft-reference[data-page=dompet]");
     await expect(carousel.locator("[data-reference-node=\"dompet.29\"]")).toHaveCount(2);

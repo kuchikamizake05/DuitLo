@@ -1,3 +1,4 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import { test, expect, user } from "./fixtures";
 import { mockReference, account, transaction } from "./reference-fixtures";
 import type { Page } from "@playwright/test";
@@ -7,7 +8,7 @@ async function emptyData(page: Page, withAccount = false, tutorial = false) {
   if (!tutorial) await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);
   await page.route("https://e2e-project.supabase.co/rest/v1/**", route => {
     const path = new URL(route.request().url()).pathname;
-    return route.fulfill({ json: path.endsWith("financial_accounts") && withAccount ? [account] : [] });
+    return fulfillPostgrestRows(route, path.endsWith("financial_accounts") && withAccount ? [account] : []);
   });
 }
 
@@ -50,11 +51,11 @@ test("guide advances after saving a wallet and ends after saving a transaction",
         walletSaved = true;
         return route.fulfill({ json: account });
       }
-      return route.fulfill({ json: walletSaved ? [account] : [] });
+      return fulfillPostgrestRows(route, walletSaved ? [account] : []);
     }
     if (path.endsWith("transactions")) {
       if (route.request().method() === "POST") transactionSaved = true;
-      return route.fulfill({ json: transactionSaved ? [transaction] : [] });
+      return fulfillPostgrestRows(route, transactionSaved ? [transaction] : []);
     }
     return route.fulfill({ json: path.endsWith("categories") ? [{ name: "Makanan & Minuman", type: "expense" }] : [] });
   });

@@ -1,9 +1,10 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import { test, expect } from "./fixtures";
 import { account, mockReference } from "./reference-fixtures";
 
 test("transaction account filters, balances and category scrolling", async ({ page }) => {
   await mockReference(page, "dark");
-  await page.route("https://e2e-project.supabase.co/rest/v1/financial_accounts**", route => route.fulfill({json:[account,{...account,id:"wallet",name:"Digital",institution:"GoPay",kind:"ewallet",current_balance:250000}]}));
+  await page.route("https://e2e-project.supabase.co/rest/v1/financial_accounts**", route => fulfillPostgrestRows(route,[account,{...account,id:"wallet",name:"Digital",institution:"GoPay",kind:"ewallet",current_balance:250000}]));
   await page.route("https://e2e-project.supabase.co/rest/v1/categories**", route => route.fulfill({json:Array.from({length:30},(_,i)=>({name:`Kategori ${String(i).padStart(2,"0")}`,type:"expense"}))}));
   await page.goto("/accounts");
   await page.getByRole("link",{name:"Catat Transaksi Baru",exact:true}).click();

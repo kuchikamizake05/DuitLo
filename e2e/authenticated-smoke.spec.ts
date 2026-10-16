@@ -3,12 +3,12 @@ import { expect, mockSupabase, test } from "./fixtures";
 const routes = [
   ["/dashboard", /^Halo, FinTrack/],
   ["/transactions", "Aktivitas"],
-  ["/accounts", "Daftar Akun & Rekening"],
+  ["/accounts", "Dompet"],
   ["/investments", "Investasi"],
   ["/trading", "Trading"],
   ["/planning", "Kelola Anggaran"],
   ["/settings", "Pengaturan"],
-  ["/insights", "Laporan & Insights"],
+  ["/insights", "Laporan"],
 ] as const;
 
 test.describe("authenticated application routes render with controlled read-only data @smoke", () => {

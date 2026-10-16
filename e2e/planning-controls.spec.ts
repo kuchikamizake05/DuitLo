@@ -1,4 +1,5 @@
-import type { Page, Route } from "@playwright/test";
+import { fulfillPostgrestRows as fulfillRows } from "./postgrest-response";
+import type { Page } from "@playwright/test";
 import { expect, mockAuthenticatedSession, test, user } from "./fixtures";
 
 const accounts = [
@@ -14,13 +15,6 @@ const transactions = [
 
 type Goal = { id: string; name: string; target_amount: number; current_amount: number; currency: string; color: null; due_date: string | null; is_active: boolean };
 
-async function fulfillRows(route: Route, rows: unknown[]) {
-  await route.fulfill({
-    status: 200,
-    headers: { "Content-Type": "application/json", "Content-Range": rows.length ? `0-${rows.length - 1}/${rows.length}` : "*/0" },
-    body: JSON.stringify(rows),
-  });
-}
 
 async function mockPlanningPage(page: Page, initialGoals: Goal[] = []) {
   const goals: Goal[] = [...initialGoals];

@@ -15,6 +15,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "coverage/**",
+    "test-results/**",
+    "playwright-report/**",
+    "blob-report/**",
+    "docs/marketing/**",
+    "tools/fintrack-hyperframes/assets/**",
     "next-env.d.ts",
   ]),
 ]);

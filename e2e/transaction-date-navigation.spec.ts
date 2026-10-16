@@ -1,3 +1,4 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import type { Page } from "@playwright/test";
 import { expect, mockSupabase, test } from "./fixtures";
 
@@ -30,7 +31,7 @@ async function prepareTransactions(page: Page) {
       created_at: "2026-10-08T00:00:00Z",
       updated_at: "2026-10-08T00:00:00Z",
     }));
-    await route.fulfill({ status: 200, json: rows });
+    await fulfillPostgrestRows(route, rows);
   });
 }
 

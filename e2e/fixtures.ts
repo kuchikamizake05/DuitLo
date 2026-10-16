@@ -1,4 +1,5 @@
 import { expect, test as base, type Page } from "@playwright/test";
+import { fulfillPostgrestRows } from "./postgrest-response";
 
 const userId = "6f432126-65da-4a44-b93d-9d86b2e4c980";
 const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQxMDI0NDQ4MDAsInN1YiI6IjZmNDMyMTI2LTY1ZGEtNGE0NC1iOTNkLTlkODZiMmU0Yzk4MCIsInJvbGUiOiJhdXRoZW50aWNhdGVkIn0.e2e-signature";
@@ -124,11 +125,7 @@ export async function mockSupabase(page: Page, authenticated: boolean) {
       return;
     }
     if (url.pathname.startsWith("/rest/v1/")) {
-      await route.fulfill({
-        status: 200,
-        headers: { "Content-Type": "application/json", "Content-Range": "0-0/0" },
-        body: "[]",
-      });
+      await fulfillPostgrestRows(route, []);
       return;
     }
     await route.fulfill({ status: 404, json: { message: "Unmocked E2E Supabase route" } });

@@ -1,9 +1,10 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import {test,expect} from "./fixtures";
 import {transaction,mockReference} from "./reference-fixtures";
 
 for(const theme of ["light","dark"] as const){test(`category colors differ and remain consistent in ${theme}`,async({page})=>{
  await mockReference(page,theme);await page.clock.setFixedTime(new Date("2026-10-13T05:00:00Z"));const categories=["Makanan","Transportasi","Belanja"];
- await page.route("https://e2e-project.supabase.co/rest/v1/transactions**",route=>route.fulfill({json:categories.map((category,index)=>({...transaction,id:`tx-${index}`,category,merchant:category,amount:(index+1)*100000}))}));
+ await page.route("https://e2e-project.supabase.co/rest/v1/transactions**",route=>fulfillPostgrestRows(route,categories.map((category,index)=>({...transaction,id:`tx-${index}`,category,merchant:category,amount:(index+1)*100000}))));
  await page.route("https://e2e-project.supabase.co/rest/v1/categories**",route=>route.fulfill({json:categories.map(name=>({name,type:"expense"}))}));
  const baseline:Record<string,{background:string;color:string}>={};
  for(const path of ["/dashboard","/transactions","/insights"]){await page.goto(path);await expect(page.getByRole("main").filter({hasNot:page.locator(".ft-skeleton")})).toBeVisible();const colors=[];

@@ -1,10 +1,11 @@
+import { fulfillPostgrestRows } from "./postgrest-response";
 import {test,expect,user} from './fixtures';
 import {mockReference,account} from './reference-fixtures';
 for(const theme of ['light','dark'] as const)test(`new account controls and single logo background ${theme}`,async({page})=>{
  await mockReference(page,theme);await page.addInitScript(()=>localStorage.setItem('fintrack-language','en'));
  let saved:Record<string,unknown>|null=null;
  await page.route('https://e2e-project.supabase.co/rest/v1/financial_accounts**',async route=>{
-  if(route.request().method()==='POST'){saved={...route.request().postDataJSON(),id:'new-account',is_active:true};await route.fulfill({json:{id:'new-account'}});}else await route.fulfill({json:saved?[account,saved]:[account]});
+  if(route.request().method()==='POST'){saved={...route.request().postDataJSON(),id:'new-account',is_active:true};await route.fulfill({json:{id:'new-account'}});}else await fulfillPostgrestRows(route,saved?[account,saved]:[account]);
  });
  await page.goto('/accounts?view=create');const tab=(name:string)=>page.locator(`#tab-${name}`);
  await tab('ewallet').click();await expect(tab('ewallet')).toHaveAttribute('aria-pressed','true');await expect(tab('bank')).toHaveAttribute('aria-pressed','false');await expect(page.locator('#category-select')).toHaveValue('ewallet');
