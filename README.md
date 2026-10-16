@@ -226,7 +226,7 @@ Replace every placeholder required by the integrations you plan to use. Never co
 
 ### 3. Prepare Supabase
 
-Run [the base schema](supabase/schema.sql), then every file in [`supabase/migrations/`](supabase/migrations/) in filename order. Detailed instructions are provided in [Supabase setup](#supabase-setup).
+Follow the [reviewed database setup and release guide](docs/database-release.md). Historical migrations contain duplicate versions and a malformed placeholder; do not replay the migration directory blindly.
 
 ### 4. Start development
 
@@ -241,11 +241,11 @@ Open [http://localhost:3000](http://localhost:3000).
 FinTrack uses Supabase for both identity and data ownership. A configured Supabase project is required for the authenticated application.
 
 1. Create a new Supabase project.
-2. Open **SQL Editor** in the Supabase dashboard.
-3. Execute [`supabase/schema.sql`](supabase/schema.sql).
-4. Execute every migration in [`supabase/migrations/`](supabase/migrations/) in ascending filename order.
-5. Confirm that RLS is enabled for the created tables.
-6. Copy the project URL and anon key from **Project Settings > API** into `.env.local`.
+2. Validate the [reviewed manifest](supabase/bootstrap/manifest.json) with `node scripts/database/preflight.mjs`.
+3. For a new, empty managed Supabase project, apply the reviewed SQL in manifest dependency order using its existing Auth and Storage schemas. Never run `postgres-fixtures.sql` against managed Supabase; it is only for disposable plain PostgreSQL tests.
+4. For an existing project, reconcile its deployed schema and migration history first. Follow [database release and recovery](docs/database-release.md); do not reset or repair production history automatically.
+5. Confirm RLS and real two-user API isolation, then test backup recovery.
+6. Copy the project URL and anon key into the appropriate environment configuration. Keep staging credentials separate from production; see `.env.example`.
 
 The schema and migrations create the financial ledger, account transfers, goals, investment executions, forex journal, equity snapshots, AI trade review storage, and opt-in monthly report archives. Ownership policies are based on the authenticated user's `auth.uid()`.
 
