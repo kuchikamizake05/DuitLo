@@ -1,5 +1,5 @@
-const STATIC_CACHE = "fintrack-static-v9";
-const SHARE_CACHE = "fintrack-shared-receipts-v1";
+const STATIC_CACHE = "fintrack-static-v10";
+const SHARE_CACHE = "fintrack-shared-receipts-v2";
 const PRECACHE_URLS = [
   "/offline",
   "/manifest.webmanifest",
@@ -30,7 +30,8 @@ self.addEventListener("fetch", (event) => {
       const formData = await request.formData();
       const id = self.crypto.randomUUID();
       const file = formData.get("receipt");
-      const metadata = { title: String(formData.get("title") || ""), text: String(formData.get("text") || ""), url: String(formData.get("url") || ""), fileName: file instanceof File ? file.name : null, fileType: file instanceof File ? file.type : null };
+      const createdAt = Date.now();
+      const metadata = { ownerId: null, createdAt, expiresAt: createdAt + 86400000, title: String(formData.get("title") || ""), text: String(formData.get("text") || ""), url: String(formData.get("url") || ""), fileName: file instanceof File ? file.name : null, fileType: file instanceof File ? file.type : null };
       const cache = await caches.open(SHARE_CACHE);
       await cache.put(`/__shared-receipts/${id}/metadata`, new Response(JSON.stringify(metadata), { headers: { "Content-Type": "application/json" } }));
       if (file instanceof File) await cache.put(`/__shared-receipts/${id}/file`, new Response(file));

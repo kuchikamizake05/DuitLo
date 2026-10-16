@@ -18,8 +18,8 @@ import { formatLocalDate } from "@/lib/planning";
 import { supabase } from "@/infrastructure/supabase/browser-client";
 
 type Account = { id: string; name: string; currency: string };
-type SharedMetadata = { title: string; text: string; url: string; fileName: string | null; fileType: string | null };
-const sharedCache = "fintrack-shared-receipts-v1";
+import { SHARED_RECEIPT_CACHE, claimSharedReceipt, withReceiptLock, removeSharedReceipt, type SharedReceiptMetadata } from "@/lib/shared-receipt-cache";
+type SharedMetadata = SharedReceiptMetadata;
 
 export default function SharedReceiptPage() {
   return (
@@ -68,38 +68,32 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
 
   const parsedRef = useRef(false);
   const saveLock=useRef(false);
+  const ownerRef = useRef<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
     void (async () => {
       try {
         if (!shareId) throw new Error("missing share");
-        const cache = await caches.open(sharedCache);
-        const metadataResponse = await cache.match(`/__shared-receipts/${shareId}/metadata`);
-        if (!metadataResponse) throw new Error("missing shared content");
-
-        const nextMetadata = (await metadataResponse.json()) as SharedMetadata;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (controller.signal.aborted) return;
+        if (!user) {
+          router.replace(`/login?next=${encodeURIComponent(`/shared-receipt?id=${shareId}`)}`);
+          return;
+        }
+        const cache = await caches.open(SHARED_RECEIPT_CACHE);
+        const nextMetadata = await withReceiptLock(shareId, () => claimSharedReceipt(cache, shareId, user.id));
+        if (!nextMetadata) throw new Error("missing shared content");
+        if (controller.signal.aborted) return;
+        ownerRef.current = user.id;
         const nextDraft = buildSharedReceiptDraft(nextMetadata);
-        if(controller.signal.aborted)return;
         setMetadata(nextMetadata);
-
         let sharedFile: File | null = null;
         const fileResponse = await cache.match(`/__shared-receipts/${shareId}/file`);
         if (fileResponse) {
-          sharedFile = new File([await fileResponse.blob()], nextMetadata.fileName ?? "receipt", {
-            type: nextMetadata.fileType ?? "application/octet-stream",
-          });
-          if(controller.signal.aborted)return;
+          sharedFile = new File([await fileResponse.blob()], nextMetadata.fileName ?? "receipt", { type: nextMetadata.fileType ?? "application/octet-stream" });
+          if (controller.signal.aborted) return;
           setFile(sharedFile);
-        }
-
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if(controller.signal.aborted)return;
-        if (!user) {
-          router.replace("/login");
-          return;
         }
 
         const [accountsResult, categoriesResult] = await Promise.all([
@@ -237,7 +231,7 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("not authenticated");
+      if (!user || user.id !== ownerRef.current) throw new Error("Sesi berubah. Buka kembali bukti ini.");
 
       let receiptUrl: string | null = null;
       if (file) {
@@ -269,11 +263,8 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
       await createTransactionOnce(supabase,attempt.id,attempt.payload);
 
       if (shareId) {
-        const cache = await caches.open(sharedCache);
-        await Promise.all([
-          cache.delete(`/__shared-receipts/${shareId}/metadata`),
-          cache.delete(`/__shared-receipts/${shareId}/file`),
-        ]);
+        const cache = await caches.open(SHARED_RECEIPT_CACHE);
+        await withReceiptLock(shareId, () => removeSharedReceipt(cache, shareId));
       }
 
       finishTransactionAttempt(localStorage,user.id,`receipt:${shareId}`,attempt.id);

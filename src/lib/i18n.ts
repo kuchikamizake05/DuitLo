@@ -6,6 +6,9 @@ export const DEFAULT_LANGUAGE: Language = "id";
 export const LANGUAGE_STORAGE_KEY = "fintrack-language";
 
 const englishTranslations: Record<string, string> = {
+  "Pilih Bank": "Select bank",
+  "Pilih E-Wallet": "Select e-wallet",
+  "Pengingat harian - belum tersedia": "Daily reminders - unavailable",
   "Selamat datang di FinTrack": "Welcome to FinTrack",
   "Kenali fitur FinTrack sebentar. Setelah itu, mulai dari satu dompet dan satu transaksi sesuai kebutuhanmu.": "Take a quick look at FinTrack. Then start with one wallet and one transaction at your own pace.",
   "Sekarang giliranmu": "Now it is your turn",

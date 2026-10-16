@@ -19,6 +19,9 @@ import { getNetworkSnapshot,getServerNetworkSnapshot,subscribeToNetworkStatus } 
 import { useRouter } from "next/navigation";
 import { useEffect,useRef,useState,useSyncExternalStore } from "react";
 
+import { clearPrivateReceiptState } from "@/lib/shared-receipt-cache";
+import { clearPendingReceipt } from "@/lib/pending-receipt";
+
 export default function SettingsPage() {
   const { language, t } = useLanguage();
   const { theme, setTheme } = useTheme();
@@ -85,6 +88,8 @@ export default function SettingsPage() {
     setLoggingOut(true);
     setLogoutError(null);
     try {
+      await clearPrivateReceiptState(userId);
+      clearPendingReceipt();
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       if (userId) clearPasskeyDeviceState(userId);

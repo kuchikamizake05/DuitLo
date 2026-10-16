@@ -20,4 +20,10 @@ describe("data control requests", () => {
     const client = { rpc: vi.fn().mockResolvedValue({ data: null, error: { message: "Database unavailable" } }) };
     await expect(submitDataControlRequest(client, "request-id", "support", "Help me")).rejects.toThrow();
   });
+  it("does not send invalid requests or treat an empty RPC response as success", async () => {
+    const client = { rpc: vi.fn().mockResolvedValue({ data: null, error: null }) };
+    await expect(submitDataControlRequest(client, "request-id", "support", "")).rejects.toThrow();
+    expect(client.rpc).not.toHaveBeenCalled();
+    await expect(submitDataControlRequest(client, "request-id", "support", "Help")).rejects.toThrow();
+  });
 });

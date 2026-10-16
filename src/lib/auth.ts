@@ -1,7 +1,10 @@
-const PUBLIC_ROUTES = new Set(["/", "/login", "/offline"]);
+const PUBLIC_ROUTES = new Set(["/", "/login", "/offline", "/privacy", "/terms", "/support"]);
 const PROTECTED_ROUTE_PREFIXES = [
   "/accounts",
+  "/billing",
+  "/data-controls",
   "/dashboard",
+  "/goals",
   "/journey",
   "/insights",
   "/investments",

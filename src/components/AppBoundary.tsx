@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,6 +14,9 @@ import { isSupabaseConfigured, supabase } from "@/infrastructure/supabase/browse
 import PasskeyUnlockScreen from "@/components/PasskeyUnlockScreen";
 import { useLanguage } from "@/components/LanguageProvider";
 import { PASSKEY_STATE_CHANGE_EVENT, clearPasskeyDeviceState, readPasskeyDeviceState, writePasskeyDeviceState } from "@/lib/passkeys";
+
+import { clearPrivateReceiptState } from "@/lib/shared-receipt-cache";
+import { setPendingReceiptOwner } from "@/lib/pending-receipt";
 
 export default function AppBoundary({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -37,6 +40,7 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
 
     void supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
+      setPendingReceiptOwner(data.session?.user.id ?? null);
       sessionRef.current=data.session;
       setSession(data.session);
       setHasSession(Boolean(data.session));
@@ -58,6 +62,10 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!active) return;
+      const previousOwner = sessionRef.current?.user.id ?? null;
+      const nextOwner = nextSession?.user.id ?? null;
+      setPendingReceiptOwner(nextOwner);
+      if (previousOwner && previousOwner !== nextOwner) void clearPrivateReceiptState(previousOwner).catch(() => undefined);
       setSession(nextSession);
       setHasSession(Boolean(nextSession));
       updatePasskeyLock(nextSession);
@@ -112,7 +120,7 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
       />
     );
   }
-  if (gate === "authenticated") return children;
+  if (gate === "authenticated") return <Fragment key={session?.user.id}>{children}</Fragment>;
   if (gate === "configuration-error") return <ConfigurationRequired />;
   if (gate === "offline") return <OfflineRecovery />;
   return <ApplicationLoading />;
