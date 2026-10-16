@@ -152,19 +152,19 @@ export function FirstStepsGuide() {
   </div>
   <svg aria-hidden="true" className="pointer-events-none fixed inset-0 z-[60] h-full w-full">
     <defs><mask id="first-steps-spotlight"><rect width="100%" height="100%" fill="white"/><rect x={target.manual || touringMenus && menuStep>=5 || walletAction ? target.left-10 : spotlightLeft} y={target.top-10} width={target.manual || touringMenus && menuStep>=5 || walletAction ? target.width+20 : spotlightWidth} height={target.height+20} rx={Math.min((target.height+20)/2,Math.max(24,target.radius+10))} fill="black"/></mask></defs>
-    <rect width="100%" height="100%" fill="#07140e" fillOpacity=".56" mask="url(#first-steps-spotlight)"/>
+    <rect width="100%" height="100%" className="ft-guide-dimmer" fill="#07140e" fillOpacity=".56" mask="url(#first-steps-spotlight)"/>
   </svg>
-  <aside aria-live="polite" aria-label={t("Panduan langkah pertama")} className="fixed z-[61] rounded-[20px] bg-white px-4 pb-4 pt-1 text-[#161d1a] shadow-xl" style={{left,width:bubbleWidth,...(above?{bottom:target.viewportHeight-target.top+22}:{top:target.top+target.height+22})}}>
-    <span aria-hidden="true" className="absolute size-4 rotate-45 bg-white" style={{left:arrowLeft-8,...(above?{bottom:-7}:{top:-7})}}/>
+  <aside aria-live="polite" aria-label={t("Panduan langkah pertama")} className="ft-guide-card fixed z-[61] rounded-[20px] bg-white px-4 pb-4 pt-1 text-[#161d1a] shadow-xl" style={{left,width:bubbleWidth,...(above?{bottom:target.viewportHeight-target.top+22}:{top:target.top+target.height+22})}}>
+    <span aria-hidden="true" className="ft-guide-arrow absolute size-4 rotate-45 bg-white" style={{left:arrowLeft-8,...(above?{bottom:-7}:{top:-7})}}/>
     <div className="flex items-center justify-between gap-3">
       <div role="progressbar" aria-label={t("Panduan langkah pertama")} aria-valuemin={0} aria-valuemax={touringMenus?menuSteps.length:2} aria-valuenow={touringMenus?menuStep+1:hasAccount?2:1} className="flex h-6 items-center gap-1.5">
         {Array.from({length:touringMenus?menuSteps.length:2},(_,position)=>{
           const active=position===(touringMenus?menuStep:hasAccount?1:0);
-          return <span key={position} aria-hidden="true" className={`h-1.5 shrink-0 rounded-full ${active?"w-5 bg-[#00652c]":"w-1.5 bg-[#d5dfd8]"}`}/>;
+          return <span key={position} aria-hidden="true" className={`h-1.5 shrink-0 rounded-full ${active?"ft-guide-progress-active w-5 bg-[#00652c]":"ft-guide-progress-idle w-1.5 bg-[#d5dfd8]"}`}/>;
         })}
       </div>
 
-      <button type="button" className="min-h-11 px-2 py-2 text-[14px] leading-5 font-bold text-[#253e32]" onClick={() => {
+      <button type="button" className="ft-guide-skip min-h-11 px-2 py-2 text-[14px] leading-5 font-bold text-[#253e32]" onClick={() => {
         try { localStorage.setItem(`${menuKey}:mode`,"paused"); localStorage.setItem(`${menuKey}:status`,"deferred"); } catch {}
         window.dispatchEvent(new Event(changeEvent));
       }}>{t("Lewati")}</button>
@@ -183,8 +183,8 @@ export function FirstStepsGuide() {
     <div className="mt-3 flex items-center justify-end gap-3">
 
       {touringMenus&&<div className="flex items-center gap-3">
-      {menuStep>0&&<button type="button" className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-[#edf3ef] px-3 text-[13px] font-semibold text-[#253e32]" onClick={()=>moveMenu(menuStep-1)}>{t("Sebelumnya")}</button>}
-      {!practice && <button type="button" className="min-h-11 rounded-full bg-[#00652c] px-4 py-2 text-[12px] font-semibold text-white" onClick={()=>moveMenu(menuStep+1)}>{t(menuStep===menuSteps.length-1?"Selesai":"Lanjut")}</button>}
+      {menuStep>0&&<button type="button" className="ft-guide-back inline-flex min-h-11 items-center gap-1.5 rounded-full bg-[#edf3ef] px-3 text-[13px] font-semibold text-[#253e32]" onClick={()=>moveMenu(menuStep-1)}>{t("Sebelumnya")}</button>}
+      {!practice && <button type="button" className="ft-guide-next min-h-11 rounded-full bg-[#00652c] px-4 py-2 text-[12px] font-semibold text-white" onClick={()=>moveMenu(menuStep+1)}>{t(menuStep===menuSteps.length-1?"Selesai":"Lanjut")}</button>}
       </div>}
     </div>
   </aside></>;
@@ -202,5 +202,5 @@ export function MenuTourButton() {
     } catch {}
     window.dispatchEvent(new Event(changeEvent));
     router.push("/dashboard");
-  }}><span className="flex items-center gap-space-md"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-primary"><BookOpen size={20} strokeWidth={1.75} aria-hidden="true"/></span><span><span className="block font-body-lg text-body-lg font-semibold text-on-surface">{t("Panduan menu")}</span><span className="block font-body-sm text-body-sm text-on-surface-variant">{t("Kenali menu dan fitur FinTrack")}</span></span></span><ChevronRight size={20} className="shrink-0 text-primary" aria-hidden="true"/></button>;
+  }}><span className="flex items-center gap-space-md"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-primary"><BookOpen size={20} style={{strokeWidth:1.75}} aria-hidden="true"/></span><span><span className="block font-body-lg text-body-lg font-semibold text-on-surface">{t("Panduan menu")}</span><span className="block font-body-sm text-body-sm text-on-surface-variant">{t("Kenali menu dan fitur FinTrack")}</span></span></span><ChevronRight size={20} className="shrink-0 text-primary" style={{strokeWidth:1.75}} aria-hidden="true"/></button>;
 }

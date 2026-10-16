@@ -929,3 +929,16 @@ html:not(.dark) .ft-reference[data-page="catat"][data-theme="light"] :is(#nomina
 [aria-labelledby="activity-filter-title"] label{color:var(--color-on-surface-variant);}
 
 .dark [aria-labelledby="activity-filter-title"] button:not([aria-label]){background:#a8c4fc!important;color:#173456!important;}
+
+.ft-month-picker { box-shadow:0 4px 6px -1px rgb(0 0 0 / 10%),0 2px 4px -2px rgb(0 0 0 / 10%) !important; }
+
+.dark .ft-guide-card { background:#202024; color:#f1f2f4; }
+.dark .ft-guide-arrow { background:#202024; }
+.dark .ft-guide-card h2 { color:#f1f2f4; }
+.dark .ft-guide-card p { color:#b2b6bf; }
+.dark .ft-guide-skip { color:#c6d5ef; }
+.dark .ft-guide-back { background:#2b3444; color:#d5e2fa; }
+.dark .ft-guide-next { background:#a8c4fc; color:#173456; }
+.dark .ft-guide-progress-active { background:#a8c4fc; }
+.dark .ft-guide-progress-idle { background:#515b6b; }
+.dark .ft-guide-dimmer { fill:#080e18; }
