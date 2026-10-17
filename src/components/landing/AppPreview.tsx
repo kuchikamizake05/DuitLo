@@ -14,6 +14,8 @@ export default function AppPreview({ tab = "overview", english = false, hero = f
     width={708} height={1442}
     sizes={hero ? "(max-width: 600px) 270px, 330px" : "(max-width: 600px) 280px, 320px"}
     preload={hero && !secondary}
+    loading={hero ? "eager" : "lazy"}
+    fetchPriority={hero && !secondary ? "high" : "auto"}
     className={secondary ? styles.secondaryPhone : styles.primaryPhone} />;
   return <div className={hero ? styles.phonePair : styles.phoneShowcase}>
     {hero && phone("wallets", true)}{phone(tab)}

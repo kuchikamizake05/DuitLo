@@ -3,11 +3,13 @@ import Image from "next/image";
 import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ReceiptPhotoControls } from "@/components/ReceiptPhotoControls";
-import DemoTransactionForm from "./DemoTransactionForm";
+import dynamic from "next/dynamic";
 import BrandLockup from "@/components/BrandLockup";
 import type { ReferenceTransactionForm } from "@/components/reference/TransactionEditor";
 
 import styles from "./landing.module.css";
+
+const DemoTransactionForm = dynamic(() => import("./DemoTransactionForm"));
 
 export default function ReceiptDemo({ english }: { english: boolean }) {
   const [stage, setStage] = useState<"idle" | "capture" | "scan" | "ready" | "review" | "done">("idle");

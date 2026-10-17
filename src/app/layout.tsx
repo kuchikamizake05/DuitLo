@@ -43,8 +43,19 @@ export async function generateViewport(): Promise<Viewport> {
 }
 
 export const metadata: Metadata = {
-  title: "DuitLo - Personal Finance Dashboard",
-  description: "Pantau arus kas, investasi, dan trading dalam satu ruang keuangan pribadi yang tenang.",
+  metadataBase: new URL("https://duitlo.vercel.app"),
+  title: { default: "DuitLo — Catat Keuangan, Budget & Target Tabungan", template: "%s | DuitLo" },
+  description: "Catat pemasukan dan pengeluaran, scan struk dengan AI, atur budget, dan pantau target tabungan. Kelola rekening, e-wallet, dan uang tunai bersama DuitLo.",
+  robots: { index: false, follow: false },
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    siteName: "DuitLo",
+    title: "DuitLo — Catat Keuangan, Budget & Target Tabungan",
+    description: "Catat transaksi, scan struk, atur budget, dan pantau target tabungan dalam satu aplikasi keuangan pribadi.",
+    images: [{ url: "/images/landing/hero-panels-duitlo.webp", alt: "Tampilan aplikasi keuangan pribadi DuitLo" }],
+  },
+  twitter: { card: "summary_large_image", title: "DuitLo — Keuangan Pribadi", description: "Catat transaksi, atur budget, dan pantau target tabungan.", images: ["/images/landing/hero-panels-duitlo.webp"] },
   applicationName: "DuitLo",
   manifest: "/manifest.webmanifest",
   icons: {
