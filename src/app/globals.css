@@ -15,6 +15,7 @@
 
 .landing-viewport { display: contents; }
 .app-viewport { width: 100%; max-width: 440px; min-height: 100svh; margin-inline: auto; background: var(--canvas); }
+.app-viewport .app-page { padding-bottom: calc(7rem + env(safe-area-inset-bottom)); }
 @media (min-width: 441px) {
   body:has(> .app-viewport) { background: #e9eeeb; }
   .dark body:has(> .app-viewport) { background: #0a0c10; }

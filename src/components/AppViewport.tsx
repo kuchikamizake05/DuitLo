@@ -5,5 +5,6 @@ import type { ReactNode } from "react";
 
 export function AppViewport({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  return <div className={pathname === "/" ? "landing-viewport" : "app-viewport"}>{children}</div>;
+  const fullWidth = pathname === "/" || pathname === "/design/logo-editor";
+  return <div className={fullWidth ? "landing-viewport" : "app-viewport"}>{children}</div>;
 }

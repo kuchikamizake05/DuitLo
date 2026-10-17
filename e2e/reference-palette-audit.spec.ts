@@ -7,7 +7,7 @@ for (const theme of ["light","dark"] as const) test(`application palette and bro
   await expect(page.getByRole("main").filter({hasNot:page.locator(".ft-skeleton")})).toBeVisible();
   await expect(page.locator("html")).toHaveCSS("color-scheme",theme);
   await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content",theme==="dark"?"#111214":"#f4fbf6");
-  await expect(page.locator("body")).toHaveCSS("background-color",theme==="dark"?"rgb(17, 18, 20)":"rgb(244, 251, 246)");
+  await expect(page.locator(".app-viewport")).toHaveCSS("background-color",theme==="dark"?"rgb(17, 18, 20)":"rgb(244, 251, 246)");
  }
  await page.reload();
  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content",theme==="dark"?"#111214":"#f4fbf6");
