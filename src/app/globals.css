@@ -5,6 +5,25 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+.goal-deadline-field > div:has(> .goal-date-input),
+.goal-deadline-field .goal-date-input {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.landing-viewport { display: contents; }
+.app-viewport { width: 100%; max-width: 440px; min-height: 100svh; margin-inline: auto; background: var(--canvas); }
+@media (min-width: 441px) {
+  body:has(> .app-viewport) { background: #e9eeeb; }
+  .dark body:has(> .app-viewport) { background: #0a0c10; }
+  .app-viewport { box-shadow: 0 0 40px #00000012; }
+  .app-viewport :is(.fixed, [class~="fixed"]):is(.inset-0, .inset-x-0) { max-width: 440px; margin-inline: auto; }
+  .app-viewport .fixed:is(.left-0):is(.right-0) { max-width: 440px; margin-inline: auto; }
+  .app-viewport [role="dialog"] { max-width: 440px; }
+}
+
 @theme {
   --font-sans: var(--font-manrope), -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-jetbrains-mono), "SF Mono", ui-monospace, monospace;
@@ -742,7 +761,7 @@ html:not(.dark) :is(.ft-reference[data-theme="light"], .app-page, [role="dialog"
  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not(.bg-transparent),
  textarea,
  select:not(.bg-transparent),
- div:has(> input.bg-transparent:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"])),
+ div:not(.goal-date-value):has(> input.bg-transparent:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"])),
  div:has(> select.bg-transparent),
  form button.bg-surface-container-low:not([aria-pressed]),
  form button.bg-surface-container-lowest:not([aria-pressed]),

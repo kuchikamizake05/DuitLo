@@ -20,11 +20,20 @@ import { parseMoney, formatMoneyInput } from "./AccountEditors";
 
 
 
+const goalChoices=[
+  {icon:"laptop_mac",category:"Produktivitas"},
+  {icon:"home",category:"Properti"},
+  {icon:"flight_takeoff",category:"Liburan"},
+  {icon:"directions_car",category:"Kendaraan"},
+  {icon:"shield_with_heart",category:"Dana Darurat"},
+  {icon:"school",category:"Investasi Masa Depan"},
+];
+
 export type ReferenceGoalForm={name:string;targetAmount:string;currentAmount:string;currency:string;dueDate:string};
 
 export function GoalEditor({form,setForm,busy,error,onSave,onClose,editing=false}:{form:ReferenceGoalForm;setForm:(form:ReferenceGoalForm)=>void;busy:boolean;error:string|null;onSave:(event:FormEvent<HTMLFormElement>)=>void;onClose:()=>void;editing?:boolean}) {
 
-  const {t,language}=useLanguage();const [icon,setIcon]=useState("laptop_mac");const [category,setCategory]=useState("Produktivitas");
+  const {t}=useLanguage();const [icon,setIcon]=useState("laptop_mac");const [category,setCategory]=useState("Produktivitas");
 
   const [reminder,setReminder]=useState(false);
 
@@ -36,13 +45,18 @@ export function GoalEditor({form,setForm,busy,error,onSave,onClose,editing=false
 
   const attrs:Record<string,Record<string,unknown>>={"tambah-target.121":{disabled:busy},"tambah-target.75":{hidden:!editing}};
 
-  ["laptop_mac","home","flight_takeoff","directions_car","shield_with_heart","school"].forEach((name,index)=>attrs[`tambah-target.${34+index*2}`]={"aria-pressed":icon===name,className:`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${icon===name?"bg-primary text-on-primary shadow-sm":"bg-surface-container text-on-surface-variant"}`});
+  ["laptop_mac","home","flight_takeoff","directions_car","shield_with_heart","school"].forEach((name,index)=>attrs[`tambah-target.${34+index*2}`]={"aria-pressed":icon===name,disabled:busy,"aria-label":t(goalChoices[index].category),onClick:()=>{setIcon(name);setCategory(goalChoices[index].category);},className:`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${icon===name?"bg-primary text-on-primary shadow-sm":"bg-surface-container text-on-surface-variant"}`});
 
-  return <ReferenceDialog page="tambah-target" title={t("Mulai Target Tabungan")} onClose={onClose} busy={busy}><ReferencePart page="tambah-target" values={{"Produktivitas":category,"Tersedia Rp 12.500.000":"","BCA Utama":t("Pencatatan saldo target"),"Rp 14.000.000":money(remaining),"Rp 4.667.000":months?money(remaining/months):"—","(tgl 25)":"","Target realistis berdasarkan pola kas bulan lalu":t("Perkiraan berdasarkan target dan tanggal yang dipilih")}}
+  attrs["tambah-target.95"]={hidden:!form.dueDate,style:!form.dueDate?{display:"none"}:undefined,className:"goal-deadline-field flex items-center gap-3 rounded-2xl bg-surface-container-low px-4 py-3"};
+  attrs["tambah-target.98"]={className:"goal-date-value min-w-0 flex-1"};
+  attrs["tambah-target.100"]={className:"goal-date-input w-full min-w-0 bg-transparent text-body-md text-on-surface", "aria-label":t("Tenggat Waktu Target")};
+  attrs["tambah-target.101"]={hidden:true};
+
+  return <ReferenceDialog page="tambah-target" title={t("Mulai Target Tabungan")} onClose={onClose} busy={busy}><ReferencePart page="tambah-target" values={{"tambah-target.32":t(category),"Tersedia Rp 12.500.000":"","BCA Utama":t("Pencatatan saldo target"),"Rp 14.000.000":money(remaining),"Rp 4.667.000":months?money(remaining/months):"—","(tgl 25)":"","Target realistis berdasarkan pola kas bulan lalu":t("Perkiraan berdasarkan target dan tanggal yang dipilih")}}
 
     fields={{goalName:{value:form.name,onChange:value=>setForm({...form,name:value}),disabled:busy},goalAmount:{value:formatMoneyInput(form.targetAmount,form.currency),onChange:value=>setForm({...form,targetAmount:parseMoney(value,form.currency)}),disabled:busy},initialDeposit:{value:formatMoneyInput(form.currentAmount,form.currency),onChange:value=>setForm({...form,currentAmount:parseMoney(value,form.currency)}),disabled:busy||editing},noDeadlineToggle:{value:!form.dueDate,onChange:value=>setForm({...form,dueDate:value==="true"?"":format(new Date(new Date().getFullYear(),new Date().getMonth()+3,new Date().getDate()),"yyyy-MM-dd")}),disabled:busy},targetDate:{value:form.dueDate,onChange:value=>setForm({...form,dueDate:value}),disabled:busy||!form.dueDate},paydayToggle:{value:reminder,onChange:value=>setReminder(value==="true"),disabled:busy}}}
 
-    attributes={attrs} onSubmit={event=>{if(!busy)onSave(event);}} slots={{"section-0":<div className="mb-5"><h1 className="text-headline-sm font-bold text-on-surface">{t("Tambah Target Tabungan")}</h1><p className="mt-1 text-body-sm text-on-surface-variant">{t("Tentukan target dan rencana menabungmu.")}</p></div>}}
+    attributes={attrs} onSubmit={event=>{if(!busy)onSave(event);}} slots={{"goal-categories":<>{goalChoices.map(choice=><button key={choice.category} type="button" disabled={busy} aria-pressed={category===choice.category} onClick={()=>{setCategory(choice.category);setIcon(choice.icon);}} className={`min-h-11 rounded-full px-4 py-2 text-label-md ${category===choice.category?"bg-secondary-container text-primary font-semibold":"bg-surface-container-low text-on-surface-variant"}`}>{t(choice.category)}</button>)}</>,"section-0":<div className="mb-5"><h1 className="text-headline-sm font-bold text-on-surface">{t("Tambah Target Tabungan")}</h1><p className="mt-1 text-body-sm text-on-surface-variant">{t("Tentukan target dan rencana menabungmu.")}</p></div>}}
 
     onAction={action=>{if(busy)return;if(/selectIcon/.test(action)){const selected=/selectIcon\(this, '([^']+)', '([^']+)'/.exec(action);if(selected){setIcon(selected[1]);setCategory(selected[2]);}}else if(/setGoalAmount/.test(action)){const selected=/setGoalAmount\('([^']+)'/.exec(action)?.[1];if(selected)setForm({...form,targetAmount:parseMoney(selected)});}else if(/location.assign|Batal/.test(action))onClose();}}/>
 

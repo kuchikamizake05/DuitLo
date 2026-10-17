@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { Archivo_Black, JetBrains_Mono, Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import AppBoundary from "@/components/AppBoundary";
+import { AppViewport } from "@/components/AppViewport";
 import OnboardingBoundary from "@/components/OnboardingBoundary";
 import PWARegister from "@/components/PWARegister";
 import { LanguageProvider } from "@/components/LanguageProvider";
@@ -65,13 +66,13 @@ export default function RootLayout({
     <html lang="id" className={`${jetbrainsMono.variable} ${manrope.variable} ${archivoBlack.variable} ${jakarta.variable} h-full antialiased`} suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: `(function(){var t=null,s=null;try{t=localStorage.getItem("fintrack-theme");s=localStorage.getItem("fintrack-theme-system")}catch(e){}var follow=s==="true"||(s!=="false"&&t!=="light"&&t!=="dark");var dark=follow?window.matchMedia("(prefers-color-scheme: dark)").matches:t==="dark";document.documentElement.classList.toggle("dark",dark);document.documentElement.style.colorScheme=dark?"dark":"light"})();` }} /></head>
       <body className="flex min-h-full flex-col bg-[var(--canvas)] font-sans text-slate-900">
-        <ThemeProvider><LanguageProvider>
+        <AppViewport><ThemeProvider><LanguageProvider>
           <ProfilePhotoProvider><ToastProvider>
             <PWARegister />
             <SkipLink />
             <AppBoundary><OnboardingBoundary>{children}</OnboardingBoundary></AppBoundary>
           </ToastProvider></ProfilePhotoProvider>
-        </LanguageProvider></ThemeProvider>
+        </LanguageProvider></ThemeProvider></AppViewport>
       </body>
     </html>
   );
