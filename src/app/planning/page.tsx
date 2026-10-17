@@ -3,6 +3,7 @@ import { fetchAllRows } from "@/lib/paginated-query";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import {useSearchParams} from "next/navigation";
 
+import { useToast } from "@/components/ui/ToastProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import Navbar from "@/components/Navbar";
 import { BudgetEditor,BudgetView } from "@/components/reference/BudgetView";
@@ -22,7 +23,8 @@ type SavedCategory = { name: string; type: "income" | "expense" };
 type SavingAction = "budget" | `delete:${string}` | null;
 
 export default function PlanningPage() {
-  const { t } = useLanguage();
+  const { showToast } = useToast();
+  const { t, language } = useLanguage();
   const params=useSearchParams();
   const openedView=useRef<string|null>(null);
   const [dateContext, setDateContext] = useState(() => getPlanningDateContext(new Date()));
@@ -120,7 +122,7 @@ export default function PlanningPage() {
       if(!payload.category||!Number.isFinite(payload.limit_amount)||payload.limit_amount<=0)throw new Error("Isi kategori dan batas anggaran yang valid.");
       const { error } = editingBudget ? await supabase.from("financial_budgets").update(payload).eq("id",editingBudget.id).eq("user_id",user.id) : await supabase.from("financial_budgets").upsert(payload,{onConflict:"user_id,category,month"});
       if (error) throw error;
-      setBudgetForm({ category: "", month: dateContext.month, limitAmount: "" }); setBudgetFormOpen(false); setMessage(t("Budget tersimpan.")); await load();
+      setBudgetForm({ category: "", month: dateContext.month, limitAmount: "" }); setBudgetFormOpen(false); showToast(language==="en"?"Budget saved.":"Budget tersimpan."); await load();
     } catch (error) { reportHandledError("Planning budget save failed", error, "Budget belum tersimpan."); setMessage(t("Budget belum tersimpan. Inputmu tetap aman, coba lagi.")); }
     finally { setSaving(null); }
   }
@@ -133,7 +135,7 @@ export default function PlanningPage() {
       if (authError || !user) throw authError ?? new Error("Session unavailable");
       const { error } = await supabase.from("financial_budgets").delete().eq("id", budgetToDelete.id).eq("user_id", user.id);
       if (error) throw error;
-      setBudgetToDelete(null); setMessage(t("Budget dihapus. Transaksi tetap utuh.")); await load();
+      setBudgetToDelete(null); showToast(language==="en"?"Budget deleted. Your transactions are unchanged.":"Budget dihapus. Transaksi tetap utuh."); await load();
     } catch (error) { reportHandledError("Planning budget delete failed", error, "Budget belum dihapus."); setMessage(t("Budget belum dihapus. Coba lagi.")); }
     finally { setSaving(null); }
   }

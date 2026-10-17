@@ -5,6 +5,7 @@ import {DialogFrame} from "@/components/ui/DialogFrame";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import { useSearchParams } from "next/navigation";
 
+import { useToast } from "@/components/ui/ToastProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import Navbar from "@/components/Navbar";
 import { GoalDetail,GoalEditor } from "@/components/reference/GoalEditors";
@@ -23,7 +24,8 @@ type GoalForm = { name: string; targetAmount: string; currentAmount: string; cur
 const emptyForm: GoalForm = { name: "", targetAmount: "", currentAmount: "0", currency: "IDR", dueDate: "" };
 
 export default function GoalsPage() {
-  const { t } = useLanguage();
+  const { showToast } = useToast();
+  const { t, language } = useLanguage();
   const params=useSearchParams();
   const openedView=useRef<string|null>(null);
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
@@ -78,7 +80,7 @@ export default function GoalsPage() {
       const payload=editingId?metadata:goalCreatePayload(user.id,form);
       const {error:insertError}=editingId?await supabase.from("financial_goals").update(payload).eq("id",editingId).eq("user_id",user.id):await supabase.from("financial_goals").insert(payload);
       if (insertError) throw insertError;
-      setSheetOpen(false); await load();
+      showToast(language==="en"?"Savings goal saved.":"Target tabungan tersimpan."); setSheetOpen(false); await load();
     } catch (caught) { reportHandledError("Goal save failed", caught, "Target belum tersimpan."); setError(t("Target belum tersimpan. Coba lagi.")); }
     finally { setSaving(false); }
   }
@@ -92,7 +94,7 @@ export default function GoalsPage() {
       setPendingDeposit(operation);
       const {data,error:updateError}=await supabase.rpc("deposit_to_financial_goal",{p_request_id:operation.id,p_goal_id:goal.id,p_account_id:accountId,p_amount:amount});
       if(updateError||!data)throw updateError??new Error("Goal changed");
-      finishFinancialOperation(localStorage,user.id,"goal-deposit",operation.id);setPendingDeposit(null);setDetailGoal(current=>current?.id===goal.id?data as FinancialGoal:current);await load();return true;
+      finishFinancialOperation(localStorage,user.id,"goal-deposit",operation.id);showToast(language==="en"?"Savings contribution saved.":"Setoran tabungan tersimpan.");setPendingDeposit(null);setDetailGoal(current=>current?.id===goal.id?data as FinancialGoal:current);await load();return true;
     }catch(caught){reportHandledError("Goal deposit failed",caught,"Setoran belum tersimpan.");setError(t(caught instanceof FinancialOperationConflict?"Pulihkan setoran sebelumnya, lalu konfirmasi dengan data semula sebelum membuat setoran baru.":"Setoran belum tersimpan. Coba lagi."));return false;}finally{depositLock.current=false;setSaving(false);}
   }
 
@@ -103,6 +105,7 @@ export default function GoalsPage() {
       if (authError || !user) throw authError ?? new Error("Session unavailable");
       const { error: updateError } = await supabase.from("financial_goals").update({ is_active: false }).eq("id", goal.id).eq("user_id", user.id);
       if (updateError) throw updateError;
+      showToast(language==="en"?"Savings goal archived.":"Target tabungan diarsipkan.");
       await load();
     } catch (caught) { reportHandledError("Goal archive failed", caught, "Target belum dapat diarsipkan."); setError(t("Target belum dapat diarsipkan. Coba lagi.")); }
     finally { setArchivingId(null); }

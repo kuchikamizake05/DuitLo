@@ -3,6 +3,7 @@ import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import { useFinancialRefresh } from "@/components/reference/useFinancialRefresh";
 import { useSearchParams } from "next/navigation";
 
+import { useToast } from "@/components/ui/ToastProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import {readAccountDisplay,saveAccountDisplay} from "@/lib/account-display";
 import Navbar from "@/components/Navbar";
@@ -144,6 +145,7 @@ function formatMoney(value: number, currency: string) {
 }
 
 export default function AccountsPage() {
+  const { showToast } = useToast();
   const { language, t } = useLanguage();
   const dateLocale = language === "en" ? enUS : idLocale;
   const params=useSearchParams();
@@ -442,6 +444,7 @@ export default function AccountsPage() {
           reporting_balance_idr: accountForm.currency === "IDR" ? null : reportingBalanceIdr,
         }).select("id").single();
       if (error) throw error;
+      showToast(language==="en"?(editingAccount?"Wallet updated.":"Wallet added."):(editingAccount?"Dompet diperbarui.":"Dompet ditambahkan."));
       if(savedAccount?.id)saveAccountDisplay(user.id,savedAccount.id,{cardColor:accountForm.cardColor??"green",includeInNetWorth:accountForm.includeInNetWorth!==false});
       setActiveDialog(null);
       setEditingAccount(null);
@@ -474,6 +477,7 @@ export default function AccountsPage() {
         .eq("id", accountToToggle.id)
         .eq("user_id", user.id);
       if (error) throw error;
+      showToast(language==="en"?(accountToToggle.is_active?"Wallet archived.":"Wallet restored."):(accountToToggle.is_active?"Dompet diarsipkan.":"Dompet diaktifkan kembali."));
       setAccountToToggle(null);
       await loadAccounts();
       window.setTimeout(() => lastTriggerRef.current?.focus(), 0);
@@ -526,6 +530,7 @@ export default function AccountsPage() {
       const operation=beginFinancialOperation(localStorage,user.id,"transfer",payload);
       await createTransferOnce(supabase,operation.id,payload);
       finishFinancialOperation(localStorage,user.id,"transfer",operation.id);
+      showToast(language==="en"?"Transfer saved.":"Transfer tersimpan.");
       setActiveDialog(null);
       setTransferForm(createTransferForm());
       await loadAccounts();
@@ -568,6 +573,7 @@ export default function AccountsPage() {
       if (error) throw error;
       setActiveDialog(null);
       setBalanceAccount(null);
+      showToast(language==="en"?"Reporting value updated.":"Nilai pelaporan diperbarui.");
       await loadAccounts();
       window.setTimeout(() => lastTriggerRef.current?.focus(), 0);
     } catch (error) {
