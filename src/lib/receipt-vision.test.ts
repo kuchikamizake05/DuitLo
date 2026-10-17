@@ -120,6 +120,23 @@ describe("parseQwenReceiptResponse", () => {
       choices: [{ message: { content: "not-json" } }],
     })).toThrow();
   });
+
+  it("accepts omitted nullable fields and a JSON code fence without inventing values", () => {
+    const content = '```json\n{"merchant":"Kopi Uji","amount":25000}\n```';
+    expect(parseQwenReceiptResponse({choices:[{message:{content}}]})).toEqual({
+      merchant:"Kopi Uji",amount:25000,date:null,categoryHint:null,type:null,proofKind:null,note:null,rawText:null,confidence:null,
+    });
+  });
+
+  it("rejects truncated output even when its content happens to be valid JSON", () => {
+    expect(()=>parseQwenReceiptResponse({choices:[{finish_reason:"length",message:{content:JSON.stringify(sampleValidPayload)}}]})).toThrow();
+  });
+
+  it("keeps invalid amounts and unknown fields invalid when normalizing partial output", () => {
+    for (const payload of [{amount:"25000"},{amount:-25000},{amount:25000,unexpected:"field"},{}]) {
+      expect(()=>parseQwenReceiptResponse({choices:[{message:{content:JSON.stringify(payload)}}]})).toThrow();
+    }
+  });
 });
 
 describe("createReceiptRateLimiter", () => {

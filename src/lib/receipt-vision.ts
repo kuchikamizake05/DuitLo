@@ -107,6 +107,8 @@ export function buildQwenReceiptRequest({
           "note: rangkuman ringkas transaksi atau tujuan transfer, atau null.",
           "rawText: teks utama yang terbaca di bukti, atau null.",
           "confidence: angka keyakinan dari 0.0 sampai 1.0, atau null.",
+          'Gunakan semua key berikut: {"date":null,"merchant":null,"amount":null,"categoryHint":null,"type":null,"proofKind":null,"note":null,"rawText":null,"confidence":null}.',
+          "Batasi rawText ke teks penting maksimal 1000 karakter, bukan seluruh isi gambar.",
           "Jika informasi tidak terbaca, gunakan null. Jangan menambahkan teks di luar JSON.",
         ].join("\n"),
       },
@@ -120,15 +122,25 @@ export function buildQwenReceiptRequest({
     ],
     response_format: { type: "json_object" },
     temperature: 0.1,
-    max_tokens: 1024,
+    reasoning: { enabled: false },
+    max_tokens: 2048,
   };
+}
+
+export class ReceiptParseError extends Error {
+  constructor(public readonly code: "missing_content" | "invalid_json" | "invalid_fields" | "truncated_output") {
+    super("Gagal membaca hasil analisis bukti pembayaran.");
+    this.name = "ReceiptParseError";
+  }
 }
 
 export function parseQwenReceiptResponse(value: unknown): ReceiptExtraction {
   try {
-    const content = (value as {
-      choices?: Array<{ message?: { content?: unknown } }>;
-    }).choices?.[0]?.message?.content;
+    const choice = (value as {
+      choices?: Array<{ finish_reason?: string; message?: { content?: unknown } }>;
+    })?.choices?.[0];
+    if (choice?.finish_reason === "length") throw new ReceiptParseError("truncated_output");
+    const content = choice?.message?.content;
     const rawContent = typeof content === "string"
       ? content
       : Array.isArray(content)
@@ -136,16 +148,20 @@ export function parseQwenReceiptResponse(value: unknown): ReceiptExtraction {
         : null;
 
     if (typeof rawContent !== "string") {
-      throw new Error("missing text content");
+      throw new ReceiptParseError("missing_content");
     }
 
-    const parsedJson = JSON.parse(rawContent);
-    return receiptExtractionSchema.parse(parsedJson);
+    const jsonText = rawContent.trim().replace(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/i, "$1");
+    const parsedJson: unknown = JSON.parse(jsonText);
+    if (!parsedJson || typeof parsedJson !== "object" || Array.isArray(parsedJson)) throw new ReceiptParseError("invalid_fields");
+    const nullableFields = Object.fromEntries(receiptGenerationResponseSchema.required.map(key => [key, null]));
+    return receiptExtractionSchema.parse({ ...nullableFields, ...parsedJson });
   } catch (error) {
+    if (error instanceof ReceiptParseError) throw error;
     if (error instanceof z.ZodError) {
-      throw new Error(error.issues[0]?.message || "Format data struk tidak valid.");
+      throw new ReceiptParseError("invalid_fields");
     }
-    throw new Error("Gagal membaca hasil analisis bukti pembayaran.");
+    throw new ReceiptParseError("invalid_json");
   }
 }
 

@@ -12,6 +12,8 @@ import {
   createReceiptRateLimiter,
   mapQwenFailure,
   parseQwenReceiptResponse,
+  ReceiptParseError,
+  type ReceiptExtraction,
   validateReceiptParseSecurity,
 } from "@/lib/receipt-vision";
 
@@ -122,6 +124,7 @@ export async function POST(request: NextRequest) {
     const models=[model,process.env.OPENROUTER_RECEIPT_FALLBACK_MODEL?.trim()||"qwen/qwen3.7-plus"];
 
     let providerResponse: Response | null = null;
+    let extraction: ReceiptExtraction | null = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       usedModel=models[attempt];
       const endpoint="https://openrouter.ai/api/v1/chat/completions";
@@ -137,7 +140,16 @@ export async function POST(request: NextRequest) {
         signal: timeout.signal,
       });
 
-      if (providerResponse.ok || (providerResponse.status < 500&&providerResponse.status!==404&&providerResponse.status!==429) || attempt === 1) {
+      if (providerResponse.ok) {
+        try {
+          extraction = parseQwenReceiptResponse(await providerResponse.json());
+          break;
+        } catch (error) {
+          if (attempt === 1) throw error;
+          const code = error instanceof ReceiptParseError ? error.code : "invalid_response";
+          createRequestObservability("receipts:parse").failure(`receipt_${code}_retry`, null, 422);
+        }
+      } else if ((providerResponse.status < 500&&providerResponse.status!==404&&providerResponse.status!==429) || attempt === 1) {
         break;
       }
       await wait(100 + Math.floor(Math.random() * 100));
@@ -150,8 +162,7 @@ export async function POST(request: NextRequest) {
       return json({ error: failure.message }, failure.status, retryAfter ? { "Retry-After": retryAfter } : {});
     }
 
-    const providerBody: unknown = await providerResponse.json();
-    const extraction = parseQwenReceiptResponse(providerBody);
+    if (!extraction) throw new ReceiptParseError("missing_content");
     await finishReceiptUsage(user.id, operationId, true);
     completed = true;
 
@@ -169,7 +180,8 @@ export async function POST(request: NextRequest) {
     }
     if (error instanceof Error && error.message) {
       const observation = createRequestObservability("receipts:parse");
-      return json({ error: "Hasil analisis struk tidak valid. Silakan isi form manual.", ...observation.failure("receipt_parse_failed", error, 422) }, 422, {"X-Correlation-Id": observation.correlationId});
+      const code = error instanceof ReceiptParseError ? `receipt_${error.code}` : "receipt_parse_failed";
+      return json({ error: "Hasil analisis struk tidak valid. Silakan isi form manual.", ...observation.failure(code, null, 422) }, 422, {"X-Correlation-Id": observation.correlationId});
     }
     return json({ error: "AI belum bisa menganalisis struk. Silakan isi form manual." }, 502);
   } finally {

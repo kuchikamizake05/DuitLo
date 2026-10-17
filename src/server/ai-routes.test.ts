@@ -9,7 +9,7 @@ vi.mock("@/infrastructure/supabase/server-client", () => ({authenticateSupabaseA
 vi.mock("@/lib/rate-limit", () => ({consumeRouteRateLimit:mocks.limit}));
 vi.mock("@/lib/async", () => ({createTimeoutSignal:()=>({signal:new AbortController().signal,cleanup:()=>{}})}));
 vi.mock("@/lib/shared-receipt", () => ({validateSharedReceiptFile:()=>null}));
-vi.mock("@/lib/receipt-vision", () => ({buildQwenReceiptRequest:()=>({}),createReceiptRateLimiter:()=>({}),mapQwenFailure:()=>({message:"safe",status:502}),parseQwenReceiptResponse:mocks.parse,validateReceiptParseSecurity:()=>({ok:true,accessToken:"token"})}));
+vi.mock("@/lib/receipt-vision", () => ({ReceiptParseError:class ReceiptParseError extends Error {},buildQwenReceiptRequest:()=>({}),createReceiptRateLimiter:()=>({}),mapQwenFailure:()=>({message:"safe",status:502}),parseQwenReceiptResponse:mocks.parse,validateReceiptParseSecurity:()=>({ok:true,accessToken:"token"})}));
 import { POST } from "../app/api/receipts/parse/route";
 function request() {
  const body=new FormData();body.set("file",new File(["image"],"receipt.png",{type:"image/png"}));
@@ -60,6 +60,17 @@ it("retries retired or unavailable models using the configured Qwen fallback",as
  expect(JSON.parse(mocks.fetch.mock.calls[0][1].body).model).toBe("qwen/qwen3.7-flash");
  expect(JSON.parse(mocks.fetch.mock.calls[1][1].body).model).toBe("qwen/qwen3.7-plus");
  expect(await response.json()).toMatchObject({model:"qwen/qwen3.7-plus"});
+ expect(mocks.finish).toHaveBeenCalledTimes(1);
+ expect(mocks.finish).toHaveBeenCalledWith("owner",expect.any(String),true);
+});
+
+it("uses the fallback when a successful provider response contains invalid extraction",async()=>{
+ mocks.fetch.mockResolvedValueOnce(new Response("{}")).mockResolvedValueOnce(new Response("{}"));
+ mocks.parse.mockImplementationOnce(()=>{throw new Error("invalid receipt output")}).mockReturnValueOnce({amount:25000});
+ const response=await POST(request());
+ expect(response.status).toBe(200);
+ expect(mocks.fetch).toHaveBeenCalledTimes(2);
+ expect(await response.json()).toMatchObject({extraction:{amount:25000},model:"qwen/qwen3.7-plus"});
  expect(mocks.finish).toHaveBeenCalledTimes(1);
  expect(mocks.finish).toHaveBeenCalledWith("owner",expect.any(String),true);
 });
