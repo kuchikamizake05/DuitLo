@@ -875,3 +875,18 @@
   .mobileInstall { justify-self: start; padding-inline: 12px; }
   .mobileNav > .mobileNavCta { grid-column: 1 / -1; justify-self: center; }
 }
+
+.installLink { padding: 10px 16px; border: 1px solid var(--lp-line); border-radius: 999px; background: var(--lp-soft); color: var(--lp-accent); font-size: 13px; font-weight: 700; }
+.mobileActions { display: flex; align-items: center; justify-content: center; gap: 10px; grid-column: 1 / -1; }
+@media (max-width: 1000px) {
+  .desktopInstall { display: none; }
+  .nav > .mobileNav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 16px 12px; }
+  .mobileNav::before, .mobileNav::after { display: none; }
+  .mobileNavColumn, .mobileNavColumn + .mobileNavColumn { display: grid; grid-template-rows: repeat(2,minmax(44px,auto)); grid-row: 1; grid-column: 1; border-right: 1px solid var(--lp-line); padding-inline: 8px; }
+  .mobileNavColumn + .mobileNavColumn { grid-column: 2; }
+  .mobileNavColumn a { text-align: center; justify-content: center; padding-inline: 0; }
+  .mobileLanguageColumn { grid-column: 3; grid-row: 1; align-self: stretch; justify-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .mobileActions { grid-row: 2; margin-top: 16px; flex-wrap: wrap; }
+  .mobileActions .mobileInstall { margin: 0; min-height: 44px; padding: 10px 16px; font-size: 13px; }
+  .nav .mobileNav .mobileNavCta { display: inline-flex; align-items: center; justify-content: center; margin: 0; min-height: 44px; padding: 10px 18px; border-radius: 999px; background: var(--lp-accent); color: var(--lp-bg); font-size: 13px; font-weight: 700; }
+}

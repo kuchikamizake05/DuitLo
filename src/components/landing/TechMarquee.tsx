@@ -11,7 +11,7 @@ export default function TechMarquee() {
   const { language } = useLanguage();
   const english = language === "en";
   return <section id="tech-stack" className={styles.techSection} aria-label="DuitLo tech stack">
-    <h2 className={styles.techHeading}>{english ? "Built with care." : "Dibangun dengan sepenuh hati."}</h2><p className={styles.techCaption}>{english ? "The technology behind a simpler everyday." : "Teknologi di balik keseharian yang lebih sederhana."}</p>
+    <h2 className={styles.techHeading}>{english ? "Behind DuitLo." : "Di balik layar DuitLo."}</h2><p className={styles.techCaption}>{english ? "The tools behind the interface, features, and data storage." : "Teknologi yang dipakai DuitLo, dari tampilan sampai penyimpanan data."}</p>
     {rows.map((row, index) => <div key={index} className={styles.techRail} tabIndex={0}>
       <div className={styles.techTrack} data-reverse={index === 1}>
         {[0,1,2,3].map(copy => <div className={styles.techGroup} key={copy} aria-hidden={copy > 0}>

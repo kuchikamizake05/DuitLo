@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("hero scroll motion follows scrolling and respects reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
-  const preview = page.locator('#overview [class*="heroPreview"]');
+  const preview = page.locator('#overview [class*="heroPreview"]').filter({ visible: true });
   const start = await preview.evaluate(element => getComputedStyle(element).transform);
   await page.evaluate(() => window.scrollTo(0, 350));
   await expect.poll(() => preview.evaluate(element => getComputedStyle(element).transform)).not.toBe(start);
@@ -44,7 +44,7 @@ for (const theme of ["light", "dark"] as const) {
       await expect(page.locator("#landing-menu")).toHaveCount(0);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.getByRole("link", { name: "Get started with DuitLo", exact: true }).click();
+    await page.getByRole("link", { name: "Start with one entry", exact: true }).click();
     await expect(page).toHaveURL(/\/login/);
     expect(errors).toEqual([]);
   });
