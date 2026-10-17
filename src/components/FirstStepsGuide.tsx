@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import {BookOpen,ChevronRight} from "lucide-react";
@@ -143,7 +144,7 @@ export function FirstStepsGuide() {
   const hitTop = Math.max(0,target.top-4);
   const hitRight = Math.min(target.viewportWidth,target.left+target.width+4);
   const hitBottom = Math.min(target.viewportHeight,target.top+target.height+4);
-  return <>
+  return createPortal(<>
   <div aria-hidden="true" className="fixed inset-0 z-[60] pointer-events-none">
     <div className="absolute pointer-events-auto" style={{top:0,left:0,right:0,height:hitTop}}/>
     <div className="absolute pointer-events-auto" style={{top:hitBottom,left:0,right:0,bottom:0}}/>
@@ -187,7 +188,7 @@ export function FirstStepsGuide() {
       {!practice && <button type="button" className="ft-guide-next min-h-11 rounded-full bg-[#00652c] px-4 py-2 text-[12px] font-semibold text-white" onClick={()=>moveMenu(menuStep+1)}>{t(menuStep===menuSteps.length-1?"Selesai":"Lanjut")}</button>}
       </div>}
     </div>
-  </aside></>;
+  </aside></>, document.body);
 }
 
 export function MenuTourButton() {
