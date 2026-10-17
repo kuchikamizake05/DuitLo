@@ -8,13 +8,12 @@ for (const language of ["id", "en"]) {
       localStorage.setItem("fintrack-theme", "dark");
     }, language);
     await page.goto("/");
-    const mobile = info.project.name === "mobile-chromium";
-    if (mobile) await page.getByRole("button", { name: language === "en" ? "Navigation menu" : "Menu navigasi", exact: true }).click();
-    const trigger = page.getByRole("button", { name: language === "en" ? "Install App" : "Instal App", exact: true });
+
+    const trigger = page.getByRole("button", { name: language === "en" ? "Install DuitLo on your phone" : "Pasang DuitLo di HP", exact: true });
     await trigger.click();
     const dialog = page.getByRole("dialog", { name: language === "en" ? "Install DuitLo" : "Instal DuitLo" });
     await expect(dialog).toBeVisible();
-    await expect(dialog).toContainText("http://127.0.0.1:3100");
+    await expect(dialog).toContainText(new URL(page.url()).origin);
     await expect(dialog.getByRole("button", { name: language === "en" ? "Install now" : "Instal sekarang", exact: true })).toHaveCount(0);
     const ios = dialog.getByRole("button", { name: "iOS (iPhone / iPad) — Safari", exact: true });
     await ios.click();
@@ -32,11 +31,11 @@ for (const language of ["id", "en"]) {
   });
 }
 
-test("installation guide invokes a captured browser prompt", async ({ page }, info) => {
+test("installation guide invokes a captured browser prompt", async ({ page }) => {
   await mockSupabase(page, false);
   await page.goto("/");
-  if (info.project.name === "mobile-chromium") await page.getByRole("button", { name: "Menu navigasi", exact: true }).click();
-  await page.getByRole("button", { name: "Instal App", exact: true }).click();
+
+  await page.getByRole("button", { name: "Pasang DuitLo di HP", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Instal DuitLo" });
   await expect(dialog).toBeVisible();
   await page.evaluate(() => {

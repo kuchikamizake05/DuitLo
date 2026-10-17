@@ -139,19 +139,19 @@ export default function PWARegister() {
     {installHelp && <InstallGuide onClose={()=>setInstallHelp(false)} canInstall={Boolean(installPrompt)} onInstall={()=>void installApp()} />}
     <div className="pointer-events-none fixed inset-x-4 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[90] mx-auto flex max-w-md flex-col gap-2 md:bottom-6" aria-live="polite" aria-atomic="true">
 
-      {installRequested&&<StatusCard icon={Download} title={t("Permintaan instalasi diterima")} description={t("Browser sedang menyiapkan aplikasi. Periksa layar utama atau notifikasi perangkat.")} action={<Button variant="ghost" size="icon" onClick={()=>setInstallRequested(false)} aria-label={t("Tutup")}><X className="size-4"/></Button>}/>}
+      {installRequested&&<StatusCard icon={Download} title={t("Permintaan instalasi diterima")} description={t("Browser sedang menyiapkan aplikasi. Periksa layar utama atau notifikasi perangkat.")} action={<Button variant="ghost" size="icon" className="text-[var(--ink-soft)] hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]" onClick={()=>setInstallRequested(false)} aria-label={t("Tutup")}><X className="size-4"/></Button>}/>}
       {!online && (
         <StatusCard icon={WifiOff} title={t("Kamu sedang offline")} description={t("Data yang sudah terbuka tetap bisa dibaca. Perubahan baru menunggu koneksi kembali.")} />
       )}
       {updateAvailable && (
-        <StatusCard icon={RefreshCw} title={t("Versi baru tersedia")} description={t("Muat ulang untuk memakai pembaruan terbaru.")} action={<Button size="compact" onClick={applyUpdate}><RefreshCw className="h-3.5 w-3.5" /> {t("Perbarui")}</Button>} />
+        <StatusCard icon={RefreshCw} title={t("Versi baru tersedia")} description={t("Muat ulang untuk memakai pembaruan terbaru.")} action={<Button className="bg-[var(--create-bg)] text-[var(--create-fg)] shadow-[var(--shadow-control)]" size="compact" onClick={applyUpdate}><RefreshCw className="h-3.5 w-3.5" /> {t("Perbarui")}</Button>} />
       )}
       {showInstall && installPrompt && (
         <StatusCard
           icon={Download}
           title={t("Pasang DuitLo")}
           description={t("Buka lebih cepat dari layar utama dan nikmati tampilan penuh seperti aplikasi.")}
-          action={<div className="flex gap-1"><Button variant="ghost" size="icon" className="h-9 w-9 min-h-9" onClick={dismissInstall} aria-label={t("Ingatkan nanti")}><X className="h-4 w-4" /></Button><Button size="compact" onClick={() => void installApp()}><Download className="h-3.5 w-3.5" /> {t("Pasang")}</Button></div>}
+          action={<div className="flex gap-1"><Button variant="ghost" size="icon" className="h-9 w-9 min-h-9 text-[var(--ink-soft)] hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]" onClick={dismissInstall} aria-label={t("Ingatkan nanti")}><X className="h-4 w-4" /></Button><Button className="bg-[var(--create-bg)] text-[var(--create-fg)] shadow-[var(--shadow-control)]" size="compact" onClick={() => void installApp()}><Download className="h-3.5 w-3.5" /> {t("Pasang")}</Button></div>}
         />
       )}
     </div>
@@ -166,9 +166,9 @@ function StatusCard({ icon: Icon, title, description, action }: {
   action?: React.ReactNode;
 }) {
   return (
-    <section className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white/95 p-3.5 text-slate-900 shadow-[0_16px_45px_rgba(15,23,42,0.16)] backdrop-blur">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><Icon className="h-5 w-5" /></span>
-      <div className="min-w-0 flex-1"><p className="text-sm font-bold">{title}</p><p className="mt-0.5 text-xs leading-5 text-slate-500">{description}</p></div>
+    <section className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-3.5 text-[var(--ink)] shadow-[var(--shadow-elevated)] backdrop-blur">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-mint)] text-[var(--create-bg)]"><Icon className="h-5 w-5" /></span>
+      <div className="min-w-0 flex-1"><p className="text-sm font-bold">{title}</p><p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)]">{description}</p></div>
       {action}
     </section>
   );

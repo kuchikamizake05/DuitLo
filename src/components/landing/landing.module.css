@@ -860,6 +860,19 @@
   .sequenceScreen { width:calc(100% + 20px); margin-inline:-10px; }
 }
 
+.themeSwitch { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--lp-ink); cursor: pointer; }
+.themeTrack { position: relative; display: inline-flex; align-items: center; width: 86px; height: 42px; padding: 4px; border: 1px solid var(--lp-line); border-radius: 999px; background: var(--lp-soft); transition: background .2s, border-color .2s; }
+.themeThumb { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--lp-accent); color: var(--lp-bg); transition: transform .2s, background .2s, color .2s; }
+.themeIcon { position: absolute; top: 4px; display: grid; place-items: center; width: 32px; height: 32px; color: var(--lp-muted); }
+.themeSun { left: 4px; }
+.themeMoon { right: 4px; }
+.themeSwitch[aria-checked="false"] .themeSun { color: var(--lp-bg); }
+.themeSwitch[aria-checked="true"] .themeTrack { background: #242529; border-color: transparent; }
+.themeSwitch[aria-checked="true"] .themeThumb { transform: translateX(44px); background: #0954cf; }
+.themeSwitch[aria-checked="true"] .themeMoon { color: #fff; }
+.themeSwitch:focus-visible { outline: 2px solid var(--lp-accent); outline-offset: 3px; border-radius: 999px; }
+@media(max-width:1000px) { .desktopThemeSwitch { display: none; } }
+@media(prefers-reduced-motion:reduce) { .themeTrack,.themeThumb { transition: none; } }
 .installLink { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--lp-accent); font: inherit; white-space: nowrap; }
 .desktopNav { align-items: center; }
 @media (min-width: 821px) { .desktopNav { gap: 16px; font-size: 14px; } }

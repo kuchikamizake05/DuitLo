@@ -84,8 +84,9 @@ export function FirstStepsGuide() {
       localStorage.removeItem(practiceKey);
       localStorage.setItem(menuKey,String(menuStep+1));
       window.dispatchEvent(new Event(changeEvent));
+      router.push(menuDestination(menuStep+1));
     }
-  }, [onboarding,paused,touringMenus,menuStep,hasAccount,hasTransaction,menuKey]);
+  }, [onboarding,paused,touringMenus,menuStep,hasAccount,hasTransaction,menuKey,router]);
   const currentMenu = menuSteps[Math.min(menuStep,menuSteps.length-1)];
   const enabled = Boolean(onboarding && !paused && (touringMenus ? menuStep < menuSteps.length : !dismissed));
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { fulfillPostgrestRows } from "./postgrest-response";
 import { test, expect, user } from "./fixtures";
-import { mockReference } from "./reference-fixtures";
+import { account, mockReference, transaction } from "./reference-fixtures";
 
 for (const theme of ["light", "dark"] as const) {
   test(`menu tour covers all main menus and remembers completion in ${theme}`, async ({ page }, testInfo) => {
@@ -75,7 +75,7 @@ test("new user must save essential data before advancing practice steps", async 
   let savedTransaction = false;
   await page.route("https://e2e-project.supabase.co/rest/v1/**", route => {
     const path=new URL(route.request().url()).pathname;
-    return fulfillPostgrestRows(route,path.endsWith("financial_accounts") && savedAccount ? [{id:"practice-account"}] : path.endsWith("transactions") && savedTransaction ? [{id:"practice-transaction"}] : []);
+    return fulfillPostgrestRows(route,path.endsWith("financial_accounts") && savedAccount ? [account] : path.endsWith("transactions") && savedTransaction ? [transaction] : []);
   });
   await page.goto("/dashboard?tutorial=start");
   const guide=page.getByRole("complementary");
