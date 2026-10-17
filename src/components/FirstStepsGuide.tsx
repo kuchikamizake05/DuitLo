@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import {BookOpen,ChevronRight} from "lucide-react";
+import {BookOpen,ChevronRight,LoaderCircle} from "lucide-react";
 import { useOnboarding } from "./OnboardingBoundary";
 import { useLanguage } from "./LanguageProvider";
 
@@ -27,6 +27,8 @@ const subscribe = (callback: () => void) => {
     window.removeEventListener("storage", callback);
   };
 };
+
+const menuDestination = (step: number) => step >= 5 ? "/dashboard" : step === 2 ? "/accounts" : menuSteps[step].href;
 
 export function FirstStepsGuide() {
   const onboarding = useOnboarding(false);
@@ -54,7 +56,9 @@ export function FirstStepsGuide() {
   const dismissed = useSyncExternalStore(subscribe, () => {
     try { return Boolean(key && localStorage.getItem(key) === "dismissed"); } catch { return false; }
   }, () => true);
-  const [target, setTarget] = useState<{left:number;top:number;width:number;height:number;viewportWidth:number;viewportHeight:number;manual:boolean;radius:number} | null>(null);
+  const [target, setTarget] = useState<{left:number;top:number;width:number;height:number;viewportWidth:number;viewportHeight:number;manual:boolean;radius:number;step:number;path:string} | null>(null);
+  const [waiting, setWaiting] = useState(false);
+  const moving = useRef(false);
   const hasAccount = onboarding?.hasAccount ?? false;
   const hasTransaction = onboarding?.hasTransaction ?? false;
   useEffect(() => {
@@ -84,6 +88,10 @@ export function FirstStepsGuide() {
   }, [onboarding,paused,touringMenus,menuStep,hasAccount,hasTransaction,menuKey]);
   const currentMenu = menuSteps[Math.min(menuStep,menuSteps.length-1)];
   const enabled = Boolean(onboarding && !paused && (touringMenus ? menuStep < menuSteps.length : !dismissed));
+  useEffect(() => {
+    if (!enabled || !touringMenus || menuStep + 1 >= menuSteps.length) return;
+    router.prefetch(menuDestination(menuStep + 1));
+  }, [enabled, touringMenus, menuStep, router]);
   const navigationSelector = `nav[aria-label="${t("Navigasi utama")}"]`;
   const selector = touringMenus
     ? practice && menuStep===1 && pathname==="/accounts" ? '[data-guide="add-wallet"]' : menuStep>=5 ? `[data-guide="${menuStep===5?"budget":"goal"}"]` : `${navigationSelector} a[href="${currentMenu.href}"]`
@@ -97,8 +105,13 @@ export function FirstStepsGuide() {
     if (!enabled) return;
     let highlighted: HTMLElement | null = null;
     function update() {
+      const modalOpen = Boolean(document.querySelector('[aria-modal="true"]'));
+      const pageReady = Boolean(document.querySelector('main'))
+        && !document.querySelector('main[aria-busy="true"], main [aria-busy="true"], main .ft-skeleton')
+        && (!touringMenus || pathname === menuDestination(menuStep).split("?")[0]);
       const manual = hasAccount && (!touringMenus || menuStep === 2) ? document.querySelector<HTMLElement>('button[aria-label="' + t("Catat manual") + '"]') : null;
-      const next = document.querySelector('[aria-modal="true"]') ? null : manual ?? document.querySelector<HTMLElement>(selector);
+      const next = modalOpen || !pageReady ? null : manual ?? document.querySelector<HTMLElement>(selector);
+      setWaiting(!modalOpen && (!pageReady || !next));
       if (highlighted !== next) {
         highlighted?.classList.remove("ft-guide-target");
         next?.classList.add("ft-guide-target");
@@ -106,18 +119,19 @@ export function FirstStepsGuide() {
         if (next && touringMenus && menuStep>=5) next.scrollIntoView({block:"center",behavior:"instant"});
       }
       const rect = next?.getBoundingClientRect();
-      const value = rect && rect.width && rect.height ? {left:rect.left,top:rect.top,width:rect.width,height:rect.height,viewportWidth:window.innerWidth,viewportHeight:window.innerHeight,manual:Boolean(manual),radius:Math.max(parseFloat(getComputedStyle(next!).borderTopLeftRadius)||0,...Array.from(next!.children).map(child=>parseFloat(getComputedStyle(child).borderTopLeftRadius)||0))} : null;
+      const value = rect && rect.width && rect.height ? {left:rect.left,top:rect.top,width:rect.width,height:rect.height,viewportWidth:window.innerWidth,viewportHeight:window.innerHeight,manual:Boolean(manual),step:menuStep,path:pathname,radius:Math.max(parseFloat(getComputedStyle(next!).borderTopLeftRadius)||0,...Array.from(next!.children).map(child=>parseFloat(getComputedStyle(child).borderTopLeftRadius)||0))} : null;
+      if(value) moving.current = false;
       setTarget(previous => JSON.stringify(previous) === JSON.stringify(value) ? previous : value);
     }
     update();
     const observer = new MutationObserver(update);
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-busy", "aria-modal"] });
     window.addEventListener("resize",update);
     window.addEventListener("scroll",update,true);
     const resizeObserver = new ResizeObserver(update);
     resizeObserver.observe(document.body);
     return () => { observer.disconnect(); resizeObserver.disconnect(); window.removeEventListener("resize",update); window.removeEventListener("scroll",update,true); highlighted?.classList.remove("ft-guide-target"); };
-  }, [enabled, selector, hasAccount, touringMenus, menuStep, t]);
+  }, [enabled, selector, hasAccount, touringMenus, menuStep, pathname, t]);
 
   useEffect(() => {
     if (!onboarding) return;
@@ -126,7 +140,16 @@ export function FirstStepsGuide() {
     return () => window.removeEventListener("fintrack:setup-data-saved", refresh);
   }, [onboarding]);
 
-  if (!enabled || !target) return null;
+  if (!enabled) return null;
+  if (waiting || target && (target.step !== menuStep || target.path !== pathname)) return createPortal(
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/25 px-6">
+      <div role="status" aria-live="polite" className="ft-guide-card flex items-center gap-3 rounded-[20px] bg-white p-4 text-[#161d1a] shadow-xl">
+        <LoaderCircle aria-hidden="true" className="size-5 motion-safe:animate-spin"/>
+        <span>{t("Memuat data")}</span>
+        <button type="button" className="ft-guide-skip min-h-11 px-2 text-sm font-semibold" onClick={()=>{localStorage.setItem(`${menuKey}:mode`,"paused");window.dispatchEvent(new Event(changeEvent));}}>{t("Lewati")}</button>
+      </div>
+    </div>, document.body);
+  if (!target) return null;
   const walletAction = pathname==="/accounts" && (practice && menuStep===1 || !touringMenus && !hasAccount);
   const spotlightWidth = Math.min(target.width + 24, 88);
   const spotlightLeft = target.left + (target.width-spotlightWidth)/2;
@@ -135,10 +158,14 @@ export function FirstStepsGuide() {
   const above = target.top > target.viewportHeight/2;
   const arrowLeft = Math.max(24,Math.min(target.left+target.width/2-left,bubbleWidth-24));
   function moveMenu(step: number) {
+    if(moving.current) return;
+    moving.current = true;
+    setTarget(null);
+    setWaiting(step < menuSteps.length);
     try { localStorage.setItem(menuKey,String(step)); if(step===menuSteps.length){localStorage.setItem(`${menuKey}:status`,"completed");localStorage.setItem(`${menuKey}:mode`,"completed");} } catch {}
     window.dispatchEvent(new Event(changeEvent));
     window.dispatchEvent(new Event("fintrack:guide-close-menu"));
-    if(step < menuSteps.length) router.push(step>=5 ? "/dashboard" : step === 2 ? "/accounts" : menuSteps[step].href);
+    if(step < menuSteps.length) router.push(menuDestination(step));
   }
   const hitLeft = Math.max(0,target.left-4);
   const hitTop = Math.max(0,target.top-4);

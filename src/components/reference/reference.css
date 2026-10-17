@@ -167,6 +167,7 @@ body:has(.ft-reference)::-webkit-scrollbar{display:none}@media print{.ft-referen
       min-height: max(884px, 100dvh);
     }
 .ft-reference[data-page="beranda"][data-theme="dark"] header .fintrack-brand{color:#ffffff!important}
+@media(max-width:640px){.ft-reference[data-page="beranda"][data-theme="dark"] [data-reference-node="beranda.21"]{margin-top:8px}}
 .ft-reference[data-page="beranda"][data-theme="dark"] nav [data-path="catat"]{top:-30px!important}
 .ft-reference[data-page="beranda"][data-theme="dark"] nav div:has(>[data-path="catat"]){min-height:44px}
 .ft-reference[data-page="beranda"][data-theme="dark"] nav div:has(>[data-path="catat"])>span{position:absolute;bottom:0;margin-top:0!important;line-height:14px;font-size:11px;z-index:1}
