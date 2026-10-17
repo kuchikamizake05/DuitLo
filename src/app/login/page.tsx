@@ -184,7 +184,7 @@ export default function LoginPage() {
 
   const busy = loading !== null;
   const isUpdate = mode === "update-password";
-  const title = t(isUpdate ? "Buat kata sandi baru" : mode === "reset" ? "Pulihkan kata sandi" : mode === "signup" ? "Buat akun FinTrack" : "Masuk ke FinTrack");
+  const title = t(isUpdate ? "Buat kata sandi baru" : mode === "reset" ? "Pulihkan kata sandi" : mode === "signup" ? "Buat akun DuitLo" : "Masuk ke DuitLo");
   const description = isUpdate
     ? "Gunakan minimal 8 karakter untuk melindungi akunmu."
     : mode === "reset"

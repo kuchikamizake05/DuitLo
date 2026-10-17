@@ -202,5 +202,5 @@ export function MenuTourButton() {
     } catch {}
     window.dispatchEvent(new Event(changeEvent));
     router.push("/dashboard");
-  }}><span className="flex items-center gap-space-md"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-primary"><BookOpen size={20} style={{strokeWidth:1.75}} aria-hidden="true"/></span><span><span className="block font-body-lg text-body-lg font-semibold text-on-surface">{t("Panduan menu")}</span><span className="block font-body-sm text-body-sm text-on-surface-variant">{t("Kenali menu dan fitur FinTrack")}</span></span></span><ChevronRight size={20} className="shrink-0 text-primary" style={{strokeWidth:1.75}} aria-hidden="true"/></button>;
+  }}><span className="flex items-center gap-space-md"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-primary"><BookOpen size={20} style={{strokeWidth:1.75}} aria-hidden="true"/></span><span><span className="block font-body-lg text-body-lg font-semibold text-on-surface">{t("Panduan menu")}</span><span className="block font-body-sm text-body-sm text-on-surface-variant">{t("Kenali menu dan fitur DuitLo")}</span></span></span><ChevronRight size={20} className="shrink-0 text-primary" style={{strokeWidth:1.75}} aria-hidden="true"/></button>;
 }

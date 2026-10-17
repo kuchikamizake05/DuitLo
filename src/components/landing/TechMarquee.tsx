@@ -10,7 +10,7 @@ const logos: Record<string, string> = { "Next.js": "nextdotjs", React: "react", 
 export default function TechMarquee() {
   const { language } = useLanguage();
   const english = language === "en";
-  return <section id="tech-stack" className={styles.techSection} aria-label="FinTrack tech stack">
+  return <section id="tech-stack" className={styles.techSection} aria-label="DuitLo tech stack">
     <h2 className={styles.techHeading}>{english ? "Built with care." : "Dibangun dengan sepenuh hati."}</h2><p className={styles.techCaption}>{english ? "The technology behind a simpler everyday." : "Teknologi di balik keseharian yang lebih sederhana."}</p>
     {rows.map((row, index) => <div key={index} className={styles.techRail} tabIndex={0}>
       <div className={styles.techTrack} data-reverse={index === 1}>

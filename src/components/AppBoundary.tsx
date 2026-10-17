@@ -103,11 +103,11 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
     const deviceState = readPasskeyDeviceState(session.user.id);
     return (
       <PasskeyUnlockScreen
-        emailHint={deviceState?.emailHint ?? "Akun FinTrack"}
+        emailHint={deviceState?.emailHint ?? "Akun DuitLo"}
         userId={session.user.id}
         onUnlock={() => writePasskeyDeviceState({
           userId: session.user.id,
-          emailHint: deviceState?.emailHint ?? "Akun FinTrack",
+          emailHint: deviceState?.emailHint ?? "Akun DuitLo",
           enabled: true,
           locked: false,
         })}
@@ -141,7 +141,7 @@ export function ConfigurationRequired() {
         <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-700"><Database className="h-6 w-6" /></span>
         <p className="mt-5 text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">{t("Penyiapan lingkungan")}</p>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">{t("Supabase belum dikonfigurasi")}</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-500">{t("Tambahkan URL proyek dan anon key browser-safe ke .env.local. FinTrack menghentikan akses data sampai konfigurasi valid.")}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-500">{t("Tambahkan URL proyek dan anon key browser-safe ke .env.local. DuitLo menghentikan akses data sampai konfigurasi valid.")}</p>
         <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-xs leading-6 text-slate-700">
           <p>NEXT_PUBLIC_SUPABASE_URL=https://…</p>
           <p>NEXT_PUBLIC_SUPABASE_ANON_KEY=…</p>

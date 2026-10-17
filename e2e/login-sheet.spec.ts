@@ -4,7 +4,7 @@ for(const theme of ["light","dark"]){
   await mockSupabase(page,false);await page.addInitScript(value=>localStorage.setItem("fintrack-theme",value),theme);
   await page.goto("/login");
   const sheet=page.getByRole("main");
-  await expect(page.getByRole("heading",{name:"Masuk ke FinTrack",exact:true})).toBeVisible();
+  await expect(page.getByRole("heading",{name:"Masuk ke DuitLo",exact:true})).toBeVisible();
   await expect(sheet).toHaveCSS("border-top-left-radius","32px");
   await expect(sheet).toHaveCSS("background-color",theme==="dark"?"rgb(32, 32, 36)":"rgb(255, 255, 255)");
   expect(await sheet.evaluate(element=>getComputedStyle(element).animationName)).toContain("auth-sheet-slide");
@@ -20,6 +20,6 @@ for(const theme of ["light","dark"]){
 }
 test("login sheet respects reduced motion",async({page})=>{
  await page.emulateMedia({reducedMotion:"reduce"});await mockSupabase(page,false);await page.goto("/login");
- await expect(page.getByRole("heading",{name:"Masuk ke FinTrack",exact:true})).toBeVisible();
+ await expect(page.getByRole("heading",{name:"Masuk ke DuitLo",exact:true})).toBeVisible();
  await expect(page.getByRole("main")).toHaveCSS("animation-name","none");
 });

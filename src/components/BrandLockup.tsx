@@ -15,7 +15,7 @@ export default function BrandLockup({
   priority = false,
   compact = false,
   className,
-  ariaLabel = "FinTrack",
+  ariaLabel = "DuitLo",
 }: BrandLockupProps) {
   const logoSize = compact ? 28 : 32;
 
@@ -48,7 +48,7 @@ export default function BrandLockup({
           compact ? "text-xl" : "text-[23px] max-[520px]:text-xl",
         )}
       >
-        FinTrack
+        DuitLo
       </span>
     </Link>
   );

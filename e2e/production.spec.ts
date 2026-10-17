@@ -25,6 +25,9 @@ test("serves a complete install manifest", async ({ request }) => {
   const response = await request.get("/manifest.webmanifest");
   expect(response.ok()).toBe(true);
   const manifest = await response.json();
+  expect(manifest.name).toBe("DuitLo — Keuangan Pribadi");
+  expect(manifest.short_name).toBe("DuitLo");
+  expect(manifest.id).toBe("/");
   expect(manifest.display).toBe("standalone");
   expect(manifest.theme_color).toBe("#f4fbf6");
   expect(manifest.icons).toEqual(expect.arrayContaining([
@@ -84,7 +87,7 @@ test.describe("offline PWA", () => {
       window.dispatchEvent(installEvent);
     });
 
-    await expect(page.getByText("Pasang FinTrack")).toBeVisible();
+    await expect(page.getByText("Pasang DuitLo")).toBeVisible();
   });
 });
 
@@ -107,7 +110,7 @@ test.describe("error recovery", () => {
     const dashboardLink = page.getByRole("link", { name: "Buka dashboard" });
     await expect(dashboardLink).toBeVisible();
     await expect(dashboardLink).toHaveAttribute("href", "/dashboard");
-    await expect(page.locator("body")).not.toContainText("FinTrack e2e segment error");
+    await expect(page.locator("body")).not.toContainText("DuitLo e2e segment error");
   });
 });
 

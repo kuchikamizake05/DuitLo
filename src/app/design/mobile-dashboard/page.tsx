@@ -64,7 +64,7 @@ export default function MobileDashboardDesignPage() {
         <header className="relative z-20 flex min-h-16 items-end justify-between border-b border-emerald-900/[0.06] bg-white/90 px-5 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] backdrop-blur-xl">
           <div className="flex items-center gap-2.5">
             <BrandLogo size={32} priority />
-            <span className="text-[15px] font-extrabold tracking-[-0.03em]">{t("FinTrack")}</span>
+            <span className="text-[15px] font-extrabold tracking-[-0.03em]">{t("DuitLo")}</span>
           </div>
           <button aria-label={t("Buka profil")} className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-900/10 bg-white text-emerald-700 shadow-[0_3px_12px_rgba(23,35,59,0.06)] transition active:scale-95">
             <UserRound className="h-[17px] w-[17px]" />

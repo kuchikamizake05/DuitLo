@@ -7,6 +7,6 @@ export function normalizeClientError(_error: unknown, fallbackMessage: string): 
 }
 
 export function reportHandledError(context: string, _error: unknown, fallbackMessage: string) {
-  console.warn(`FinTrack: ${context}`);
+  console.warn(`DuitLo: ${context}`);
   return { message: fallbackMessage };
 }

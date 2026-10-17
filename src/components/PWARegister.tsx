@@ -1,6 +1,6 @@
 "use client";
 
-import {DialogFrame} from "@/components/ui/DialogFrame";
+import { InstallGuide } from "@/components/InstallGuide";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Download, RefreshCw, WifiOff, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -73,6 +73,7 @@ export default function PWARegister() {
       }
     };
     const handleManualInstall=()=>{void installApp();};
+    const handleInstallGuide=()=>setInstallHelp(true);
     const handleAppInstalled = () => {
       installPromptRef.current=null;
       setInstallRequested(false);
@@ -86,6 +87,7 @@ export default function PWARegister() {
       window.location.reload();
     };
 
+    window.addEventListener("fintrack:install-guide",handleInstallGuide);
     window.addEventListener("fintrack:request-install",handleManualInstall);
     window.addEventListener("beforeinstallprompt", handleInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
@@ -112,6 +114,7 @@ export default function PWARegister() {
       window.removeEventListener("load",register);
       stopUpdates?.();
       registrationRef.current=null;
+      window.removeEventListener("fintrack:install-guide",handleInstallGuide);
       window.removeEventListener("fintrack:request-install",handleManualInstall);
       window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
@@ -132,8 +135,10 @@ export default function PWARegister() {
   }
 
   return (
+    <>
+    {installHelp && <InstallGuide onClose={()=>setInstallHelp(false)} canInstall={Boolean(installPrompt)} onInstall={()=>void installApp()} />}
     <div className="pointer-events-none fixed inset-x-4 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[90] mx-auto flex max-w-md flex-col gap-2 md:bottom-6" aria-live="polite" aria-atomic="true">
-      {installHelp&&<DialogFrame className="pointer-events-auto" titleId="install-help-title" onClose={()=>setInstallHelp(false)}><div className="p-5 text-[var(--ink)]"><h2 id="install-help-title" className="text-lg font-semibold">{t("Pasang FinTrack")}</h2><p className="mt-3 text-sm text-[var(--ink-soft)]">{t("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama.")}</p><p className="mt-2 text-sm text-[var(--ink-soft)]">{t("Di iPhone atau iPad, buka menu Bagikan lalu Tambahkan ke Layar Utama.")}</p><Button className="mt-5 w-full" onClick={()=>setInstallHelp(false)}>{t("Mengerti")}</Button></div></DialogFrame>}
+
       {installRequested&&<StatusCard icon={Download} title={t("Permintaan instalasi diterima")} description={t("Browser sedang menyiapkan aplikasi. Periksa layar utama atau notifikasi perangkat.")} action={<Button variant="ghost" size="icon" onClick={()=>setInstallRequested(false)} aria-label={t("Tutup")}><X className="size-4"/></Button>}/>}
       {!online && (
         <StatusCard icon={WifiOff} title={t("Kamu sedang offline")} description={t("Data yang sudah terbuka tetap bisa dibaca. Perubahan baru menunggu koneksi kembali.")} />
@@ -144,12 +149,13 @@ export default function PWARegister() {
       {showInstall && installPrompt && (
         <StatusCard
           icon={Download}
-          title={t("Pasang FinTrack")}
+          title={t("Pasang DuitLo")}
           description={t("Buka lebih cepat dari layar utama dan nikmati tampilan penuh seperti aplikasi.")}
           action={<div className="flex gap-1"><Button variant="ghost" size="icon" className="h-9 w-9 min-h-9" onClick={dismissInstall} aria-label={t("Ingatkan nanti")}><X className="h-4 w-4" /></Button><Button size="compact" onClick={() => void installApp()}><Download className="h-3.5 w-3.5" /> {t("Pasang")}</Button></div>}
         />
       )}
     </div>
+    </>
   );
 }
 

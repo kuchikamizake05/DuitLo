@@ -12,12 +12,12 @@ export default function GlobalError({ retry }: GlobalErrorProps) {
   return (
     <html lang="id">
       <head>
-        <title>FinTrack - Pemulihan aplikasi</title>
+        <title>DuitLo - Pemulihan aplikasi</title>
       </head>
       <body style={{ margin: 0, minHeight: "100svh", background: "#f7faf7" }}>
         <ErrorRecoveryPanel
-          eyebrow="FinTrack recovery"
-          title="FinTrack perlu dimuat ulang"
+          eyebrow="DuitLo recovery"
+          title="DuitLo perlu dimuat ulang"
           description="Lapisan utama aplikasi berhenti sebelum siap. Data privat tidak ditampilkan. Coba pulihkan aplikasi atau buka dashboard."
           retryLabel="Pulihkan aplikasi"
           dashboardLabel="Buka dashboard"

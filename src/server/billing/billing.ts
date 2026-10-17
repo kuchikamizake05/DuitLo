@@ -60,7 +60,7 @@ export async function checkout(config: BillingConfig, userId: string, operationI
     return { invoiceUrl: operation.invoice_url, operationId: operation.id };
   }
   if (!created) throw new BillingError("Checkout pending reconciliation. Please contact support before starting another payment.", 409);
-  const invoice = await provider.createInvoice({ external_id: operation.external_id, amount: operation.amount, currency: "IDR", description: `FinTrack Pro · ${operation.term_days} days`, success_redirect_url: `${config.appOrigin}/billing?payment=returned`, failure_redirect_url: `${config.appOrigin}/billing?payment=cancelled` });
+  const invoice = await provider.createInvoice({ external_id: operation.external_id, amount: operation.amount, currency: "IDR", description: `DuitLo Pro · ${operation.term_days} days`, success_redirect_url: `${config.appOrigin}/billing?payment=returned`, failure_redirect_url: `${config.appOrigin}/billing?payment=cancelled` });
   if (!invoice.id || !isTrustedCheckoutUrl(invoice.invoice_url)) throw new BillingError("Invalid provider checkout response");
   await store.bind(operation.id, invoice.id, invoice.invoice_url);
   return { invoiceUrl: invoice.invoice_url, operationId: operation.id };

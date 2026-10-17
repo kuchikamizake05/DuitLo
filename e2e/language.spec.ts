@@ -9,13 +9,13 @@ test("language choice switches the UI to English and survives reload", async ({ 
   await page.getByRole("button", { name: "Inggris", exact: true }).click();
 
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("heading", { name: /A space for your money,.*and everything ahead\./ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Your money,.*your plans\./ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Log in", exact: true }).first()).toBeVisible();
 
   await page.reload();
 
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("heading", { name: /A space for your money,.*and everything ahead\./ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Your money,.*your plans\./ })).toBeVisible();
   if (isMobile) await page.getByLabel("Navigation menu", { exact: true }).click();
   await expect(page.getByRole("button", { name: "English", exact: true }).first()).toHaveAttribute("aria-pressed", "true");
 });

@@ -115,7 +115,7 @@ export function serializeRichTransactionCsv(report: FinancialReport) {
 
 export function serializeFinancialReportCsv(report: FinancialReport, { generatedAt, filterSummary }: { generatedAt: string; filterSummary: string }) {
   const lines: unknown[][] = [
-    ["FinTrack report"],
+    ["DuitLo report"],
     ["generated_at", generatedAt],
     ["filters", filterSummary],
     [],

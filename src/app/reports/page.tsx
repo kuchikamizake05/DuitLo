@@ -155,7 +155,7 @@ export default function ReportsPage() {
               <div>
                 <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.13em] ${active ? "bg-emerald-300/15 text-emerald-100" : "bg-white/10 text-white/75"}`}><span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-emerald-300" : "bg-white/50"}`} />{t(active ? "Laporan otomatis aktif" : "Laporan otomatis belum aktif")}</span>
                 <h2 className="mt-4 text-2xl font-bold tracking-[-0.04em] !text-white sm:text-[1.75rem]">{t(active ? "Keuangan bulanan, tersimpan rapi." : "Mulai arsipkan setiap bulan.")}</h2>
-                <p className="mt-2 max-w-xl text-sm leading-6 !text-emerald-50/85">{t(active ? "FinTrack akan menyimpan ringkasan setiap bulan tanpa mengubah arsip yang sudah ada." : "Aktifkan sekali, lalu ringkasan bulan yang selesai akan tersimpan otomatis.")}</p>
+                <p className="mt-2 max-w-xl text-sm leading-6 !text-emerald-50/85">{t(active ? "DuitLo akan menyimpan ringkasan setiap bulan tanpa mengubah arsip yang sudah ada." : "Aktifkan sekali, lalu ringkasan bulan yang selesai akan tersimpan otomatis.")}</p>
                 {schedule?.enabled_from_period && <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-emerald-100"><Symbol className="text-[20px] h-4 w-4 text-emerald-300">check_circle</Symbol>{t("Aktif sejak periode {period}", { period: formatPeriod(schedule.enabled_from_period, locale) })}</p>}
               </div>
               <Button

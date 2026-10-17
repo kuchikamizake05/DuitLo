@@ -11,7 +11,7 @@ const config = getBillingConfig({ BILLING_ENABLED: "true", XENDIT_SECRET_KEY: "t
 describe("current Xendit Payment Sessions", () => {
   it("creates PAY hosted sessions with trusted price and no automatic renewal", async () => {
     const transport = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...session, status: "ACTIVE", payment_link_url: "https://xen.to/test" }) });
-    const result = await xenditProvider(config, transport).createInvoice({ external_id: session.reference_id, amount: 59000, currency: "IDR", description: "FinTrack Pro", success_redirect_url: "https://app.example/billing", failure_redirect_url: "https://app.example/billing" });
+    const result = await xenditProvider(config, transport).createInvoice({ external_id: session.reference_id, amount: 59000, currency: "IDR", description: "DuitLo Pro", success_redirect_url: "https://app.example/billing", failure_redirect_url: "https://app.example/billing" });
     expect(result.id).toBe("ps-test");
     expect(transport.mock.calls[0][0]).toBe("https://api.xendit.co/sessions");
     expect(JSON.parse(transport.mock.calls[0][1].body)).toMatchObject({ reference_id: session.reference_id, amount: 59000, country: "ID", session_type: "PAY", mode: "PAYMENT_LINK", capture_method: "AUTOMATIC", allow_save_payment_method: "DISABLED" });

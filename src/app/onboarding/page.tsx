@@ -11,10 +11,10 @@ import { useOnboarding } from "@/components/OnboardingBoundary";
 import styles from "./onboarding.module.css";
 
 const slides = [
-  { title:"Selamat datang di FinTrack", description:"Kenali fitur FinTrack sebentar. Setelah itu, mulai dari satu dompet dan satu transaksi sesuai kebutuhanmu.", image:null, name:"Selamat datang" },
-  { title:"Semua keuanganmu, satu ringkasan", description:"Satukan rekening bank, e-wallet, dan uang tunai. Setiap akun punya saldo dan riwayatnya sendiri.", image:"crossed-v2", name:"Beranda" },
-  { title:"Catat dengan caramu", description:"Isi transaksi manual atau baca struk dari kamera dan galeri. Periksa detailnya sebelum menyimpan.", image:"trio-v2", name:"Aktivitas" },
-  { title:"Beri arah pada uangmu", description:"Atur batas pengeluaran dengan anggaran, lalu buat target tabungan untuk hal yang ingin kamu wujudkan.", image:"fan-v2", name:"Anggaran & Target" },
+  { title:"Selamat datang di DuitLo", description:"Kenali fitur DuitLo sebentar. Setelah itu, mulai dari satu dompet dan satu transaksi sesuai kebutuhanmu.", image:null, name:"Selamat datang" },
+  { title:"Semua keuanganmu, satu ringkasan", description:"Satukan rekening bank, e-wallet, dan uang tunai. Setiap akun punya saldo dan riwayatnya sendiri.", image:"crossed-duitlo", name:"Beranda" },
+  { title:"Catat dengan caramu", description:"Isi transaksi manual atau baca struk dari kamera dan galeri. Periksa detailnya sebelum menyimpan.", image:"trio-duitlo", name:"Aktivitas" },
+  { title:"Beri arah pada uangmu", description:"Atur batas pengeluaran dengan anggaran, lalu buat target tabungan untuk hal yang ingin kamu wujudkan.", image:"fan-duitlo", name:"Anggaran & Target" },
   { title:"Sekarang giliranmu", description:"Masuk ke Beranda untuk mulai mencatat. Panduan di aplikasi akan membantumu menambahkan dompet dan transaksi pertama.", image:null, name:"Siap mulai" },
 ] as const;
 
@@ -48,11 +48,11 @@ export default function OnboardingPage() {
   }
 
   return <div className={`${styles.introPage} ${styles.introMockupPage}`}>
-    <header className={styles.introHeader}><span className={styles.introBrand}><BrandLogo size={28} priority/>FinTrack</span><div className={styles.introHeaderActions}>{index>0&&<button type="button" className={styles.introBack} aria-label={t("Sebelumnya")} onClick={()=>setIndex(index-1)}><ArrowLeft size={20} aria-hidden="true"/></button>}<LanguageSwitcher compact/></div></header>
+    <header className={styles.introHeader}><span className={styles.introBrand}><BrandLogo size={28} priority/>DuitLo</span><div className={styles.introHeaderActions}>{index>0&&<button type="button" className={styles.introBack} aria-label={t("Sebelumnya")} onClick={()=>setIndex(index-1)}><ArrowLeft size={20} aria-hidden="true"/></button>}<LanguageSwitcher compact/></div></header>
     <main id="main-content" tabIndex={-1} className={styles.introMain}>
       <figure className={feature.image ? styles.introPreview : styles.introWelcome}>
         {feature.image ? <>
-        <Image key={feature.image} src={`/onboarding/${feature.image}.png`} alt={t("Preview fitur {feature}",{feature:t(feature.name)})} width={1024} height={1536} sizes="(min-width: 900px) 432px, 90vw" className={`${styles.introPhone} ${index===1 ? styles.introPhoneFirst : index===2 ? styles.introPhoneSecond : styles.introPhoneThird}`} priority={index===0}/>
+        <Image key={feature.image} src={`/onboarding/${feature.image}.webp`} alt={t("Preview fitur {feature}",{feature:t(feature.name)})} width={1024} height={1536} sizes="(min-width: 900px) 432px, 90vw" className={`${styles.introPhone} ${index===1 ? styles.introPhoneFirst : index===2 ? styles.introPhoneSecond : styles.introPhoneThird}`} priority={index===0}/>
         </> : <>
           <svg className={styles.introAmbient} viewBox="0 0 440 420" fill="none" aria-hidden="true" focusable="false">
             {index===0 ? <>
@@ -108,7 +108,7 @@ export default function OnboardingPage() {
         </div>
         <div className={styles.introActions}>
           <button type="button" className={styles.introSkip} onClick={finish}>{t("Lewati")}</button>
-          <button type="button" className={styles.introNext} aria-label={t(index===slides.length-1?"Mulai pakai FinTrack":"Lanjut")} onClick={()=>index===slides.length-1?finish():setIndex(index+1)}><ArrowRight size={24} aria-hidden="true"/></button>
+          <button type="button" className={styles.introNext} aria-label={t(index===slides.length-1?"Mulai pakai DuitLo":"Lanjut")} onClick={()=>index===slides.length-1?finish():setIndex(index+1)}><ArrowRight size={24} aria-hidden="true"/></button>
         </div>
       </div>
       </section>

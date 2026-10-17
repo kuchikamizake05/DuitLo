@@ -1,15 +1,17 @@
 <p align="center">
-  <img src="public/brand/fintrack-logo-inverted.png" alt="FinTrack logo" width="72" />
+  <img src="public/brand/fintrack-logo-inverted.png" alt="DuitLo logo" width="72" />
 </p>
 
-<h1 align="center">FinTrack</h1>
+<h1 align="center">DuitLo</h1>
 
 <p align="center">
-  <strong>A space for your money, and everything ahead.</strong><br />
+  <strong>Duit lo, rencana lo.</strong><br />
+  <em>Your money, your plans.</em><br />
   Track everyday spending, understand your cash flow, and make room for your next goal.
 </p>
 
 <p align="center">
+  <a href="https://duitlo.vercel.app"><strong>Live App</strong></a> ·
   <a href="#product-preview"><strong>Product preview</strong></a> ·
   <a href="#quick-start"><strong>Quick start</strong></a> ·
   <a href="docs/architecture.md"><strong>Architecture</strong></a> ·
@@ -18,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/kuchikamizake05/FinTrack/actions/workflows/ci.yml"><img src="https://github.com/kuchikamizake05/FinTrack/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+  <a href="https://github.com/kuchikamizake05/DuitLo/actions/workflows/ci.yml"><img src="https://github.com/kuchikamizake05/DuitLo/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
   <img src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs" alt="Next.js 16" />
   <img src="https://img.shields.io/badge/React-19-149ECA?logo=react&amp;logoColor=white" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&amp;logoColor=white" alt="TypeScript 5" />
@@ -31,16 +33,16 @@
 ## Product preview
 
 <p align="center">
-  <img src="public/images/landing/hero-panels.png" alt="FinTrack product overview shown in mobile device mockups" width="960" />
+  <img src="public/images/landing/hero-panels-duitlo.webp" alt="DuitLo product overview shown in mobile device mockups" width="960" />
 </p>
 
-FinTrack is a personal finance web app for keeping wallets, transactions, budgets, and savings goals together. It also includes investment and trading journals for a broader view of your finances.
+DuitLo is a personal finance web app for keeping wallets, transactions, budgets, and savings goals together. It also includes investment and trading journals for a broader view of your finances.
 
 The interface supports Indonesian and English, light and dark themes, and mobile and desktop layouts. Install it as a PWA for quick access from your home screen.
 
 *Preview imagery comes from the landing page; it illustrates the product rather than a live account.*
 
-## Why FinTrack
+## Why DuitLo
 
 - **Know where your money goes.** Record income and expenses across bank, cash, and e-wallet accounts.
 - **Give spending a plan.** Set monthly budgets and check progress toward savings goals.
@@ -101,8 +103,8 @@ See the [architecture guide](docs/architecture.md) for module boundaries and req
 Use **Node.js 22** to match CI and **pnpm 10.30.3**, pinned in `package.json`. The authenticated application needs a Supabase project.
 
 ```bash
-git clone https://github.com/kuchikamizake05/FinTrack.git
-cd FinTrack
+git clone https://github.com/kuchikamizake05/DuitLo.git
+cd DuitLo
 corepack enable
 pnpm install --frozen-lockfile
 ```
@@ -142,7 +144,7 @@ pnpm audit:security   # Production dependency audit
 pnpm test:e2e         # Desktop and mobile browser checks
 ```
 
-Playwright builds an isolated application on port `3100`. See [CI documentation](docs/ci.md) for coverage and execution details, and [workflow runs](https://github.com/kuchikamizake05/FinTrack/actions) for current results.
+Playwright builds an isolated application on port `3100`. See [CI documentation](docs/ci.md) for coverage and execution details, and [workflow runs](https://github.com/kuchikamizake05/DuitLo/actions) for current results.
 
 | Scope | Status and boundary |
 | --- | --- |
@@ -151,7 +153,7 @@ Playwright builds an isolated application on port `3100`. See [CI documentation]
 | Pro payments | Xendit payment-session integration exists. Billing is disabled by default; live sales require merchant configuration and completion of the billing release checklist. |
 | Production operations | Deployment, access checks, monitoring, backup recovery, and payment operations require environment-specific verification. |
 
-FinTrack records and analyzes financial activity. It does not connect directly to bank balances, custody funds, or execute broker trades.
+DuitLo records and analyzes financial activity. It does not connect directly to bank balances, custody funds, or execute broker trades.
 
 ## Documentation
 
@@ -170,7 +172,7 @@ FinTrack records and analyzes financial activity. It does not connect directly t
 ## Repository map
 
 ```text
-FinTrack/
+DuitLo/
 ├── src/
 │   ├── app/                 Pages and API routes
 │   ├── components/          Shared UI and application views

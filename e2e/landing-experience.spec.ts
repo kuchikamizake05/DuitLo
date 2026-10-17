@@ -26,7 +26,7 @@ for (const theme of ["light", "dark"] as const) {
     page.on("console", message => { if (message.type() === "error" && /hydrat/i.test(message.text())) errors.push(message.text()); });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
-    await expect(page.locator("#overview h1")).toContainText("Ruang untuk uangmu");
+    await expect(page.locator("#overview h1")).toContainText("Duit lo");
     await page.getByRole("tab", { name: "Laporan", exact: true }).click();
     await expect(page.getByRole("tabpanel").getByRole("img")).toHaveAttribute("src", /reports/);
     await page.getByRole("tab", { name: "Laporan", exact: true }).press("Home");
@@ -38,13 +38,13 @@ for (const theme of ["light", "dark"] as const) {
     await page.evaluate(() => window.scrollTo(0, 0));
     if (isMobile) await page.getByRole("button", { name: "Menu navigasi", exact: true }).click();
     await page.getByRole("button", { name: "Inggris", exact: true }).filter({ visible: true }).click();
-    await expect(page.locator("#overview h1")).toContainText("A space for your money");
+    await expect(page.locator("#overview h1")).toContainText("Your money");
     if (isMobile) {
       await page.locator("#landing-menu").getByRole("link", { name: "FAQ", exact: true }).click();
       await expect(page.locator("#landing-menu")).toHaveCount(0);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.getByRole("link", { name: "Get started with FinTrack", exact: true }).click();
+    await page.getByRole("link", { name: "Get started with DuitLo", exact: true }).click();
     await expect(page).toHaveURL(/\/login/);
     expect(errors).toEqual([]);
   });

@@ -14,7 +14,7 @@ test("signing in from a shared receipt preserves the receipt destination",async(
   });
   await page.goto("/shared-receipt?id=auth-audit");
   await expect(page).toHaveURL(/\/login\?next=%2Fshared-receipt%3Fid%3Dauth-audit$/);
-  await page.getByLabel("Alamat email").fill("qa@fintrack.local");
+  await page.getByLabel("Alamat email").fill("qa@duitlo.local");
   await page.getByLabel("Kata sandi",{exact:true}).fill("rahasia123");
   await page.getByRole("button",{name:"Masuk",exact:true}).click();
   await expect(page).toHaveURL(/\/shared-receipt\?id=auth-audit$/);
@@ -46,6 +46,6 @@ test.describe("expired session",()=>{
     await page.route("**/auth/v1/token?grant_type=refresh_token",route=>route.fulfill({status:400,json:{code:"refresh_token_not_found",msg:"Refresh token not found"}}));
     await page.goto("/transactions?date=2026-10-15");
     await expect(page).toHaveURL(/\/login\?next=%2Ftransactions%3Fdate%3D2026-10-15$/);
-    await expect(page.getByRole("heading",{name:"Masuk ke FinTrack"})).toBeVisible();
+    await expect(page.getByRole("heading",{name:"Masuk ke DuitLo"})).toBeVisible();
   });
 });

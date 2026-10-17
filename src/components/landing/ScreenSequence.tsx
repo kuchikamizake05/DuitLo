@@ -41,9 +41,9 @@ export default function ScreenSequence({ screens, active, onChange, reduced, eng
           onDragEnd={(_, info) => {
             if (Math.abs(info.offset.x) > 35) onChange(screens[(selected + (info.offset.x < 0 ? 1 : -1) + screens.length) % screens.length].id);
           }}>
-          <Image src={`/images/landing/${screen.id}.webp`} width={708} height={1442}
+          <Image src={`/images/landing/${screen.id}-duitlo.webp`} width={708} height={1442}
             sizes="(max-width: 600px) 175px, 210px" loading="eager" draggable={false}
-            alt={front ? `${screen.label} — FinTrack ${english ? "in light mode" : "dalam mode light"}` : ""} />
+            alt={front ? `${screen.label} — DuitLo ${english ? "in light mode" : "dalam mode light"}` : ""} />
         </motion.div>
       </motion.div>;
     })}

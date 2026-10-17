@@ -1,7 +1,7 @@
 import { expect, mockSupabase, test } from "./fixtures";
 
 const routes = [
-  ["/dashboard", /^Halo, FinTrack/],
+  ["/dashboard", /^Halo, DuitLo/],
   ["/transactions", "Aktivitas"],
   ["/accounts", "Dompet"],
   ["/investments", "Investasi"],
@@ -17,6 +17,7 @@ test.describe("authenticated application routes render with controlled read-only
       await mockSupabase(page, true);
       await page.goto(route);
       await expect(page.getByRole("heading", { name: heading }).first()).toBeVisible();
+      await expect(page.locator("body")).not.toContainText(/fintrack/i);
     });
   }
 });

@@ -63,7 +63,7 @@ export async function POST(
     await requireInvestmentWrite(user.id);
   } catch (error) {
     const status = error instanceof BillingError && error.status === 403 ? 403 : 503;
-    return json({error: status === 403 ? "FinTrack Pro diperlukan untuk review trading." : "Akses Pro belum dapat diperiksa."}, status);
+    return json({error: status === 403 ? "DuitLo Pro diperlukan untuk review trading." : "Akses Pro belum dapat diperiksa."}, status);
   }
 
   const timeout = createTimeoutSignal(10_000);

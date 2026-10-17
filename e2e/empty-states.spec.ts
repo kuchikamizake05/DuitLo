@@ -19,7 +19,7 @@ test("new user follows highlighted controls to the wallet form", async ({ page }
   await expect(page.getByRole("heading", { name: "Beranda" })).toBeVisible();
   await expect(page.getByText("Ringkasan Analisis Finansial Siap")).toBeVisible();
   await expect(page.getByRole("heading",{name:"Transaksi Terbaru",exact:true})).toBeVisible();
-  await expect(page.getByRole("region", { name: "Selesaikan penyiapan FinTrack" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Selesaikan penyiapan DuitLo" })).toHaveCount(0);
   await expect.poll(() => page.getByRole("complementary", { name: "Panduan langkah pertama" }).locator("img").evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.screenshot({ path: testInfo.outputPath("empty-dashboard.png"), fullPage: true });
   await page.getByRole("complementary").getByRole("button",{name:"Lanjut",exact:true}).click();

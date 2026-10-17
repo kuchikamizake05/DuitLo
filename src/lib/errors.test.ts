@@ -30,7 +30,7 @@ describe("reportHandledError", () => {
     const result = reportHandledError("Transactions unavailable", { message: "private detail", code: "secret" }, "Data belum bisa dimuat.");
 
     expect(result).toEqual({ message: "Data belum bisa dimuat." });
-    expect(warning).toHaveBeenCalledWith("FinTrack: Transactions unavailable");
+    expect(warning).toHaveBeenCalledWith("DuitLo: Transactions unavailable");
     expect(warning.mock.calls.flat().join(" ")).not.toContain("private detail");
     expect(warning.mock.calls.flat().join(" ")).not.toContain("secret");
     warning.mockRestore();

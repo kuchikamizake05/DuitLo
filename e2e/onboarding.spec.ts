@@ -11,7 +11,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.goto("/onboarding");
     const headings = ["Semua keuanganmu, satu ringkasan.", "Catat dengan caramu.", "Beri arah pada uangmu."];
     await expect(page.locator("input, select, textarea, form")).toHaveCount(0);
-    await expect(page.getByRole("heading", { name:"Selamat datang di FinTrack!",exact:true })).toBeVisible();
+    await expect(page.getByRole("heading", { name:"Selamat datang di DuitLo!",exact:true })).toBeVisible();
     await page.getByRole("button", { name:"Lanjut",exact:true }).click();
     await expect(page.locator("main button[aria-pressed]")).toHaveCount(5);
     for (let index = 0; index < headings.length; index++) {
@@ -26,14 +26,14 @@ for (const theme of ["light", "dark"] as const) {
     await expect(page.getByRole("heading", { name:headings[2],exact:true })).toBeVisible();
     await page.getByRole("button", { name:"Lanjut",exact:true }).click();
     await expect(page.getByRole("heading", { name:"Sekarang giliranmu!",exact:true })).toBeVisible();
-    await page.getByRole("button", { name: "Mulai pakai FinTrack", exact: true }).click();
+    await page.getByRole("button", { name: "Mulai pakai DuitLo", exact: true }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(page.getByRole("heading", { name: /Halo/ })).toBeVisible();
     expect(writes).toEqual([]);
     const progress = await page.evaluate(userId => JSON.parse(localStorage.getItem(`fintrack:onboarding:v1:${userId}`) ?? "null"), user.id);
     expect(progress?.completedAt).toBeTruthy();
     await page.goto("/onboarding");
-    await expect(page.getByRole("heading", { name:"Selamat datang di FinTrack!",exact:true })).toBeVisible();
+    await expect(page.getByRole("heading", { name:"Selamat datang di DuitLo!",exact:true })).toBeVisible();
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }
@@ -52,7 +52,7 @@ test("introduction is translated in English", async ({ page }) => {
   await mockReference(page, "light");
   await page.addInitScript(() => localStorage.setItem("fintrack-language", "en"));
   await page.goto("/onboarding");
-  await expect(page.getByRole("heading", { name: "Welcome to FinTrack!", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Welcome to DuitLo!", exact: true })).toBeVisible();
   await page.getByRole("button", { name:"Next",exact:true }).click();
   await expect(page.getByRole("heading", { name: "Your finances in one summary.", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Next", exact: true }).click();
@@ -64,5 +64,5 @@ test("new account entering dashboard is directed to introduction", async ({page}
   await page.route("https://e2e-project.supabase.co/rest/v1/**", route => route.fulfill({json:[]}));
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/onboarding$/);
-  await expect(page.getByRole("heading", {name:"Selamat datang di FinTrack!",exact:true})).toBeVisible();
+  await expect(page.getByRole("heading", {name:"Selamat datang di DuitLo!",exact:true})).toBeVisible();
 });

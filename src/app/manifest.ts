@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "FinTrack — Keuangan Pribadi",
-    short_name: "FinTrack",
+    name: "DuitLo — Keuangan Pribadi",
+    short_name: "DuitLo",
     description: "Pantau arus kas, investasi, dan trading dalam satu ruang keuangan pribadi yang tenang.",
     id: "/",
     start_url: "/dashboard",

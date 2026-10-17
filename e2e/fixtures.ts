@@ -7,27 +7,27 @@ const user = {
   id: userId,
   aud: "authenticated",
   role: "authenticated",
-  email: "qa@fintrack.local",
+  email: "qa@duitlo.local",
   email_confirmed_at: "2026-01-01T00:00:00.000Z",
   phone: "",
   confirmed_at: "2026-01-01T00:00:00.000Z",
   last_sign_in_at: "2026-01-01T00:00:00.000Z",
   app_metadata: { provider: "email", providers: ["email"] },
-  user_metadata: { full_name: "FinTrack QA" },
+  user_metadata: { full_name: "DuitLo QA" },
   identities: [],
   created_at: "2026-01-01T00:00:00.000Z",
   updated_at: "2026-01-01T00:00:00.000Z",
   is_anonymous: false,
 };
 
-type FinTrackFixtures = {
+type DuitLoFixtures = {
   allowOfflineConsoleErrors: boolean;
   allowedConsoleErrors: string[];
   consoleErrors: string[];
   pageErrors: string[];
 };
 
-export const test = base.extend<FinTrackFixtures>({
+export const test = base.extend<DuitLoFixtures>({
   allowOfflineConsoleErrors: [false, { option: true }],
   allowedConsoleErrors: [[], { option: true }],
   consoleErrors: [async ({ page, allowOfflineConsoleErrors, allowedConsoleErrors }, use) => {

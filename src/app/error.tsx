@@ -11,7 +11,7 @@ type SegmentErrorProps = {
 export default function SegmentError({ retry }: SegmentErrorProps) {
   return (
     <ErrorRecoveryPanel
-      eyebrow="FinTrack recovery"
+      eyebrow="DuitLo recovery"
       title="Ruang keuangan belum bisa dimuat"
       description="Kami menghentikan tampilan ini agar data tetap aman. Coba pulihkan layar ini atau kembali ke dashboard."
       retryLabel="Coba lagi"

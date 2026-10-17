@@ -58,7 +58,7 @@ export default function SettingsPage() {
         return;
       }
       setUserEmail(session.user.email ?? null);
-      setUserName(session.user.user_metadata?.full_name??session.user.email?.split("@")[0]??"FinTrack");
+      setUserName(session.user.user_metadata?.full_name??session.user.email?.split("@")[0]??"DuitLo");
       setUserId(session.user.id);
       setDeviceLockEnabled(Boolean(readPasskeyDeviceState(session.user.id)?.enabled));
       const { data, error } = await supabase.auth.passkey.list();
@@ -190,13 +190,13 @@ export default function SettingsPage() {
   return (
     <ReferenceRoot page="pengaturan">
       <Navbar />
-      {loading?<main className="pt-20 px-margin" aria-busy="true"><SettingsSkeleton/></main>:<SettingsView email={userEmail} name={userName} online={online} biometric={deviceLockEnabled} biometricAvailable={isWebAuthnSupported()} onBiometric={toggleDeviceLock} onEnroll={()=>void enrollPasskey()} onLock={lockNow} onLogout={()=>void handleLogout()} loggingOut={loggingOut} passkeys={passkeys} onDeletePasskey={setPasskeyDeleteId} error={passkeyError??logoutError} installCard={!standalone&&<section className="rounded-3xl bg-surface-container-low p-5"><h2 className="text-title-md font-semibold">{t("Pasang FinTrack")}</h2><p className="mt-2 text-body-sm text-on-surface-variant">{t("Buka lebih cepat dari layar utama dan nikmati tampilan penuh seperti aplikasi.")}</p><button type="button" onClick={()=>window.dispatchEvent(new Event("fintrack:request-install"))} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--create-bg)] px-4 text-sm font-semibold text-[var(--create-fg)]"><Download size={18} aria-hidden="true"/>{t("Pasang FinTrack")}</button></section>}/>}
+      {loading?<main className="pt-20 px-margin" aria-busy="true"><SettingsSkeleton/></main>:<SettingsView email={userEmail} name={userName} online={online} biometric={deviceLockEnabled} biometricAvailable={isWebAuthnSupported()} onBiometric={toggleDeviceLock} onEnroll={()=>void enrollPasskey()} onLock={lockNow} onLogout={()=>void handleLogout()} loggingOut={loggingOut} passkeys={passkeys} onDeletePasskey={setPasskeyDeleteId} error={passkeyError??logoutError} installCard={!standalone&&<section className="rounded-3xl bg-surface-container-low p-5"><h2 className="text-title-md font-semibold">{t("Pasang DuitLo")}</h2><p className="mt-2 text-body-sm text-on-surface-variant">{t("Buka lebih cepat dari layar utama dan nikmati tampilan penuh seperti aplikasi.")}</p><button type="button" onClick={()=>window.dispatchEvent(new Event("fintrack:request-install"))} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--create-bg)] px-4 text-sm font-semibold text-[var(--create-fg)]"><Download size={18} aria-hidden="true"/>{t("Pasang DuitLo")}</button></section>}/>}
 
 
 
       {pinSetupOpen&&<DialogFrame titleId="settings-pin-title" onClose={closePinSetup} closeDisabled={pinSetupBusy||Boolean(passkeyBusy)}><div className="p-5"><h2 id="settings-pin-title" className="text-headline-sm font-semibold">{t(pinSetupReady?"Aktifkan biometrik":"Buat PIN perangkat")}</h2><p className="mt-2 mb-5 text-body-sm text-on-surface-variant">{t(pinSetupReady?"Tekan tombol di bawah untuk mendaftarkan biometrik perangkat.":"Gunakan PIN 6 digit untuk membuka aplikasi di perangkat ini.")}</p>{pinSetupReady?<div className={authStyles.pinForm}><button type="button" disabled={Boolean(passkeyBusy)} className={authStyles.primary} onClick={()=>void enrollPasskey()}><Fingerprint aria-hidden="true" className="size-5"/>{t(passkeyBusy?"Memproses...":"Aktifkan biometrik")}</button>{passkeyError&&<p role="alert" className={authStyles.error}>{t(passkeyError)}</p>}</div>:<PinSetupForm onSave={saveDevicePin} onCancel={closePinSetup}/>}</div></DialogFrame>}
 
-      {passkeyDeleteId && <ConfirmDialog titleId="passkey-delete-title" descriptionId="passkey-delete-description" title={t("Hapus biometrik?")} description={t("Perangkat ini tidak lagi dapat membuka FinTrack dengan biometrik tersebut.")} confirmLabel={t("Hapus")} onClose={() => { if (!passkeyBusy) setPasskeyDeleteId(null); }} onConfirm={() => void deletePasskey()} loading={passkeyBusy === "delete"} error={passkeyError} />}
+      {passkeyDeleteId && <ConfirmDialog titleId="passkey-delete-title" descriptionId="passkey-delete-description" title={t("Hapus biometrik?")} description={t("Perangkat ini tidak lagi dapat membuka DuitLo dengan biometrik tersebut.")} confirmLabel={t("Hapus")} onClose={() => { if (!passkeyBusy) setPasskeyDeleteId(null); }} onConfirm={() => void deletePasskey()} loading={passkeyBusy === "delete"} error={passkeyError} />}
     </ReferenceRoot>
   );
 }

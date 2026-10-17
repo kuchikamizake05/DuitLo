@@ -10,16 +10,17 @@ test("manual install works after automatic prompt dismissal",async({page})=>{
   window.dispatchEvent(event);
  });
  await expect(page.getByRole("button",{name:"Pasang",exact:true})).toHaveCount(0);
- await page.getByRole("button",{name:"Pasang FinTrack",exact:true}).click();
+ await page.getByRole("button",{name:"Pasang DuitLo",exact:true}).click();
  expect(await page.evaluate(()=>Reflect.get(window,"installPromptCalls"))).toBe(1);
  await expect(page.getByText("Permintaan instalasi diterima",{exact:true})).toBeVisible();
 });
 test("manual install explains browser installation when unavailable",async({page})=>{
  await mockSupabase(page,true);await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);await page.goto("/settings");
  await expect(page.getByRole("heading",{name:"Pengaturan",exact:true})).toBeVisible();
- await page.getByRole("button",{name:"Pasang FinTrack",exact:true}).click();
- const dialog=page.getByRole("dialog",{name:"Pasang FinTrack",exact:true});
+ await page.getByRole("button",{name:"Pasang DuitLo",exact:true}).click();
+ const dialog=page.getByRole("dialog",{name:"Instal DuitLo",exact:true});
  await expect(dialog).toBeVisible();
- await expect(dialog.getByText("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama.",{exact:true})).toBeVisible();
- await dialog.getByRole("button",{name:"Mengerti",exact:true}).click();await expect(dialog).toHaveCount(0);
+ await expect(dialog.getByRole("button",{name:"Android — Chrome",exact:true})).toBeVisible();
+ await expect(dialog.getByRole("button",{name:"iOS (iPhone / iPad) — Safari",exact:true})).toBeVisible();
+ await dialog.getByRole("button",{name:"Tutup",exact:true}).click();await expect(dialog).toHaveCount(0);
 });

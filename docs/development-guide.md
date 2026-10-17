@@ -1,6 +1,6 @@
 # Development guide
 
-[Back to FinTrack](../README.md) · [Database releases](database-release.md) · [Operations](operations.md)
+[Back to DuitLo](../README.md) · [Database releases](database-release.md) · [Operations](operations.md)
 
 This guide covers local setup and optional integrations. Use `.env.example` as the configuration source of truth; older optional workflows may require separate setup.
 
@@ -18,8 +18,8 @@ Optional integrations require an n8n instance, Telegram bot, Gemini API key, and
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/kuchikamizake05/FinTrack.git
-cd FinTrack
+git clone https://github.com/kuchikamizake05/DuitLo.git
+cd DuitLo
 corepack enable
 pnpm install --frozen-lockfile
 ```
@@ -56,7 +56,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Supabase setup
 
-FinTrack uses Supabase for both identity and data ownership. A configured Supabase project is required for the authenticated application.
+DuitLo uses Supabase for both identity and data ownership. A configured Supabase project is required for the authenticated application.
 
 1. Create a new Supabase project.
 2. Validate the [reviewed manifest](../supabase/bootstrap/manifest.json) with `node scripts/database/preflight.mjs`.
@@ -152,7 +152,7 @@ Configure the required values in the n8n secret/environment store—not inside e
 | `SUPABASE_URL` | Supabase REST and Storage endpoints |
 | `SUPABASE_SERVICE_ROLE_KEY` | Privileged server-side n8n access |
 | `SUPABASE_USER_ID` | Owner assigned to automated records |
-| `N8N_TRADE_REVIEW_SHARED_SECRET` | Validates requests from the FinTrack server |
+| `N8N_TRADE_REVIEW_SHARED_SECRET` | Validates requests from the DuitLo server |
 
 After importing a template:
 
@@ -208,7 +208,7 @@ Playwright reports are uploaded as CI artifacts even when E2E tests fail.
 ## Project structure
 
 ```text
-FinTrack/
+DuitLo/
 |-- .github/workflows/       GitHub Actions CI
 |-- docs/                    Architecture documentation
 |-- e2e/                     Playwright specs and controlled fixtures
@@ -233,7 +233,7 @@ FinTrack/
 
 ## Security
 
-FinTrack handles personal financial information and treats public and private execution boundaries explicitly:
+DuitLo handles personal financial information and treats public and private execution boundaries explicitly:
 
 - Supabase RLS restricts records by authenticated user ownership.
 - API routes authenticate access tokens independently and validate resource ownership.
@@ -247,7 +247,7 @@ Do not report vulnerabilities in a public issue. Follow [SECURITY.md](../SECURIT
 
 ## Deployment
 
-FinTrack can run on Vercel or another Node.js-compatible platform.
+DuitLo can run on Vercel or another Node.js-compatible platform.
 
 ### Vercel
 

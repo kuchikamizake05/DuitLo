@@ -16,7 +16,7 @@ test.describe("authentication boundary @critical", () => {
       await mockSupabase(page, false);
       await page.goto(route);
       await expect(page).toHaveURL(new RegExp(`/login\\?next=${encodeURIComponent(route)}`));
-      await expect(page.getByRole("heading", { name: "Masuk ke FinTrack" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Masuk ke DuitLo" })).toBeVisible();
     });
   }
 
@@ -66,7 +66,7 @@ test.describe("password and Google login @critical", () => {
         deferredUntil: null,
       },
     });
-    await page.getByLabel("Alamat email").fill("qa@fintrack.local");
+    await page.getByLabel("Alamat email").fill("qa@duitlo.local");
     await page.getByLabel("Kata sandi", { exact: true }).fill("rahasia123");
     await page.getByRole("button", { name: "Masuk", exact: true }).click();
     await expect(page).toHaveURL(/\/transactions$/);
@@ -76,7 +76,7 @@ test.describe("password and Google login @critical", () => {
     await mockSupabase(page, false);
     await page.goto("/login");
     await page.getByRole("button", { name: "Daftar" }).click();
-    await page.getByLabel("Alamat email").fill("qa@fintrack.local");
+    await page.getByLabel("Alamat email").fill("qa@duitlo.local");
     await page.getByLabel("Kata sandi", { exact: true }).fill("rahasia123");
     await page.getByLabel("Konfirmasi kata sandi").fill("berbeda123");
     await page.getByRole("button", { name: "Buat akun" }).click();
@@ -88,7 +88,7 @@ test.describe("password and Google login @critical", () => {
     await page.goto("/login");
     await page.getByRole("button", { name: "Lupa kata sandi?" }).click();
     await expect(page.getByRole("heading", { name: "Pulihkan kata sandi" })).toBeVisible();
-    await page.getByLabel("Alamat email").fill("qa@fintrack.local");
+    await page.getByLabel("Alamat email").fill("qa@duitlo.local");
     await page.getByRole("button", { name: "Kirim tautan pemulihan" }).click();
     await expect(page.getByText(/Jika email terdaftar/)).toBeVisible();
   });
@@ -97,7 +97,7 @@ test.describe("password and Google login @critical", () => {
     await mockSupabase(page, false);
     await page.goto("/login");
     await page.getByRole("button", { name: "Daftar" }).click();
-    await page.getByLabel("Alamat email").fill("baru@fintrack.local");
+    await page.getByLabel("Alamat email").fill("baru@duitlo.local");
     await page.getByLabel("Kata sandi", { exact: true }).fill("rahasia123");
     await page.getByLabel("Konfirmasi kata sandi").fill("rahasia123");
     await page.getByRole("button", { name: "Buat akun" }).click();

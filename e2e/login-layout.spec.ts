@@ -13,13 +13,13 @@ test("login controls remain reachable in a short desktop viewport", async ({ pag
   await mockSupabase(page, false);
   await page.goto("/login");
 
-  const brand = page.getByRole("link", { name: "FinTrack beranda", exact: true });
-  const card = page.getByRole("region", { name: "Masuk ke FinTrack", exact: true });
+  const brand = page.getByRole("link", { name: "DuitLo beranda", exact: true });
+  const card = page.getByRole("region", { name: "Masuk ke DuitLo", exact: true });
   const submit = page.getByRole("button", { name: "Masuk", exact: true });
   const privacyNote = page.getByText("Hanya kamu yang dapat mengakses catatan keuanganmu.", { exact: true });
 
   await expect(brand).toBeVisible();
-  await expect(brand.getByText("FinTrack", { exact: true })).toBeVisible();
+  await expect(brand.getByText("DuitLo", { exact: true })).toBeVisible();
   await expect(submit).toBeVisible();
   await expect(privacyNote).toBeVisible();
 

@@ -5,7 +5,7 @@ test.beforeEach(async ({page}) => {
   await page.addInitScript(userId=>localStorage.setItem(`fintrack:menu-guide:${userId}:mode`,"paused"),user.id);
 });
 
-test.describe("FinTrack navigation and appearance @critical", () => {
+test.describe("DuitLo navigation and appearance @critical", () => {
   test("mobile navigation opens quick entry with the keyboard", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await mockSupabase(page, true);

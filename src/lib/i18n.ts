@@ -9,8 +9,8 @@ const englishTranslations: Record<string, string> = {
   "Pilih Bank": "Select bank",
   "Pilih E-Wallet": "Select e-wallet",
   "Pengingat harian - belum tersedia": "Daily reminders - unavailable",
-  "Selamat datang di FinTrack": "Welcome to FinTrack",
-  "Kenali fitur FinTrack sebentar. Setelah itu, mulai dari satu dompet dan satu transaksi sesuai kebutuhanmu.": "Take a quick look at FinTrack. Then start with one wallet and one transaction at your own pace.",
+  "Selamat datang di DuitLo": "Welcome to DuitLo",
+  "Kenali fitur DuitLo sebentar. Setelah itu, mulai dari satu dompet dan satu transaksi sesuai kebutuhanmu.": "Take a quick look at DuitLo. Then start with one wallet and one transaction at your own pace.",
   "Sekarang giliranmu": "Now it is your turn",
   "Masuk ke Beranda untuk mulai mencatat. Panduan di aplikasi akan membantumu menambahkan dompet dan transaksi pertama.": "Head to Home to start recording. In-app guides will help you add a wallet and your first transaction.",
   "Siap mulai": "Ready to start",
@@ -28,7 +28,7 @@ const englishTranslations: Record<string, string> = {
   "Beri arah pada uangmu": "Give your money a direction",
   "Atur batas pengeluaran dengan anggaran, lalu buat target tabungan untuk hal yang ingin kamu wujudkan.": "Set spending limits with budgets, then create savings goals for what you want to achieve.",
   "Anggaran & Target": "Budgets & Goals",
-  "Kenali FinTrack": "Meet FinTrack",
+  "Kenali DuitLo": "Meet DuitLo",
   "Buka anggaran untuk menentukan batas pengeluaran bulanan. Pilih kategori dan nominal yang sesuai kebutuhanmu.": "Open budgets to set a monthly spending limit. Choose a category and an amount that suits your needs.",
   "Buka target tabungan untuk merencanakan tujuanmu. Tentukan nominal tujuan, setoran awal, dan tenggat waktunya.": "Open savings goals to plan what you want to achieve. Set a target amount, an initial deposit, and a deadline.",
   "Keterangan transaksi wajib diisi.": "Transaction description is required.",
@@ -52,7 +52,7 @@ const englishTranslations: Record<string, string> = {
   "Cadangan Google Drive": "Google Drive backup",
   "Bot Telegram & Notifikasi": "Telegram bot & notifications",
   "Yuk, lihat kabar keuanganmu hari ini.": "See how your finances are doing today.",
-  "Kenali menu dan fitur FinTrack": "Explore FinTrack menus and features",
+  "Kenali menu dan fitur DuitLo": "Explore DuitLo menus and features",
   "Menu {current} dari {total}": "Menu {current} of {total}",
   "Lihat saldo dan ringkasan keuanganmu. Dari sini kamu juga bisa membuka anggaran dan target tabungan.": "See your balances and financial summary. You can also open budgets and savings goals here.",
   "Kelola rekening, e-wallet, dan uang tunai. Tambahkan akun atau periksa saldo dari menu ini.": "Manage bank accounts, e-wallets, and cash. Add accounts or check balances here.",
@@ -180,8 +180,8 @@ const englishTranslations: Record<string, string> = {
   "Laporan otomatis belum aktif": "Automatic reports are off",
   "Keuangan bulanan, tersimpan rapi.": "Your monthly finances, neatly saved.",
   "Mulai arsipkan setiap bulan.": "Start saving every month.",
-  "FinTrack akan menyimpan ringkasan setiap bulan tanpa mengubah arsip yang sudah ada.":
-    "FinTrack will save a monthly summary without changing reports already archived.",
+  "DuitLo akan menyimpan ringkasan setiap bulan tanpa mengubah arsip yang sudah ada.":
+    "DuitLo will save a monthly summary without changing reports already archived.",
   "Aktifkan sekali, lalu ringkasan bulan yang selesai akan tersimpan otomatis.":
     "Turn it on once and completed months will be archived automatically.",
   "Setiap periode disimpan satu kali, sehingga catatan bulan lalu tetap utuh saat transaksi baru masuk.":
@@ -297,8 +297,8 @@ const englishTranslations: Record<string, string> = {
   "Coba filter status atau kata kunci lain.": "Try another status filter or keyword.",
   "Catat trade pertama lengkap dengan risiko dan alasan entry.":
     "Record your first trade with its risk and entry rationale.",
-  "Catat atau konfirmasi setidaknya satu pemasukan atau pengeluaran agar FinTrack bisa menyusun review yang berguna.":
-    "Record or confirm at least one income or expense so FinTrack can prepare a useful review.",
+  "Catat atau konfirmasi setidaknya satu pemasukan atau pengeluaran agar DuitLo bisa menyusun review yang berguna.":
+    "Record or confirm at least one income or expense so DuitLo can prepare a useful review.",
   "Tambah transaksi": "Add transaction",
   "Catat transaksi": "Record transaction",
   "Reset filter": "Reset filters",
@@ -354,7 +354,7 @@ const englishTranslations: Record<string, string> = {
   "Mulai gratis": "Start for free",
   "Lihat cara kerjanya": "See how it works",
   "Gratis untuk memulai. Tidak perlu kartu.": "Free to start. No card required.",
-  "Pratinjau dashboard FinTrack": "FinTrack dashboard preview",
+  "Pratinjau dashboard DuitLo": "DuitLo dashboard preview",
   "Saldo bersih": "Net balance",
   Terlihat: "Visible",
   "12,4% bulan ini": "12.4% this month",
@@ -363,7 +363,7 @@ const englishTranslations: Record<string, string> = {
   "78% tercapai": "78% complete",
   "Insight minggu ini": "This week's insight",
   "Pengeluaran makan turun 18%": "Food spending is down 18%",
-  "Ringkasan manfaat FinTrack": "FinTrack benefits summary",
+  "Ringkasan manfaat DuitLo": "DuitLo benefits summary",
   "Arus kas terbaca": "Clear cash flow",
   "Target lebih dekat": "Goals within reach",
   "Data tetap milikmu": "Your data stays yours",
@@ -373,8 +373,8 @@ const englishTranslations: Record<string, string> = {
   "Bukan lebih banyak angka.": "Not more numbers.",
   "Lebih banyak": "More",
   "kendali.": "control.",
-  "FinTrack mengubah catatan keuangan yang berantakan menjadi gambaran yang mudah dipahami.":
-    "FinTrack turns scattered financial records into a picture that is easy to understand.",
+  "DuitLo mengubah catatan keuangan yang berantakan menjadi gambaran yang mudah dipahami.":
+    "DuitLo turns scattered financial records into a picture that is easy to understand.",
   "Catat tanpa ribet": "Record with ease",
   "Pemasukan dan pengeluaran tersusun rapi, lengkap dengan kategori dan bukti transaksi.":
     "Keep income and expenses organized, complete with categories and transaction evidence.",
@@ -382,8 +382,8 @@ const englishTranslations: Record<string, string> = {
   "Grafik yang jernih membantu kamu memahami kebiasaan, bukan sekadar melihat angka.":
     "Clear charts help you understand habits instead of merely looking at numbers.",
   "Dapat insight nyata": "Get useful insights",
-  "FinTrack merangkum perubahan penting dan memberi langkah yang bisa langsung kamu ambil.":
-    "FinTrack summarizes meaningful changes and suggests steps you can take right away.",
+  "DuitLo merangkum perubahan penting dan memberi langkah yang bisa langsung kamu ambil.":
+    "DuitLo summarizes meaningful changes and suggests steps you can take right away.",
   Jelajahi: "Explore",
   "Satu pandangan utuh": "One complete view",
   "Setiap rupiah punya cerita.": "Every rupiah tells a story.",
@@ -411,11 +411,11 @@ const englishTranslations: Record<string, string> = {
   "Mulai dari satu catatan": "Start with one record",
   "Bikin uangmu": "Make your money",
   "masuk akal.": "make sense.",
-  "Mulai pakai FinTrack": "Start using FinTrack",
+  "Mulai pakai DuitLo": "Start using DuitLo",
   "Ruang tenang untuk keuangan pribadimu.": "A calm space for your personal finances.",
   "Buat kata sandi baru": "Create a new password",
   "Pulihkan kata sandi": "Recover your password",
-  "Buat akun FinTrack": "Create a FinTrack account",
+  "Buat akun DuitLo": "Create a DuitLo account",
   "Selamat datang kembali": "Welcome back",
   "Gunakan minimal 8 karakter untuk melindungi akunmu.": "Use at least 8 characters to protect your account.",
   "Kami akan mengirim tautan pemulihan ke emailmu.": "We'll send a recovery link to your email.",
@@ -446,10 +446,10 @@ const englishTranslations: Record<string, string> = {
   "Simpan kata sandi baru": "Save new password",
   "Kirim tautan pemulihan": "Send recovery link",
   "Buat akun": "Create account",
-  "Masuk ke FinTrack": "Sign in to FinTrack",
+  "Masuk ke DuitLo": "Sign in to DuitLo",
   "Kembali ke halaman masuk": "Back to sign in",
   "Perangkat dikenal": "Recognized device",
-  "Buka FinTrack": "Unlock FinTrack",
+  "Buka DuitLo": "Unlock DuitLo",
   "Buka dengan Passkey": "Unlock with Passkey",
   "Gunakan login biasa": "Use regular sign in",
   "Ganti akun": "Switch account",
@@ -458,10 +458,10 @@ const englishTranslations: Record<string, string> = {
   "Pernah digunakan": "Used before",
   "Baru didaftarkan": "Newly registered",
   "Daftarkan Passkey": "Register Passkey",
-  "Kunci FinTrack di perangkat ini": "Lock FinTrack on this device",
+  "Kunci DuitLo di perangkat ini": "Lock DuitLo on this device",
   "Kunci sekarang": "Lock now",
   "Hapus Passkey?": "Delete Passkey?",
-  "Perangkat ini tidak lagi dapat membuka FinTrack dengan Passkey tersebut.": "This device will no longer unlock FinTrack with this Passkey.",
+  "Perangkat ini tidak lagi dapat membuka DuitLo dengan Passkey tersebut.": "This device will no longer unlock DuitLo with this Passkey.",
   "Hanya kamu yang dapat mengakses catatan keuanganmu.":
     "Only you can access your financial records.",
   "Periksa email untuk konfirmasi. Jika akun sudah ada, silakan masuk.":
@@ -539,7 +539,7 @@ const englishTranslations: Record<string, string> = {
   "Kurs IDR belum tersedia. Nilai tidak digabung.": "IDR rate is unavailable. Values are not combined.",
   "Kurs IDR belum tersedia untuk semua transaksi. Insight tetap dipisahkan per mata uang dan tidak dikirim ke AI.": "IDR rates are unavailable for all transactions. Insights remain separated by currency and are not sent to AI.",
   "Belum ada transaksi terkonfirmasi pada filter ini.": "No confirmed transactions in this filter.",
-  "Laporan FinTrack": "FinTrack report",
+  "Laporan DuitLo": "DuitLo report",
   Dibuat: "Generated",
   Filter: "Filter",
   "Ringkasan per mata uang": "Per-currency summary",
@@ -979,7 +979,7 @@ const englishTranslations: Record<string, string> = {
   "Tanggal eksekusi berikutnya": "Next execution date",
   "Rekonsiliasi akun": "Reconcile account",
   "Saldo rekening koran / bank": "Statement balance",
-  "Saldo FinTrack": "FinTrack balance",
+  "Saldo DuitLo": "DuitLo balance",
   Selisih: "Difference",
   Cocok: "Matched",
   "Ada selisih": "Unmatched",
@@ -1006,8 +1006,8 @@ const englishTranslations: Record<string, string> = {
   "Pilih akun tujuan sebelum impor CSV.": "Select a destination account before importing CSV.",
   "{count} transaksi diimpor sebagai Perlu ditinjau.":
     "{count} transactions imported as Needs review.",
-  "CSV tidak dapat diimpor. Gunakan format ekspor FinTrack.":
-    "CSV could not be imported. Use FinTrack export format.",
+  "CSV tidak dapat diimpor. Gunakan format ekspor DuitLo.":
+    "CSV could not be imported. Use DuitLo export format.",
   "Perlu perhatian": "Needs attention",
   "Budget kategori": "Category budgets",
   "Kategori budget": "Budget category",
@@ -1032,8 +1032,8 @@ const englishTranslations: Record<string, string> = {
   "Saldo cocok.": "Balance matches.",
   "Ada selisih yang perlu dicek.": "There is a difference to check.",
   "Simpan rekonsiliasi": "Save reconciliation",
-  "Pilih CSV hasil ekspor FinTrack. Semua data masuk sebagai “Perlu ditinjau” agar aman.":
-    "Select a CSV exported from FinTrack. All data enters as “Needs review” for safety.",
+  "Pilih CSV hasil ekspor DuitLo. Semua data masuk sebagai “Perlu ditinjau” agar aman.":
+    "Select a CSV exported from DuitLo. All data enters as “Needs review” for safety.",
   "Akun tujuan impor CSV": "Destination account for CSV import",
   "Akun tujuan": "Destination account",
   "Pilih file CSV untuk diimpor": "Select CSV file to import",
@@ -1078,8 +1078,8 @@ const englishTranslations: Record<string, string> = {
 
   // Smart Insights page
   "Review keuangan": "Financial review",
-  "Angka dihitung oleh FinTrack. AI hanya membantu menjelaskan pola dan memprioritaskan langkah berikutnya.":
-    "Numbers calculated by FinTrack. AI helps explain patterns and prioritize next steps.",
+  "Angka dihitung oleh DuitLo. AI hanya membantu menjelaskan pola dan memprioritaskan langkah berikutnya.":
+    "Numbers calculated by DuitLo. AI helps explain patterns and prioritize next steps.",
   "Periode insight": "Insight period",
   "Data untuk Smart Insights belum berhasil dimuat. Coba lagi.":
     "Data for Smart Insights could not be loaded. Try again.",
@@ -1123,7 +1123,7 @@ const englishTranslations: Record<string, string> = {
   "Perlu data pemasukan": "Income data needed",
   "Dari pemasukan periode ini": "Of income this period",
   "Dibantu AI": "AI-assisted",
-  "Analisis FinTrack": "FinTrack analysis",
+  "Analisis DuitLo": "DuitLo analysis",
   "Diperbarui {time}": "Updated {time}",
   "Fallback terverifikasi": "Verified fallback",
   Menyusun: "Composing",
@@ -1294,7 +1294,7 @@ const englishTranslations: Record<string, string> = {
   "Target keuangan belum tersimpan. Coba lagi.": "Financial goal could not be saved. Try again.",
   "Target diarsipkan.": "Goal archived.",
   "Target belum diarsipkan. Coba lagi.": "Goal could not be archived. Try again.",
-  "CSV tidak dapat dibaca. Gunakan format ekspor FinTrack.": "CSV could not be read. Use the FinTrack export format.",
+  "CSV tidak dapat dibaca. Gunakan format ekspor DuitLo.": "CSV could not be read. Use the DuitLo export format.",
   "Tidak ada transaksi unik untuk diimpor.": "There are no unique transactions to import.",
   "CSV tidak dapat diimpor. Coba lagi.": "CSV could not be imported. Try again.",
   "Atur anggaran": "Manage budget",
@@ -1364,7 +1364,7 @@ const englishTranslations: Record<string, string> = {
   "Lanjutkan penyiapan data keuanganmu": "Continue setting up your financial data",
   "Tutup pengingat penyiapan": "Dismiss setup reminder",
   "{count} dari 2 langkah data selesai": "{count} of 2 data steps complete",
-  "Selesaikan penyiapan FinTrack": "Finish setting up FinTrack",
+  "Selesaikan penyiapan DuitLo": "Finish setting up DuitLo",
   "Tambahkan data berikutnya agar dashboard mulai menunjukkan kondisi keuanganmu.": "Add the next data point so your dashboard can start showing your financial position.",
   "Sembunyikan pengingat penyiapan": "Hide setup reminder",
   Pendapatan: "Income",
@@ -1378,7 +1378,7 @@ const englishTranslations: Record<string, string> = {
   "Cek saldo {name}": "Check {name} balance",
   "Tambahkan akun utama": "Add your main account",
   "Terakhir diperbarui {date}.": "Last updated {date}.",
-  "Satukan saldo bank dan e-wallet di FinTrack.": "Bring your bank and e-wallet balances together in FinTrack.",
+  "Satukan saldo bank dan e-wallet di DuitLo.": "Bring your bank and e-wallet balances together in DuitLo.",
   "Buat target keuangan": "Create a financial goal",
   "{percentage}% dari target {amount}{additional}.": "{percentage}% of the {amount} target{additional}.",
   target: "goal",
@@ -1389,7 +1389,7 @@ const englishTranslations: Record<string, string> = {
   "Memuat aplikasi": "Loading app",
   "Penyiapan lingkungan": "Environment setup",
   "Supabase belum dikonfigurasi": "Supabase is not configured",
-  "Tambahkan URL proyek dan anon key browser-safe ke .env.local. FinTrack menghentikan akses data sampai konfigurasi valid.": "Add the project URL and browser-safe anonymous key to .env.local. FinTrack blocks data access until the configuration is valid.",
+  "Tambahkan URL proyek dan anon key browser-safe ke .env.local. DuitLo menghentikan akses data sampai konfigurasi valid.": "Add the project URL and browser-safe anonymous key to .env.local. DuitLo blocks data access until the configuration is valid.",
   "Muat ulang konfigurasi": "Reload configuration",
   "Sesi belum tersedia offline": "Session is not available offline",
   "Sambungkan internet untuk memverifikasi sesi. Data privat tidak dibuka tanpa sesi lokal yang valid.": "Connect to the internet to verify your session. Private data is not opened without a valid local session.",
@@ -1399,7 +1399,7 @@ const englishTranslations: Record<string, string> = {
   "Data yang sudah terbuka tetap bisa dibaca. Perubahan baru menunggu koneksi kembali.": "Data that is already open can still be read. New changes wait until you are back online.",
   "Versi baru tersedia": "A new version is available",
   "Muat ulang untuk memakai pembaruan terbaru.": "Reload to use the latest update.",
-  "Pasang FinTrack": "Install FinTrack",
+  "Pasang DuitLo": "Install DuitLo",
   "Buka lebih cepat dari layar utama dan nikmati tampilan penuh seperti aplikasi.": "Open it faster from your home screen and enjoy a full app-like view.",
   "Ingatkan nanti": "Remind me later",
   "Streak review harian": "Daily review streak",
@@ -1435,7 +1435,7 @@ const englishTranslations: Record<string, string> = {
   "Rata-rata selesai dalam kurang dari satu menit.": "It takes less than a minute on average.",
   "Selamat datang": "Welcome",
   "Apa yang ingin kamu rapikan dulu?": "What would you like to organize first?",
-  "Pilihan ini hanya membantu FinTrack memberi konteks yang lebih pas. Kamu tetap mendapat semua fitur.": "This only helps FinTrack give you more relevant context. You still get every feature.",
+  "Pilihan ini hanya membantu DuitLo memberi konteks yang lebih pas. Kamu tetap mendapat semua fitur.": "This only helps DuitLo give you more relevant context. You still get every feature.",
   "Akun pertama": "First account",
   "Di mana uangmu paling sering bergerak?": "Where does your money move most often?",
   "Mulai dari rekening atau e-wallet utama. Akun lain bisa ditambahkan kapan saja.": "Start with your main bank account or e-wallet. You can add other accounts at any time.",
@@ -1453,8 +1453,8 @@ const englishTranslations: Record<string, string> = {
   // Offline page
   "Mode offline": "Offline mode",
   "Koneksi sedang terputus": "Connection lost",
-  "FinTrack belum bisa memuat halaman baru. Halaman yang sudah terbuka tetap dapat dilihat selama tersedia di perangkat ini.":
-    "FinTrack cannot load new pages right now. Pages already open can still be viewed as long as they are cached on this device.",
+  "DuitLo belum bisa memuat halaman baru. Halaman yang sudah terbuka tetap dapat dilihat selama tersedia di perangkat ini.":
+    "DuitLo cannot load new pages right now. Pages already open can still be viewed as long as they are cached on this device.",
   "Yang bisa dilakukan": "What you can do",
   "Periksa Wi-Fi atau data seluler, lalu coba lagi. Tidak ada data yang dihapus saat koneksi terputus.":
     "Check your Wi-Fi or cellular data, then try again. No data is lost when connection drops.",

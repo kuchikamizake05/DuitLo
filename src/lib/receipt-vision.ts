@@ -97,7 +97,7 @@ export function buildGeminiReceiptRequest({
         parts: [
           {
             text: [
-              "Kamu adalah asisten pembaca struk/bukti transaksi untuk FinTrack.",
+              "Kamu adalah asisten pembaca struk/bukti transaksi untuk DuitLo.",
               "Ekstrak data bukti transaksi dalam format JSON terstruktur.",
               "Panduan:",
               "- date: Format YYYY-MM-DD. Jika hanya tanggal dan bulan, gunakan tahun saat ini jika masuk akal.",

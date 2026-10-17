@@ -19,9 +19,9 @@ export function buildPasskeyDeviceStorageKey(userId: string) {
 }
 
 export function maskPasskeyEmail(email: string | null | undefined) {
-  if (!email) return "Akun FinTrack";
+  if (!email) return "Akun DuitLo";
   const [local, domain] = email.split("@");
-  if (!local || !domain) return "Akun FinTrack";
+  if (!local || !domain) return "Akun DuitLo";
   return `${local.slice(0, 2)}${"•".repeat(Math.max(2, Math.min(6, local.length - 2)))}@${domain}`;
 }
 

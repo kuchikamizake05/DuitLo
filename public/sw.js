@@ -1,4 +1,4 @@
-const STATIC_CACHE = "fintrack-static-v10";
+const STATIC_CACHE = "fintrack-static-v11";
 const SHARE_CACHE = "fintrack-shared-receipts-v2";
 const PRECACHE_URLS = [
   "/offline",
@@ -43,7 +43,7 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     const offlineFallback = () => caches.match("/offline").then((response) => (
-      response || new Response("FinTrack sedang offline.", {
+      response || new Response("DuitLo sedang offline.", {
         status: 503,
         headers: { "Content-Type": "text/plain; charset=utf-8" },
       })

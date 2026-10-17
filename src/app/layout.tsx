@@ -43,9 +43,9 @@ export async function generateViewport(): Promise<Viewport> {
 }
 
 export const metadata: Metadata = {
-  title: "FinTrack - Personal Finance Dashboard",
+  title: "DuitLo - Personal Finance Dashboard",
   description: "Pantau arus kas, investasi, dan trading dalam satu ruang keuangan pribadi yang tenang.",
-  applicationName: "FinTrack",
+  applicationName: "DuitLo",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/icons/fintrack-v2/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "FinTrack" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "DuitLo" },
 };
 
 export default function RootLayout({

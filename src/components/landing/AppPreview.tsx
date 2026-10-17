@@ -9,8 +9,8 @@ const labels: Record<PreviewTab, [string, string]> = {
 };
 export default function AppPreview({ tab = "overview", english = false, hero = false }: { tab?: PreviewTab; english?: boolean; hero?: boolean }) {
   const phone = (screen: PreviewTab, secondary = false) => <Image key={screen}
-    src={`/images/landing/${screen}.webp`}
-    alt={`${labels[screen][english ? 1 : 0]} — FinTrack ${english ? "in light mode" : "dalam mode light"}`}
+    src={`/images/landing/${screen}-duitlo.webp`}
+    alt={`${labels[screen][english ? 1 : 0]} — DuitLo ${english ? "in light mode" : "dalam mode light"}`}
     width={708} height={1442}
     sizes={hero ? "(max-width: 600px) 270px, 330px" : "(max-width: 600px) 280px, 320px"}
     preload={hero && !secondary}

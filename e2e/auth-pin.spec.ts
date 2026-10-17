@@ -5,12 +5,12 @@ import {buildPasskeyDeviceStorageKey} from "../src/lib/passkeys";
 async function lockedDevice(page: import("@playwright/test").Page,theme:"light"|"dark"){
  await mockReference(page,theme);
  let record="";await configureDevicePin(user.id,"123456",{getItem:()=>record||null,setItem:(_key,value)=>{record=value;},removeItem:()=>{record="";}});
- await page.addInitScript(({record,pinKey,stateKey,id})=>{localStorage.setItem(pinKey,record);localStorage.setItem(stateKey,JSON.stringify({version:1,userId:id,emailHint:"qa••@fintrack.local",enabled:true,locked:true,updatedAt:"2026-10-14T00:00:00Z"}));},{record,pinKey:devicePinKey(user.id),stateKey:buildPasskeyDeviceStorageKey(user.id),id:user.id});
+ await page.addInitScript(({record,pinKey,stateKey,id})=>{localStorage.setItem(pinKey,record);localStorage.setItem(stateKey,JSON.stringify({version:1,userId:id,emailHint:"qa••@duitlo.local",enabled:true,locked:true,updatedAt:"2026-10-14T00:00:00Z"}));},{record,pinKey:devicePinKey(user.id),stateKey:buildPasskeyDeviceStorageKey(user.id),id:user.id});
 }
 for(const theme of ["light","dark"] as const){
  test(`normal login follows the ${theme} application palette`,async({page},info)=>{
   await mockSupabase(page,false);await page.addInitScript(value=>localStorage.setItem("fintrack-theme",value),theme);await page.goto("/login");
-  const card=page.getByRole("region",{name:"Masuk ke FinTrack",exact:true});await expect(card).toBeVisible();
+  const card=page.getByRole("region",{name:"Masuk ke DuitLo",exact:true});await expect(card).toBeVisible();
   await expect(card).toHaveCSS("background-color","rgba(0, 0, 0, 0)");
   await expect(page.getByLabel("Alamat email")).toHaveCSS("background-color",theme==="dark"?"rgb(28, 29, 32)":"rgb(255, 255, 255)");
   await expect(page.getByLabel("Alamat email")).toHaveCSS("border-top-width","1px");
@@ -24,7 +24,7 @@ for(const theme of ["light","dark"] as const){
  });
  test(`PIN unlock verifies attempts and follows ${theme} mode`,async({page},info)=>{
   await lockedDevice(page,theme);await page.goto("/dashboard");
-  const card=page.getByRole("region",{name:"Buka FinTrack",exact:true});await expect(card).toBeVisible();
+  const card=page.getByRole("region",{name:"Buka DuitLo",exact:true});await expect(card).toBeVisible();
   await expect(card.getByRole("button",{name:"Buka dengan biometrik",exact:true})).toBeVisible();
   await page.screenshot({path:`.frontend/auth-pin-${theme}-${info.project.name}.png`,fullPage:true});
   await page.getByLabel("PIN perangkat",{exact:true}).fill("654321");

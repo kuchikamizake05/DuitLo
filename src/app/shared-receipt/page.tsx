@@ -284,7 +284,7 @@ function SharedReceiptContent({shareId}:{shareId:string|null}) {
         <PageHeader
           eyebrow="Shared receipt"
           title="Tinjau bukti pembayaran"
-          description="FinTrack belum mengubah saldo. Periksa detailnya, lalu simpan sebagai transaksi yang perlu ditinjau."
+          description="DuitLo belum mengubah saldo. Periksa detailnya, lalu simpan sebagai transaksi yang perlu ditinjau."
         />
 
         {loading ? (

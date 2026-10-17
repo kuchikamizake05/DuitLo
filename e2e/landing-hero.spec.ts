@@ -4,7 +4,7 @@ test("landing hero keeps the headline compact and CTA above the fold", async ({ 
   await page.goto("/");
 
   const emphasizedHeadline = page.locator("#overview h1");
-  const primaryCta = page.getByRole("link", { name: "Mulai dengan FinTrack", exact: true });
+  const primaryCta = page.getByRole("link", { name: "Mulai dengan DuitLo", exact: true });
 
   await expect(emphasizedHeadline).toBeVisible();
   await expect(primaryCta).toBeVisible();

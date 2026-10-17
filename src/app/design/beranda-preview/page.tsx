@@ -38,8 +38,8 @@ export default function BerandaPreview() {
     <div className="min-h-dvh bg-[var(--canvas-soft)] font-sans text-slate-900 selection:bg-[#dcf3a0]">
       <div className="mx-auto max-w-[1100px] lg:grid lg:grid-cols-[1fr_440px] lg:gap-20 lg:px-12">
         <aside className="hidden self-start pt-28 lg:sticky lg:top-0 lg:block">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#587060]">{t("FinTrack / revisi tahap 01")}</p>
-          <h1 className="mt-6 text-5xl font-extrabold leading-[1.15] tracking-tight">{t("Tetap FinTrack.")}<br />{t("Lebih tertata.")}</h1>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#587060]">{t("DuitLo / revisi tahap 01")}</p>
+          <h1 className="mt-6 text-5xl font-extrabold leading-[1.15] tracking-tight">{t("Tetap DuitLo.")}<br />{t("Lebih tertata.")}</h1>
           <p className="mt-6 max-w-sm text-base leading-7 text-[#526759]">{t("Identitas yang sudah kamu kenal, dengan susunan informasi dan akses fitur yang lebih mudah dipahami.")}</p>
           <div className="mt-10 space-y-5 border-t border-[#bccbbf] pt-7 text-sm">
             <p><strong className="mr-4 text-[#63806b]">01</strong>{t("Anggaran yang bisa dipakai")}</p>
@@ -56,7 +56,7 @@ export default function BerandaPreview() {
               {/* Same local brand asset used by BrandLogo; plain image also works in the standalone preview. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/brand/fintrack-logo-inverted.png" width={28} height={28} alt="" className="rounded-full object-cover" />
-            </span><span className="text-xl font-black tracking-[-0.06em]">{t("FinTrack")}</span></div>
+            </span><span className="text-xl font-black tracking-[-0.06em]">{t("DuitLo")}</span></div>
             <button onClick={() => open("Profil")} aria-label={t("Buka profil")} className="grid size-[42px] place-items-center rounded-full bg-[var(--brand-ink)] text-[var(--brand-lime)] shadow-[0_6px_0_rgba(18,53,36,0.10)]"><UserRound size={18} /></button>
           </header>
 

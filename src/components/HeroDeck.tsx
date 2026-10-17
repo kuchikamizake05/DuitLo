@@ -20,7 +20,7 @@ export default function HeroDeck() {
     { title: id ? "Dana darurat" : "Emergency fund", value: "78%", caption: id ? "Rp15.600.000 dari Rp20.000.000" : "Rp15,600,000 of Rp20,000,000", bars: [18,28,38,48,58,68,78] },
   ];
   const move = (step: number) => setActive(current => (current + step + 3) % 3);
-  return <div ref={ref} className={styles.heroDeck} role="region" aria-label={id ? "Preview interaktif FinTrack" : "Interactive FinTrack preview"}>
+  return <div ref={ref} className={styles.heroDeck} role="region" aria-label={id ? "Preview interaktif DuitLo" : "Interactive DuitLo preview"}>
     <motion.div className={styles.deckStage} style={reduced ? undefined : { rotateX: tilt, y }}>
       {cards.map((card,index) => {
         const position = (index - active + 3) % 3;
@@ -29,7 +29,7 @@ export default function HeroDeck() {
           transition={reduced ? {duration:0} : {type:"spring",stiffness:220,damping:25}}
           drag={position === 0 ? "x" : false} dragConstraints={{left:0,right:0}} dragElastic={.65}
           onDragEnd={(_,info) => {if(info.offset.x < -45) move(1); else if(info.offset.x > 45) move(-1);}}>
-          <div className={styles.deckTop}><span>FinTrack</span><WalletCards size={23} aria-hidden="true" /></div>
+          <div className={styles.deckTop}><span>DuitLo</span><WalletCards size={23} aria-hidden="true" /></div>
           <p>{card.title}</p><strong>{card.value}</strong>
           <div className={styles.deckChart} aria-hidden="true">{card.bars.map((height,i) => <i key={i} style={{height:`${height}%`}} />)}</div>
           <small>{card.caption}</small>

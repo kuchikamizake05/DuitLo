@@ -29,5 +29,5 @@ for(const theme of ["light","dark"] as const)test(`English routes and forms in $
 
 test("public pages use English without an authenticated session",async({page})=>{
  await mockReference(page,"dark");await page.addInitScript(()=>{for(const key of Object.keys(localStorage))if(key.startsWith("sb-"))localStorage.removeItem(key);localStorage.setItem("fintrack-language","en");});
- for(const path of ["/login","/onboarding","/offline"]){await page.goto(path);await expect(page.locator("html")).toHaveAttribute("lang","en");await expect(page.locator("main").first()).toBeVisible();const text=await page.locator("body").innerText();expect(text).not.toMatch(/Kembali ke dashboard|Koneksi sedang terputus|Masuk ke FinTrack|Buat akun baru/);}
+ for(const path of ["/login","/onboarding","/offline"]){await page.goto(path);await expect(page.locator("html")).toHaveAttribute("lang","en");await expect(page.locator("main").first()).toBeVisible();const text=await page.locator("body").innerText();expect(text).not.toMatch(/Kembali ke dashboard|Koneksi sedang terputus|Masuk ke DuitLo|Buat akun baru/);}
 });

@@ -859,3 +859,19 @@
   .showcase .sectionHeading, .sequenceCopy { padding-inline:20px; }
   .sequenceScreen { width:calc(100% + 20px); margin-inline:-10px; }
 }
+
+.installLink { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--lp-accent); font: inherit; white-space: nowrap; }
+.desktopNav { align-items: center; }
+@media (min-width: 821px) { .desktopNav { gap: 16px; font-size: 14px; } }
+@media (max-width: 820px) { .mobileInstall { grid-column: 1 / -1; grid-row: 2; justify-self: center; margin-top: 6px; font-size: 14px; } .nav .mobileNav > .mobileNavCta { grid-row: 3; margin-top: 4px; } }
+
+@media (min-width: 821px) and (max-width: 1000px) {
+  .desktopNav { display: none; }
+  .navActions { margin-left: auto; }
+  .menuButton { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--lp-ink); }
+  .mobileNav { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mobileNavColumn { display: grid; }
+  .mobileLanguageColumn { justify-self: end; }
+  .mobileInstall { justify-self: start; padding-inline: 12px; }
+  .mobileNav > .mobileNavCta { grid-column: 1 / -1; justify-self: center; }
+}

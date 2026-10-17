@@ -9,5 +9,5 @@ export default async function ErrorProbePage() {
 
   if (!enabled || requestHeaders.get("x-fintrack-e2e-error-surface") !== "segment") notFound();
 
-  throw new Error("FinTrack e2e segment error");
+  throw new Error("DuitLo e2e segment error");
 }

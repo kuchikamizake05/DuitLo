@@ -30,7 +30,7 @@ describe("passkey device state", () => {
 
   it("masks display email without retaining full local part", () => {
     expect(maskPasskeyEmail("qa@fintrack.local")).toBe("qa••@fintrack.local");
-    expect(maskPasskeyEmail(null)).toBe("Akun FinTrack");
+    expect(maskPasskeyEmail(null)).toBe("Akun DuitLo");
   });
 });
 
