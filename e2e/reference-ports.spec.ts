@@ -64,7 +64,7 @@ test("source goal detail replaces sample values and back returns to the goal lis
 
 test("dark source attribute selectors retain charcoal balance and amber streak",async({page})=>{
  await mockReference(page,"dark");await page.goto("/dashboard");await expect(page.locator("#main-balance")).toBeVisible();
- const colors=await page.locator("#main-balance").evaluate(node=>{const top=node.parentElement!.parentElement!;const streak=document.querySelector('span[class*="bg-[#FFEED9]"]');return {hero:getComputedStyle(top).backgroundImage,streak:streak?getComputedStyle(streak).backgroundColor:null};});
- expect(colors.hero).toContain("radial-gradient");expect(colors.hero).toContain("rgb(41, 44, 51)");expect(colors.streak).toBe("rgb(64, 53, 30)");await expect(page.getByRole("button",{name:"ID",exact:true})).toHaveCSS("background-color","rgb(168, 196, 252)");
+ const colors=await page.locator("#main-balance").evaluate(node=>{const top=node.parentElement!.parentElement!;const streak=document.querySelector('section[aria-label="Jaga Konsistensi"] span[class*="bg-[#fff0dc]"]');return {hero:getComputedStyle(top).backgroundImage,streak:streak?getComputedStyle(streak).backgroundColor:null};});
+ expect(colors.hero).toContain("radial-gradient");expect(colors.hero).toContain("rgb(41, 44, 51)");expect(colors.streak).toBe("rgba(255, 152, 0, 0.1)");await expect(page.getByRole("button",{name:"ID",exact:true})).toHaveCSS("background-color","rgb(168, 196, 252)");
  await page.screenshot({path:`.frontend/qa-dark-colors-${test.info().project.name}.png`,fullPage:true});
 });

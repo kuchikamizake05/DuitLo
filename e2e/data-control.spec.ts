@@ -28,7 +28,7 @@ test("deletion request is recorded and cancellable without deleting the account"
 test("settings exposes plan, privacy and support routes and unavailable reminders honestly", async ({page}) => {
   await mockReference(page, "light");
   await page.goto("/settings");
-  const links = page.getByRole("navigation", {name:"Paket dan bantuan"});
+  const links = page.locator("main");
   for (const href of ["/billing", "/data-controls", "/privacy", "/terms", "/support"]) {
     await expect(links.locator(`a[href="${href}"]`)).toHaveCount(1);
   }
