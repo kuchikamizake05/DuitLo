@@ -393,6 +393,11 @@ html.dark {
   --shadow-elevated:0 8px 24px #0004
 }
 
+.receipt-photo-loading {
+  background: color-mix(in srgb, var(--brand-lime) 12%, transparent);
+  color: var(--ink);
+}
+
 body,.app-page {
   background:var(--canvas);
   color:var(--ink)
