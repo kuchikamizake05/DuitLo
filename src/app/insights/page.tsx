@@ -134,7 +134,7 @@ export default function InsightsPage() {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session) throw sessionError ?? new Error("Sesi login tidak ditemukan.");
       const bounds = monthBounds(month, dateLocale);
-      const [currentResult, previousResult, accountsResult] = await Promise.all([
+      const [currentResult, previousResult, accountsResult, budgetResult] = await Promise.all([
         fetchAllRows((from, to) => supabase
           .from("transactions")
           .select("id, date, type, category, amount, status, account_id", { count: "exact" })
@@ -159,7 +159,11 @@ export default function InsightsPage() {
           .from("financial_accounts")
           .select("id, currency, reporting_balance_idr, is_active")
           .eq("user_id", session.user.id)
-          .eq("is_active", true),
+          .eq("is_active", true)
+          .abortSignal(controller.signal),
+        supabase.from("financial_budgets").select("limit_amount")
+          .eq("user_id", session.user.id).eq("month", bounds.currentStart)
+          .abortSignal(controller.signal),
       ]);
       if (currentResult.error) throw currentResult.error;
       if (previousResult.error) throw previousResult.error;
@@ -194,7 +198,6 @@ export default function InsightsPage() {
         : [];
       const daysInMonth = getDaysInMonth(bounds.selected);
       const sampleDays = [...new Set([1, 7, 13, 19, 25, daysInMonth])].filter((day) => day <= daysInMonth);
-      const budgetResult = await supabase.from("financial_budgets").select("limit_amount").eq("user_id",session.user.id).eq("month",bounds.currentStart).abortSignal(controller.signal);
       setBudgetTotal(budgetResult.error || !budgetResult.data?.length ? null : (budgetResult.data??[]).reduce((sum,item)=>sum+Number(item.limit_amount),0));
       const incomeTotals = new Map<string,number>();
       convertedCurrent.filter(tx=>tx.type==="income"&&tx.status==="confirmed").forEach(tx=>incomeTotals.set(tx.category,(incomeTotals.get(tx.category)??0)+Number(tx.amount)));

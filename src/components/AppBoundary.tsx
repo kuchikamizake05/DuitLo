@@ -1,4 +1,5 @@
 "use client";
+import { clearFinancialViewCache } from "@/lib/financial-view-cache";
 
 import { Fragment, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Session } from "@supabase/supabase-js";
@@ -64,6 +65,7 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
       if (!active) return;
       const previousOwner = sessionRef.current?.user.id ?? null;
       const nextOwner = nextSession?.user.id ?? null;
+      if (previousOwner !== nextOwner || !nextOwner) clearFinancialViewCache();
       setPendingReceiptOwner(nextOwner);
       if (previousOwner && previousOwner !== nextOwner) void clearPrivateReceiptState(previousOwner).catch(() => undefined);
       setSession(nextSession);
@@ -73,12 +75,14 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
     });
 
     const updateFromStorage = () => updatePasskeyLock(sessionRef.current);
+    window.addEventListener("fintrack:data-changed", clearFinancialViewCache);
     window.addEventListener("storage", updateFromStorage);
     window.addEventListener(PASSKEY_STATE_CHANGE_EVENT, updateFromStorage);
 
     return () => {
       active = false;
       subscription.subscription.unsubscribe();
+      window.removeEventListener("fintrack:data-changed", clearFinancialViewCache);
       window.removeEventListener("storage", updateFromStorage);
       window.removeEventListener(PASSKEY_STATE_CHANGE_EVENT, updateFromStorage);
     };

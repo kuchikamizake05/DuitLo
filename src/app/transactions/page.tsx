@@ -1,4 +1,6 @@
 "use client";
+import { transactionPeriod } from "@/lib/transaction-period";
+import { clearFinancialViewCache, financialViewCacheRevision, readFinancialView, writeFinancialView } from "@/lib/financial-view-cache";
 import { fetchAllRows } from "@/lib/paginated-query";
 import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import {createTransactionOnce,TransactionWriteConflict} from "@/lib/transaction-write";
@@ -142,6 +144,7 @@ export default function TransactionsPage() {
   const chosenDate = parseTransactionDate(searchParams.get("date"));
   const autoOpenedRef = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const saveLock=useRef(false);
   const draftId=useRef<string|null>(null);
@@ -167,6 +170,8 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [financialAccounts, setFinancialAccounts] = useState<FinancialAccount[]>([]);
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
+  const loadedRef = useRef(false);
+  const requestRef = useRef(0);
   const [filters, setFilters] = useState<TransactionFilters>(() => ({ ...defaultFilters, startDate: chosenDate ?? "", endDate: chosenDate ?? "" }));
   const [dateFiltersOpen, setDateFiltersOpen] = useState(Boolean(chosenDate));
   const [modalOpen, setModalOpen] = useState(false);
@@ -188,8 +193,14 @@ export default function TransactionsPage() {
     return () => window.clearTimeout(timer);
   }, [chosenDate]);
 
+  const period = transactionPeriod(filters.startDate, filters.endDate);
+  const detailId = searchParams.get("view") === "detail" ? searchParams.get("id") : null;
   const fetchTransactions = useCallback(async () => {
-    setLoading(true);
+    const requestId = ++requestRef.current;
+    if (loadedRef.current) clearFinancialViewCache();
+    const revision = financialViewCacheRevision();
+    setLoading(!loadedRef.current);
+    setRefreshing(true);
     setPageError(null);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -199,11 +210,25 @@ export default function TransactionsPage() {
         return;
       }
 
-      const [transactionResult, accountResult, categoryResult] = await Promise.all([
+      const viewKey = `activity:${period.start}:${period.end}:${detailId ?? ""}`;
+      type Snapshot = { transactions: Transaction[]; accounts: FinancialAccount[]; categories: CategoryRecord[] };
+      const cached = !loadedRef.current ? readFinancialView<Snapshot>(user.id, viewKey) : undefined;
+      if (cached && requestId === requestRef.current) {
+        setQueueUserId(user.id);
+        setTransactions(cached.transactions);
+        setFinancialAccounts(cached.accounts);
+        setCategories(cached.categories);
+        loadedRef.current = true;
+        setLoading(false);
+      }
+
+      const [transactionResult, accountResult, categoryResult, detailResult] = await Promise.all([
         fetchAllRows((from, to) => supabase
           .from("transactions")
           .select("*", { count: "exact" })
           .eq("user_id", user.id)
+          .gte("date", period.start)
+          .lte("date", period.end)
           .order("date", { ascending: false })
           .order("created_at", { ascending: false })
           .order("id", { ascending: false })
@@ -217,22 +242,31 @@ export default function TransactionsPage() {
           .from("categories")
           .select("id, user_id, name, type, icon, color, created_at")
           .order("name", { ascending: true }),
+        detailId ? supabase.from("transactions").select("*").eq("user_id", user.id).eq("id", detailId) : Promise.resolve({ data: [], error: null }),
       ]);
+
+      if (requestId !== requestRef.current) return;
 
       if (transactionResult.error) throw transactionResult.error;
       if (accountResult.error) throw accountResult.error;
       if (categoryResult.error) throw categoryResult.error;
+      if (detailResult.error) throw detailResult.error;
+      const rows = transactionResult.data as Transaction[];
+      for (const item of (detailResult.data ?? []) as Transaction[]) if (!rows.some(row => row.id === item.id)) rows.push(item);
+      writeFinancialView(user.id, viewKey, { transactions: rows, accounts: accountResult.data ?? [], categories: categoryResult.data ?? [] }, revision);
+      loadedRef.current = true;
       setQueueUserId(user.id);
-      setTransactions((transactionResult.data ?? []) as Transaction[]);
+      setTransactions(rows);
       setFinancialAccounts((accountResult.data ?? []) as FinancialAccount[]);
       setCategories((categoryResult.data ?? []) as CategoryRecord[]);
     } catch (error) {
+      if (requestId !== requestRef.current) return;
       reportHandledError("Transactions unavailable", error, "Data transaksi belum berhasil dimuat.");
       setPageError("Data transaksi belum berhasil dimuat. Coba lagi beberapa saat lagi.");
     } finally {
-      setLoading(false);
+      if (requestId === requestRef.current) { setLoading(false); setRefreshing(false); }
     }
-  }, []);
+  }, [period.start, period.end, detailId]);
 
   useFinancialRefresh(fetchTransactions);
   useEffect(() => {
@@ -714,7 +748,7 @@ export default function TransactionsPage() {
   return (
     <ReferenceRoot page="aktivitas">
       <Navbar />
-      {pageError&&<p role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</p>}{loading?<main className="pt-20 px-margin" aria-busy="true"><PageSkeleton variant="activity"/></main>:!pageError&&<ActivityView transactions={displayedTransactions} filtered={filteredTx} accounts={financialAccounts} filters={filters} setFilters={next=>{setFilters(next);if(chosenDate&&(next.startDate!==chosenDate||next.endDate!==chosenDate)){const params=new URLSearchParams(searchParams.toString());params.delete("date");router.replace(`/transactions${params.size?`?${params}`:""}`,{scroll:false});}}} initialDate={chosenDate} onOpen={tx=>{const actual=displayedTransactions.find(item=>item.id===tx.id);if(actual)setDetailTx(actual);}} onAdd={date=>{openAdd();if(date)setForm(current=>({...current,date}));}} onExport={ids=>{const selected=new Set(ids);downloadCsv(serializeRichTransactionCsv(buildFinancialReport(transactions.filter(tx=>selected.has(tx.id)),accountNames,accountCurrencies,reportRates)),`duitlo-transaksi-${formatLocalDate(new Date())}.csv`);}} onPrint={ids=>void printReport(ids)}/>}
+      {pageError&&<p role="alert" className="fixed top-16 inset-x-5 z-40 rounded-2xl bg-error-container p-3 text-error">{pageError}</p>}{loading?<main className="pt-20 px-margin" aria-busy="true"><PageSkeleton variant="activity"/></main>:!pageError&&<ActivityView busy={refreshing} transactions={displayedTransactions} filtered={filteredTx} accounts={financialAccounts} filters={filters} setFilters={next=>{setFilters(next);if(chosenDate&&(next.startDate!==chosenDate||next.endDate!==chosenDate)){const params=new URLSearchParams(searchParams.toString());params.delete("date");router.replace(`/transactions${params.size?`?${params}`:""}`,{scroll:false});}}} initialDate={chosenDate} onOpen={tx=>{const actual=displayedTransactions.find(item=>item.id===tx.id);if(actual)setDetailTx(actual);}} onAdd={date=>{openAdd();if(date)setForm(current=>({...current,date}));}} onExport={ids=>{const selected=new Set(ids);downloadCsv(serializeRichTransactionCsv(buildFinancialReport(transactions.filter(tx=>selected.has(tx.id)),accountNames,accountCurrencies,reportRates)),`duitlo-transaksi-${formatLocalDate(new Date())}.csv`);}} onPrint={ids=>void printReport(ids)}/>}
       {queuedOperations.length>0&&<section aria-label={t("Sinkronisasi transaksi")} className="mx-margin mb-24 rounded-[24px] bg-surface-container-lowest p-space-lg shadow-sm"><h2 className="text-headline-sm font-headline-sm">{t("Sinkronisasi transaksi")}</h2><p role="status" className="mt-2 text-body-sm text-on-surface-variant">{syncingQueue?t("Menyinkronkan data..."):`${pendingQueuedOperations.length} ${t("menunggu sinkronisasi")} · ${conflictQueuedOperations.length} ${t("perlu ditinjau")}`}</p>{queueMessage&&<p className="mt-2 text-body-sm text-on-surface-variant">{t(queueMessage)}</p>}<div className="mt-3 flex flex-col gap-3">{queuedOperations.map(operation=><QueueOperationStatus key={operation.opId} operation={operation} onRetry={retryQueuedOperation} onDiscard={setConflictTarget}/>)}</div></section>}
       <PrintReport report={printIds?buildFinancialReport(transactions.filter(tx=>printIds.includes(tx.id)),accountNames,accountCurrencies,reportRates):report} filterSummary={printIds?t("Transaksi sesuai periode dan filter yang dipilih"):filterSummary}/>
 

@@ -1,4 +1,5 @@
 "use client";
+import { financialViewCacheRevision, readFinancialView, writeFinancialView } from "@/lib/financial-view-cache";
 import { fetchAllRows } from "@/lib/paginated-query";
 import {getNumberFormatter} from "@/lib/intl";
 
@@ -27,7 +28,7 @@ import {
 Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback,useEffect,useState } from "react";
+import { useCallback,useEffect,useRef,useState } from "react";
 
 type Transaction = {
   id: string;
@@ -86,6 +87,7 @@ function withTimeout<T>(promise: PromiseLike<T>, milliseconds: number) {
 }
 
 export default function DashboardPage() {
+  const requestRef = useRef(0);
   const journey = useFinancialJourney();
   const { language, t } = useLanguage();
   const dateLocale = language === "en" ? enUS : id;
@@ -128,6 +130,8 @@ export default function DashboardPage() {
   }, [setupDismissKey]);
 
   const fetchDashboardData = useCallback(async () => {
+    const requestId = ++requestRef.current;
+    const revision = financialViewCacheRevision();
     setLoading(true);
     setLoadError(null);
 
@@ -139,6 +143,14 @@ export default function DashboardPage() {
         setFirstName(String(displayName).split(" ")[0]);
 
         const start = format(startOfMonth(selectedMonth), "yyyy-MM-dd");
+        const viewKey = `dashboard:${start}`;
+        type Snapshot = { transactions: Transaction[]; previous: Array<Pick<Transaction,"amount"|"account_id">>; pending: Transaction[]; accounts: FinancialAccount[]; goals: FinancialGoal[]; budgets: FinancialBudget[] };
+        const cached = readFinancialView<Snapshot>(user.id, viewKey);
+        if (cached && requestId === requestRef.current) {
+          setTransactions(cached.transactions); setPreviousMonthExpenses(cached.previous);
+          setPendingTx(cached.pending); setAccounts(cached.accounts);
+          setGoals(cached.goals); setBudgets(cached.budgets); setLoading(false);
+        }
         const end = format(endOfMonth(selectedMonth), "yyyy-MM-dd");
         const previousMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1);
 
@@ -197,6 +209,7 @@ export default function DashboardPage() {
             .order("category"),
         ]);
 
+        if (requestId !== requestRef.current) return;
         if (txResult.error) throw txResult.error;
         if (previousResult.error) throw previousResult.error;
         if (pendingResult.error) throw pendingResult.error;
@@ -220,12 +233,18 @@ export default function DashboardPage() {
         } else {
           setBudgets((budgetResult.data || []) as FinancialBudget[]);
         }
+        writeFinancialView<Snapshot>(user.id, viewKey, {
+          transactions: (txResult.data ?? []) as Transaction[], previous: (previousResult.data ?? []) as Snapshot["previous"],
+          pending: (pendingResult.data ?? []) as Transaction[], accounts: (accountResult.data ?? []) as FinancialAccount[],
+          goals: (goalResult.data ?? []) as FinancialGoal[], budgets: (budgetResult.data ?? []) as FinancialBudget[],
+        }, revision);
       })(), 12_000);
     } catch (error) {
+      if (requestId !== requestRef.current) return;
       const normalizedError = reportHandledError("Dashboard data unavailable", error, "Data dashboard belum bisa dimuat.");
       setLoadError(normalizedError.message);
     } finally {
-      setLoading(false);
+      if (requestId === requestRef.current) setLoading(false);
     }
   }, [selectedMonth]);
 
