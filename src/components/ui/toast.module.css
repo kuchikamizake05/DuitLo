@@ -14,6 +14,5 @@
 :global(.dark) .toast[data-tone="warning"] { --toast-accent:#956b20; --toast-border:#6b552b; --toast-bg:#302b20; }
 :global(.dark) .toast[data-tone="error"] { --toast-accent:#bd505d; --toast-border:#74424b; --toast-bg:#322429; }
 :global(.dark) .toast .message, :global(.dark) .close { color:#b8bdc4; }
-@media(min-width:640px) { .viewport { inset-inline:auto 20px; top:auto; bottom:20px; width:400px; max-width:calc(100vw - 40px); } }
 @media(prefers-reduced-motion:no-preference) { .toast { animation:toast-enter 180ms ease-out; } }
 @keyframes toast-enter { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
