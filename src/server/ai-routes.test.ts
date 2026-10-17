@@ -9,14 +9,14 @@ vi.mock("@/infrastructure/supabase/server-client", () => ({authenticateSupabaseA
 vi.mock("@/lib/rate-limit", () => ({consumeRouteRateLimit:mocks.limit}));
 vi.mock("@/lib/async", () => ({createTimeoutSignal:()=>({signal:new AbortController().signal,cleanup:()=>{}})}));
 vi.mock("@/lib/shared-receipt", () => ({validateSharedReceiptFile:()=>null}));
-vi.mock("@/lib/receipt-vision", () => ({buildGeminiReceiptRequest:()=>({}),createReceiptRateLimiter:()=>({}),mapGeminiFailure:()=>({message:"safe",status:502}),parseGeminiReceiptResponse:mocks.parse,validateReceiptParseSecurity:()=>({ok:true,accessToken:"token"})}));
+vi.mock("@/lib/receipt-vision", () => ({buildQwenReceiptRequest:()=>({}),createReceiptRateLimiter:()=>({}),mapQwenFailure:()=>({message:"safe",status:502}),parseQwenReceiptResponse:mocks.parse,validateReceiptParseSecurity:()=>({ok:true,accessToken:"token"})}));
 import { POST } from "../app/api/receipts/parse/route";
 function request() {
  const body=new FormData();body.set("file",new File(["image"],"receipt.png",{type:"image/png"}));
  return new NextRequest("https://fintrack.example/api/receipts/parse",{method:"POST",body});
 }
 beforeEach(()=>{
- vi.resetAllMocks(); vi.stubEnv("GEMINI_API_KEY","test");vi.stubGlobal("fetch",mocks.fetch);
+ vi.resetAllMocks(); vi.stubEnv("OPENROUTER_API_KEY","test");vi.stubGlobal("fetch",mocks.fetch);
  mocks.auth.mockResolvedValue({ok:true,user:{id:"owner"}});mocks.limit.mockResolvedValue({allowed:true});mocks.reserve.mockResolvedValue({reserved:true,replayed:false});mocks.finish.mockResolvedValue(undefined);mocks.fetch.mockResolvedValue(new Response("{}"));mocks.parse.mockReturnValue({amount:50000});
 });
 afterEach(()=>{vi.unstubAllEnvs();vi.unstubAllGlobals();});
@@ -47,4 +47,19 @@ it("fails closed when usage storage unavailable",async()=>{
 });
 it("refunds provider rejection without reporting success",async()=>{
  mocks.fetch.mockResolvedValue(new Response("private-body",{status:400}));expect((await POST(request())).status).toBe(502);expect(mocks.finish).toHaveBeenCalledWith("owner",expect.any(String),false);
+});
+
+it("retries retired or unavailable models using the configured Qwen fallback",async()=>{
+ vi.stubEnv("OPENROUTER_RECEIPT_MODEL","qwen/qwen3.7-flash");
+ vi.stubEnv("OPENROUTER_RECEIPT_FALLBACK_MODEL","qwen/qwen3.7-plus");
+ mocks.fetch.mockResolvedValueOnce(new Response("retired model",{status:404})).mockResolvedValueOnce(new Response("{}"));
+ const response=await POST(request());
+ expect(response.status).toBe(200);
+ expect(mocks.fetch).toHaveBeenCalledTimes(2);
+ expect(mocks.fetch.mock.calls[0][0]).toBe("https://openrouter.ai/api/v1/chat/completions");
+ expect(JSON.parse(mocks.fetch.mock.calls[0][1].body).model).toBe("qwen/qwen3.7-flash");
+ expect(JSON.parse(mocks.fetch.mock.calls[1][1].body).model).toBe("qwen/qwen3.7-plus");
+ expect(await response.json()).toMatchObject({model:"qwen/qwen3.7-plus"});
+ expect(mocks.finish).toHaveBeenCalledTimes(1);
+ expect(mocks.finish).toHaveBeenCalledWith("owner",expect.any(String),true);
 });

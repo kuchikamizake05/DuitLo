@@ -56,7 +56,7 @@ The interface supports Indonesian and English, light and dark themes, and mobile
 | --- | --- |
 | Home and wallets | Review balances, cash flow, recent activity, and accounts across currencies. |
 | Transactions | Record income and expenses, search activity, manage categories, and transfer between wallets. |
-| Receipt capture | Extract receipt data with Gemini and review the result before recording it. |
+| Receipt capture | Extract receipt data with Qwen Vision and review the result before recording it. |
 | Budgets and goals | Plan monthly category spending, set savings targets, and record goal deposits. |
 | Reports and insights | Review spending patterns, access report archives, and request optional AI explanations of calculated metrics. |
 | Investment journal | Record buys and sells, fees, cost basis, realized results, and portfolio snapshots. |
@@ -80,7 +80,7 @@ flowchart LR
     App --> DB[Postgres + row-level security]
     App --> Storage[Private Supabase Storage]
     App --> API[Authenticated server APIs]
-    API --> AI[Gemini / Groq — optional]
+    API --> AI[Qwen / Groq — optional]
     API --> Billing[Xendit — optional]
     Worker[Monthly report worker] --> DB
     Worker --> Storage
@@ -92,7 +92,7 @@ flowchart LR
 | Interface | Tailwind CSS 4, Lucide React, Motion, Recharts |
 | Forms and validation | React Hook Form, Zod |
 | Identity and storage | Supabase Auth, PostgreSQL, Storage |
-| Optional integrations | Gemini, Groq, Xendit, n8n, Telegram |
+| Optional integrations | OpenRouter (Qwen), Groq, Xendit, n8n, Telegram |
 | Report automation | Go worker and GitHub Actions |
 | Verification | Vitest, Playwright, ESLint, TypeScript, database integrity checks |
 

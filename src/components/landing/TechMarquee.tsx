@@ -4,9 +4,9 @@ import { useLanguage } from "@/components/LanguageProvider";
 import styles from "./landing.module.css";
 const rows = [
   ["Next.js", "React", "TypeScript", "Tailwind CSS", "Motion", "Lucide"],
-  ["Supabase", "PostgreSQL", "Gemini AI", "Vercel", "Zod", "pnpm"],
+  ["Supabase", "PostgreSQL", "Qwen AI", "Vercel", "Zod", "pnpm"],
 ];
-const logos: Record<string, string> = { "Next.js": "nextdotjs", React: "react", TypeScript: "typescript", "Tailwind CSS": "tailwindcss", Motion: "motion", Lucide: "lucide", Supabase: "supabase", PostgreSQL: "postgresql", "Gemini AI": "googlegemini", Vercel: "vercel", Zod: "zod", pnpm: "pnpm" };
+const logos: Record<string, string> = { "Next.js": "nextdotjs", React: "react", TypeScript: "typescript", "Tailwind CSS": "tailwindcss", Motion: "motion", Lucide: "lucide", Supabase: "supabase", PostgreSQL: "postgresql", "Qwen AI": "qwen", Vercel: "vercel", Zod: "zod", pnpm: "pnpm" };
 export default function TechMarquee() {
   const { language } = useLanguage();
   const english = language === "en";

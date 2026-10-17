@@ -10,10 +10,13 @@ Set these in Vercel. Never prefix any with `NEXT_PUBLIC_`.
 - `N8N_TRADE_REVIEW_SHARED_SECRET`
 - `GROQ_API_KEY`
 - `GROQ_INSIGHTS_MODEL`
-- `GEMINI_API_KEY`
-- `GEMINI_RECEIPT_MODEL`
+- `OPENROUTER_API_KEY`
+- `OPENROUTER_RECEIPT_MODEL`
+- `OPENROUTER_RECEIPT_FALLBACK_MODEL`
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
+
+Production and preview may share a Redis database; rate-limit keys include the Vercel environment so their allowances stay separate. Configure both Redis variables in each Vercel environment and redeploy after changing them. A missing or unavailable Redis connection returns 503 before contacting the AI provider.
 
 `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are browser-visible. Verify neither points to development project during production release. Never print secrets, environment output, bearer tokens, receipt payloads, or Supabase service-role keys.
 

@@ -8,10 +8,10 @@ import { noStoreJson as baseJson } from "@/server/http";
 import { consumeRouteRateLimit } from "@/lib/rate-limit";
 import { validateSharedReceiptFile } from "@/lib/shared-receipt";
 import {
-  buildGeminiReceiptRequest,
+  buildQwenReceiptRequest,
   createReceiptRateLimiter,
-  mapGeminiFailure,
-  parseGeminiReceiptResponse,
+  mapQwenFailure,
+  parseQwenReceiptResponse,
   validateReceiptParseSecurity,
 } from "@/lib/receipt-vision";
 
@@ -90,12 +90,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   if (!apiKey) {
     return json({ error: "Layanan pembacaan struk otomatis belum dikonfigurasi." }, 503);
   }
 
-  const model = process.env.GEMINI_RECEIPT_MODEL?.trim() || "gemini-3.5-flash";
+  const model = process.env.OPENROUTER_RECEIPT_MODEL?.trim() || "qwen/qwen3.7-flash";
   const operationId = request.headers.get("idempotency-key") ?? crypto.randomUUID();
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(operationId)) {
     return json({error: "ID permintaan tidak valid."}, 400);
@@ -113,25 +113,26 @@ export async function POST(request: NextRequest) {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const base64Data = Buffer.from(arrayBuffer).toString("base64");
-    const geminiPayload = buildGeminiReceiptRequest({
+    const qwenPayload = buildQwenReceiptRequest({
       mimeType: file.type,
       base64Data,
     });
 
     let usedModel=model;
-    const models=[model,process.env.GEMINI_RECEIPT_FALLBACK_MODEL?.trim()||"gemini-3.1-flash-lite"];
+    const models=[model,process.env.OPENROUTER_RECEIPT_FALLBACK_MODEL?.trim()||"qwen/qwen3.7-plus"];
 
     let providerResponse: Response | null = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       usedModel=models[attempt];
-      const endpoint=`https://generativelanguage.googleapis.com/v1beta/models/${usedModel}:generateContent`;
+      const endpoint="https://openrouter.ai/api/v1/chat/completions";
       providerResponse = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key":apiKey,
+          Authorization: `Bearer ${apiKey}`,
+          "X-OpenRouter-Title": "DuitLo",
         },
-        body: JSON.stringify(geminiPayload),
+        body: JSON.stringify({ model: usedModel, ...qwenPayload }),
         cache: "no-store",
         signal: timeout.signal,
       });
@@ -144,13 +145,13 @@ export async function POST(request: NextRequest) {
 
     if (!providerResponse?.ok) {
       createRequestObservability("receipts:parse").failure("provider_rejected", null, providerResponse?.status ?? 502);
-      const failure = providerResponse?.status===503?{message:"Layanan AI sedang sibuk. Coba lagi sebentar.",status:503}:mapGeminiFailure(providerResponse?.status ?? 500);
+      const failure = providerResponse?.status===503?{message:"Layanan AI sedang sibuk. Coba lagi sebentar.",status:503}:mapQwenFailure(providerResponse?.status ?? 500);
       const retryAfter = providerResponse?.headers.get("retry-after");
       return json({ error: failure.message }, failure.status, retryAfter ? { "Retry-After": retryAfter } : {});
     }
 
     const providerBody: unknown = await providerResponse.json();
-    const extraction = parseGeminiReceiptResponse(providerBody);
+    const extraction = parseQwenReceiptResponse(providerBody);
     await finishReceiptUsage(user.id, operationId, true);
     completed = true;
 

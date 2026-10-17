@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildGeminiReceiptRequest,
+  buildQwenReceiptRequest,
   createReceiptRateLimiter,
-  mapGeminiFailure,
-  parseGeminiReceiptResponse,
+  mapQwenFailure,
+  parseQwenReceiptResponse,
   receiptExtractionSchema,
   validateReceiptParseSecurity,
 } from "./receipt-vision";
@@ -89,44 +89,35 @@ describe("receiptExtractionSchema", () => {
   });
 });
 
-describe("buildGeminiReceiptRequest", () => {
-  it("constructs inline data and JSON schema payload", () => {
-    const request = buildGeminiReceiptRequest({
+describe("buildQwenReceiptRequest", () => {
+  it("constructs an image URL message and JSON response payload", () => {
+    const request = buildQwenReceiptRequest({
       mimeType: "image/jpeg",
       base64Data: "abc123xyz",
     });
 
-    expect(request.contents[0]?.parts[1]?.inline_data?.mime_type).toBe("image/jpeg");
-    expect(request.contents[0]?.parts[1]?.inline_data?.data).toBe("abc123xyz");
-    expect(request.generationConfig.responseMimeType).toBe("application/json");
+    expect(request).toMatchObject({
+      messages: [{}, { content: [{}, { type: "image_url", image_url: { url: "data:image/jpeg;base64,abc123xyz" } }] }],
+      response_format: { type: "json_object" },
+    });
   });
 });
 
-describe("parseGeminiReceiptResponse", () => {
-  it("parses valid Gemini output envelope", () => {
+describe("parseQwenReceiptResponse", () => {
+  it("parses valid Qwen chat completion envelope", () => {
     const providerResponse = {
-      candidates: [
-        {
-          content: {
-            parts: [
-              {
-                text: JSON.stringify(sampleValidPayload),
-              },
-            ],
-          },
-        },
-      ],
+      choices: [{ message: { content: JSON.stringify(sampleValidPayload) } }],
     };
 
-    const parsed = parseGeminiReceiptResponse(providerResponse);
+    const parsed = parseQwenReceiptResponse(providerResponse);
     expect(parsed).toEqual(sampleValidPayload);
   });
 
-  it("throws error for missing or malformed candidates", () => {
-    expect(() => parseGeminiReceiptResponse({})).toThrow();
-    expect(() => parseGeminiReceiptResponse({ candidates: [] })).toThrow();
-    expect(() => parseGeminiReceiptResponse({
-      candidates: [{ content: { parts: [{ text: "not-json" }] } }],
+  it("throws error for missing or malformed completions", () => {
+    expect(() => parseQwenReceiptResponse({})).toThrow();
+    expect(() => parseQwenReceiptResponse({ choices: [] })).toThrow();
+    expect(() => parseQwenReceiptResponse({
+      choices: [{ message: { content: "not-json" } }],
     })).toThrow();
   });
 });
@@ -163,10 +154,10 @@ describe("validateReceiptParseSecurity", () => {
   });
 });
 
-describe("mapGeminiFailure", () => {
+describe("mapQwenFailure", () => {
   it("maps status codes to helpful messages", () => {
-    expect(mapGeminiFailure(429).status).toBe(429);
-    expect(mapGeminiFailure(401).status).toBe(503);
-    expect(mapGeminiFailure(500).status).toBe(502);
+    expect(mapQwenFailure(429).status).toBe(429);
+    expect(mapQwenFailure(401).status).toBe(503);
+    expect(mapQwenFailure(500).status).toBe(502);
   });
 });

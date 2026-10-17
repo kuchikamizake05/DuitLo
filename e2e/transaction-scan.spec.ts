@@ -118,6 +118,33 @@ async function mockTransactionScanPage(page: Page, options: { parserStatus?: num
 }
 
 test.describe("receipt scan review flow @critical",()=>{
+ test.describe("dark mode AI outage",()=>{
+  test.use({allowedConsoleErrors:["Failed to load resource: the server responded with a status of 503"]});
+  for (const source of ["camera","gallery"] as const) {
+   test(`keeps ${source} failures in the picker without a transaction result`,async({page})=>{
+    const state=await mockTransactionScanPage(page,{parserStatus:503});
+    await page.addInitScript(()=>{
+     localStorage.setItem("fintrack-theme","dark");
+     localStorage.setItem("fintrack-language","id");
+    });
+    await page.goto("/transactions");
+    await page.getByRole("link",{name:"Catat Transaksi Baru",exact:true}).click();
+    await page.getByRole("button",{name:"Foto struk",exact:true}).click();
+    const picker=page.getByRole("dialog",{name:"Foto struk",exact:true});
+    const input=source==="camera"?'input[type="file"][capture]':'input[type="file"]:not([capture])';
+    await page.locator(input).first().setInputFiles({name:"receipt.png",mimeType:"image/png",buffer:Buffer.from("fake image")});
+    await expect(picker.getByRole("alert")).toContainText("AI belum bisa");
+    await expect(picker.getByRole("button",{name:"Galeri",exact:true})).toBeEnabled();
+    await expect(page.getByRole("dialog",{name:"Hasil Transaksi",exact:true})).toHaveCount(0);
+    await expect(page).toHaveURL(/\/transactions$/);
+    expect(state.getTransactionPayloads()).toHaveLength(0);
+    expect(state.getParserRequests()).toBe(1);
+    await picker.getByRole("button",{name:"Tutup",exact:true}).click();
+    await expect(picker).toHaveCount(0);
+    await expect(page.getByRole("dialog",{name:"Hasil Transaksi",exact:true})).toHaveCount(0);
+   });
+  }
+ });
  test.describe("English parse error",()=>{
   test.use({allowedConsoleErrors:["Failed to load resource: the server responded with a status of 422"]});
   test("keeps the source picker open and exposes parsing errors",async({page})=>{

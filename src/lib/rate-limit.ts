@@ -59,7 +59,8 @@ export async function consumeRouteRateLimit({ route, userId, maxRequests, window
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const key = `fintrack:rate-limit:${await hashKey(`${route}:${userId}`)}`;
+    const namespace = environment.VERCEL_ENV || environment.NODE_ENV || "development";
+    const key = `fintrack:rate-limit:${await hashKey(`${namespace}:${route}:${userId}`)}`;
     const script = "local count=redis.call('INCR',KEYS[1]);if count==1 then redis.call('PEXPIRE',KEYS[1],ARGV[1]) end;return {count,redis.call('PTTL',KEYS[1])}";
     const operation = async (): Promise<RateLimitResult> => {
       const response = await fetchImpl(config.url, {

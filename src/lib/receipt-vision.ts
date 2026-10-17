@@ -84,7 +84,7 @@ export const receiptGenerationResponseSchema = {
   required: ["date", "merchant", "amount", "categoryHint", "type", "proofKind", "note", "rawText", "confidence"],
 } as const;
 
-export function buildGeminiReceiptRequest({
+export function buildQwenReceiptRequest({
   mimeType,
   base64Data,
 }: {
@@ -92,57 +92,48 @@ export function buildGeminiReceiptRequest({
   base64Data: string;
 }) {
   return {
-    contents: [
+    messages: [
       {
-        parts: [
-          {
-            text: [
-              "Kamu adalah asisten pembaca struk/bukti transaksi untuk DuitLo.",
-              "Ekstrak data bukti transaksi dalam format JSON terstruktur.",
-              "Panduan:",
-              "- date: Format YYYY-MM-DD. Jika hanya tanggal dan bulan, gunakan tahun saat ini jika masuk akal.",
-              "- merchant: Nama merchant atau penerima transfer.",
-              "- amount: Nominal total transaksi (angka murni positif).",
-              "- type: expense untuk pembayaran/dana keluar, income untuk dana masuk, atau null jika tidak jelas.",
-              "- proofKind: transfer untuk bukti transfer bank/e-wallet, receipt untuk struk pembayaran, atau null jika tidak jelas.",
-              "- categoryHint: Rekomendasi kategori transaksi dalam bahasa Indonesia atau null.",
-              "- note: Rangkuman ringkas transaksi atau tujuan transfer.",
-              "- rawText: Teks utama yang terbaca di struk.",
-              "- confidence: Angka keyakinan 0.0 sampai 1.0.",
-              "Jika ada informasi yang tidak terbaca, gunakan nilai null.",
-            ].join("\n"),
-          },
-          {
-            inline_data: {
-              mime_type: mimeType,
-              data: base64Data,
-            },
-          },
+        role: "system",
+        content: [
+          "Kamu adalah asisten pembaca struk/bukti transaksi untuk DuitLo.",
+          "Ekstrak data bukti transaksi dan kembalikan JSON dengan tepat sembilan key yang diminta.",
+          "date: format YYYY-MM-DD atau null. Jika hanya tanggal dan bulan, gunakan tahun saat ini jika masuk akal.",
+          "merchant: nama merchant atau penerima transfer.",
+          "amount: nominal total transaksi sebagai angka positif tanpa simbol, atau null.",
+          "type: expense untuk pembayaran/dana keluar, income untuk dana masuk, atau null.",
+          "proofKind: transfer untuk bukti transfer bank/e-wallet, receipt untuk struk pembayaran, atau null.",
+          "categoryHint: rekomendasi kategori transaksi dalam bahasa Indonesia atau null.",
+          "note: rangkuman ringkas transaksi atau tujuan transfer, atau null.",
+          "rawText: teks utama yang terbaca di bukti, atau null.",
+          "confidence: angka keyakinan dari 0.0 sampai 1.0, atau null.",
+          "Jika informasi tidak terbaca, gunakan null. Jangan menambahkan teks di luar JSON.",
+        ].join("\n"),
+      },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: "Baca gambar ini dan kembalikan hasil ekstraksi dalam format JSON." },
+          { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } },
         ],
       },
     ],
-    generationConfig: {
-      temperature: 0.1,
-      maxOutputTokens: 1024,
-      responseMimeType: "application/json",
-      responseSchema: receiptGenerationResponseSchema,
-    },
+    response_format: { type: "json_object" },
+    temperature: 0.1,
+    max_tokens: 1024,
   };
 }
 
-export function parseGeminiReceiptResponse(value: unknown): ReceiptExtraction {
+export function parseQwenReceiptResponse(value: unknown): ReceiptExtraction {
   try {
-    const rawContent = (
-      value as {
-        candidates?: Array<{
-          content?: {
-            parts?: Array<{
-              text?: unknown;
-            }>;
-          };
-        }>;
-      }
-    ).candidates?.[0]?.content?.parts?.[0]?.text;
+    const content = (value as {
+      choices?: Array<{ message?: { content?: unknown } }>;
+    }).choices?.[0]?.message?.content;
+    const rawContent = typeof content === "string"
+      ? content
+      : Array.isArray(content)
+        ? content.map((part) => typeof part === "object" && part !== null && "text" in part ? part.text : "").join("")
+        : null;
 
     if (typeof rawContent !== "string") {
       throw new Error("missing text content");
@@ -174,7 +165,7 @@ export function validateReceiptParseSecurity({
   return { ok: true, accessToken } as const;
 }
 
-export function mapGeminiFailure(status: number) {
+export function mapQwenFailure(status: number) {
   if (status === 429) {
     return {
       status: 429,

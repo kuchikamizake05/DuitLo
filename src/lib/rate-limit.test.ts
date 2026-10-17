@@ -51,6 +51,23 @@ describe("createRateLimiter", () => {
     await expect(consumeRouteRateLimit(options)).resolves.toEqual({ allowed: true, retryAfterSeconds: 0 });
     await expect(consumeRouteRateLimit(options)).resolves.toEqual({ allowed: false, retryAfterSeconds: 1 });
   });
+
+  it("isolates production and preview allowances on a shared Redis database", async () => {
+    const keys: string[] = [];
+    const fetchImpl = async (_input: string, init: RequestInit) => {
+      keys.push(JSON.parse(String(init.body))[3]);
+      return { ok: true, json: async () => ({ result: [1, 1000] }) };
+    };
+    for (const VERCEL_ENV of ["production", "preview", "production"]) {
+      await consumeRouteRateLimit({
+        route: "receipts:parse", userId: "same-user", maxRequests: 5, windowMs: 1000,
+        fallback: createRateLimiter({maxRequests: 5, windowMs: 1000}), fetchImpl,
+        environment: { NODE_ENV: "production", VERCEL_ENV, UPSTASH_REDIS_REST_URL: "https://example.upstash.io", UPSTASH_REDIS_REST_TOKEN: "secret" },
+      });
+    }
+    expect(keys[0]).not.toBe(keys[1]);
+    expect(keys[0]).toBe(keys[2]);
+  });
 });
 
  describe("production distributed limiter", () => {

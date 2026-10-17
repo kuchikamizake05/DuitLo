@@ -1,6 +1,6 @@
 # Data and support requests
 
-Implemented routes: `/privacy`, `/terms`, `/support` (public), `/data-controls` (authenticated). Privacy copy describes the configured Supabase, Gemini, Groq, review workflow, and Xendit flows; it does not claim legal certification, a support email, or a response SLA.
+Implemented routes: `/privacy`, `/terms`, `/support` (public), `/data-controls` (authenticated). Privacy copy describes the configured Supabase, Qwen through OpenRouter, Groq, review workflow, and Xendit flows; it does not claim legal certification, a support email, or a response SLA.
 
 ## Deployment gate
 
