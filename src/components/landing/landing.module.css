@@ -622,7 +622,7 @@
 .goalStory .storyCopy > p:not(.eyebrow) { font-size: 15px; line-height: 1.9; }
 .goalPhone { zoom: .85; }
 @media(max-width:600px) { .goalStory { padding: 30px 25px; gap: 30px; }.goalStory .storyCopy .eyebrow { font-size: 13px; }.page .goalStory .storyCopy h2 { font-size: 30px; }.goalStory .storyCopy > p:not(.eyebrow) { font-size: 13px; line-height: 1.85; } }
-.reviewSection::before,.reviewSection::after,.screenDeck::before,.screenDeck::after,.techSection::before,.techSection::after { background-image: url('/images/landing/tech-waves.svg'); }
+.reviewSection::before,.reviewSection::after,.screenDeck::before,.screenDeck::after,.techSection::before,.techSection::after { content: none; }
 .goalPhone { height: 340px; overflow: hidden; align-self: end; }
 .goalPhone .phoneShowcase { padding: 0; }
 @media(max-width:600px) { .goalPhone { height: 285px; width: 100%; } }
