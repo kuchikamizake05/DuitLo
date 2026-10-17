@@ -106,6 +106,10 @@
   --input: 145 20% 87%;
   --ring: 152 61% 35%;
   --radius: 0.5rem;
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(21, 128, 61, 0.25);
+  --scrollbar-thumb-hover: rgba(21, 128, 61, 0.45);
 }
 
 html {
@@ -113,6 +117,11 @@ html {
   background: var(--canvas);
   color-scheme: light;
   scroll-behavior: smooth;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+* {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 body {
@@ -241,16 +250,20 @@ main :is(input, textarea, select) { caret-color: var(--brand-primary); }
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--background));
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(21, 128, 61, 0.22);
+  background: var(--scrollbar-thumb);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(21, 128, 61, 0.38);
+  background: var(--scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .click-active {
@@ -390,7 +403,10 @@ html.dark {
   --primary-foreground:0 0% 100%;
   --shadow-surface:0 4px 20px #0002;
   --shadow-control:0 2px 6px #0002;
-  --shadow-elevated:0 8px 24px #0004
+  --shadow-elevated:0 8px 24px #0004;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.22);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.38);
 }
 
 .receipt-photo-loading {

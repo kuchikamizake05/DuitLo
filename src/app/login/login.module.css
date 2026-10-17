@@ -545,9 +545,15 @@
   padding: 28px 24px max(24px,env(safe-area-inset-bottom));
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   gap: 16px;
   box-shadow: 0 -8px 30px rgba(0,0,0,.06);
   animation: auth-sheet-slide 480ms cubic-bezier(.22,1,.36,1) both;
+}
+
+.account .main::-webkit-scrollbar {
+  display: none;
 }
 
 .account .card {
