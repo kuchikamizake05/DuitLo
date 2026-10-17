@@ -29,7 +29,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const showToast = useCallback((message: string, tone: ToastTone = "success") => {
     const id = Date.now() + Math.floor(Math.random() * 1000);
     setToasts((current) => [...current.slice(-2), { id, message, tone }]);
-    window.setTimeout(() => dismiss(id), 4800);
+    window.setTimeout(() => dismiss(id), tone === "warning" ? 2500 : 4800);
   }, [dismiss]);
 
   const value = useMemo(() => ({ showToast }), [showToast]);
