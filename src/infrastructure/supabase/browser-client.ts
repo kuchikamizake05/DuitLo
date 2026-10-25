@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getLandingAuthCallbackDestination } from "@/lib/auth-callback";
 import {
   getSupabasePublicConfiguration,
   SUPABASE_PLACEHOLDER_KEY,
@@ -14,6 +15,9 @@ export const isSupabaseConfigured = supabaseConfiguration.configured;
 // The inert client keeps static generation deterministic. AppBoundary prevents protected operations when config is invalid.
 const url = supabaseConfiguration.configured ? supabaseConfiguration.url : SUPABASE_PLACEHOLDER_URL;
 const key = supabaseConfiguration.configured ? supabaseConfiguration.anonKey : SUPABASE_PLACEHOLDER_KEY;
+
+// Capture the destination before Supabase consumes and removes the callback URL.
+export const landingAuthCallbackDestination = typeof window === "undefined" ? null : getLandingAuthCallbackDestination(window.location);
 
 export const supabase = createClient(url, key, {
   auth: {

@@ -11,7 +11,7 @@ import {PageSkeleton} from "@/components/ui/PageSkeleton";
 import { Button } from "@/components/ui/Button";
 import { getAuthGateState, sanitizeNextPath } from "@/lib/auth";
 import { getNetworkSnapshot, getServerNetworkSnapshot, subscribeToNetworkStatus } from "@/lib/pwa";
-import { isSupabaseConfigured, supabase } from "@/infrastructure/supabase/browser-client";
+import { isSupabaseConfigured, landingAuthCallbackDestination, supabase } from "@/infrastructure/supabase/browser-client";
 import PasskeyUnlockScreen from "@/components/PasskeyUnlockScreen";
 import { useLanguage } from "@/components/LanguageProvider";
 import { PASSKEY_STATE_CHANGE_EVENT, clearPasskeyDeviceState, readPasskeyDeviceState, writePasskeyDeviceState } from "@/lib/passkeys";
@@ -95,6 +95,12 @@ export default function AppBoundary({ children }: { children: React.ReactNode })
     hasSession,
     online,
   });
+
+  useEffect(() => {
+    if (pathname === "/" && resolved && hasSession && landingAuthCallbackDestination) {
+      router.replace(landingAuthCallbackDestination);
+    }
+  }, [pathname, resolved, hasSession, router]);
 
   useEffect(() => {
     if (gate !== "redirect-login") return;

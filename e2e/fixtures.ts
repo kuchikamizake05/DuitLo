@@ -132,4 +132,4 @@ export async function mockSupabase(page: Page, authenticated: boolean) {
   });
 }
 
-export { expect, user, userId };
+export { accessToken, expect, user, userId };

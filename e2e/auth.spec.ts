@@ -1,4 +1,4 @@
-import { expect, mockSupabase, test, userId } from "./fixtures";
+import { accessToken, expect, mockSupabase, test, userId } from "./fixtures";
 
 const protectedRoutes = [
   "/dashboard",
@@ -11,6 +11,12 @@ const protectedRoutes = [
 ];
 
 test.describe("authentication boundary @critical", () => {
+  test("continues a successful OAuth callback arriving on the landing page", async ({ page }) => {
+    await mockSupabase(page, true);
+    await page.goto(`/#access_token=${accessToken}&refresh_token=e2e-refresh-token&token_type=bearer&expires_in=3600`);
+    await expect(page).toHaveURL(/\/dashboard$/);
+  });
+
   for (const route of protectedRoutes) {
     test(`redirects signed-out access from ${route}`, async ({ page }) => {
       await mockSupabase(page, false);

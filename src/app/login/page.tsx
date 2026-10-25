@@ -76,9 +76,22 @@ export default function LoginPage() {
       if (session && !getLocationState().updatePassword) router.replace(getLocationState().destination);
     });
 
+    const checkResumedSession = () => {
+      if (document.visibilityState === "hidden") return;
+      void supabase.auth.getSession().then(({ data }) => {
+        if (active && data.session && !getLocationState().updatePassword) router.replace(getLocationState().destination);
+      }).catch(() => undefined);
+    };
+    window.addEventListener("focus", checkResumedSession);
+    window.addEventListener("pageshow", checkResumedSession);
+    document.addEventListener("visibilitychange", checkResumedSession);
+
     return () => {
       active = false;
       subscription.subscription.unsubscribe();
+      window.removeEventListener("focus", checkResumedSession);
+      window.removeEventListener("pageshow", checkResumedSession);
+      document.removeEventListener("visibilitychange", checkResumedSession);
     };
   }, [router]);
 
