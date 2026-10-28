@@ -68,6 +68,11 @@ test("fingerprint invokes the native credential prompt and cancellation keeps PI
  await page.getByRole("button",{name:"Buka dengan biometrik",exact:true}).click();
  await expect.poll(()=>page.evaluate(()=>Number(document.documentElement.dataset.biometricCalls??0))).toBe(1);
  await expect(page.locator("#pin-unlock-error")).toBeVisible();
+ await expect(page.locator("#pin-unlock-error")).toHaveCSS("text-align","center");
+ const errorBox=await page.locator("#pin-unlock-error").boundingBox();
+ const pinBox=await page.locator('input#unlock-pin').boundingBox();
+ expect(errorBox).not.toBeNull();expect(pinBox).not.toBeNull();
+ expect(Math.abs(errorBox!.x+errorBox!.width/2-pinBox!.x-pinBox!.width/2)).toBeLessThan(2);
  await expect(page.getByLabel("PIN perangkat",{exact:true})).toBeEnabled();
 });
 test.describe("biometric enrollment recovery",()=>{
